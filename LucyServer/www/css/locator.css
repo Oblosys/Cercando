@@ -1,0 +1,30 @@
+body {
+  margin: 0px;
+  font-family: arial;
+  background: url('../img/background_linen.png') repeat scroll center top transparent;
+}
+#main {
+  text-align: center;
+  margin-top: 10px;
+}
+#wrap {
+  display: inline-block;
+}
+#floor {
+}
+#floor-background {
+  fill: #392b8c;
+  stroke: #000;
+}
+
+#copyright {
+  float: right;
+  padding-top: 2px; 
+  padding-right: 2px;
+  font-size: 13px;
+  color: #eee;
+}
+#copyright * {
+  text-decoration: none;
+  color: #ddd;
+}
