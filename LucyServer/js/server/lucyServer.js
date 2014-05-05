@@ -27,6 +27,8 @@ if (process.argv[2] == 'remote') {
   portNr   = process.argv[2] || defaultReaderServerPortNr;
 }
 
+var readerServerSocket;
+
 
 function initServer() {
   app = express();
@@ -61,6 +63,22 @@ function initServer() {
     res.send(JSON.stringify(tagsState));
   });
 
+  app.get('/query/connect', function(req, res) {  
+    util.log('connect');
+    connectReaderServer();
+    res.writeHead(204);
+    res.end();
+  });
+
+  app.get('/query/disconnect', function(req, res) {  
+    util.log('disconnect');
+    if (readerServerSocket) {
+      readerServerSocket.write('\n');
+    }
+    res.writeHead(204);
+    res.end();
+  });
+
   app.get('/query/test', function(req, res) {  
     util.log('test');
     res.writeHead(204);
@@ -76,8 +94,6 @@ var server = http.createServer(app)
 io.set('log level', 1); // reduce logging
 server.listen(8201);
 
-connectReaderServer();
-
 /* 
   io.sockets.on('connection', function (socket) {
   });
@@ -87,8 +103,9 @@ connectReaderServer();
 
  */
 
+
 function connectReaderServer() {
-  var readerServerSocket = new net.Socket();
+  readerServerSocket = new net.Socket();
 
   readerServerSocket.on('error', function(err) {
     util.log('Connection to reader server failed, retrying..', err.code);

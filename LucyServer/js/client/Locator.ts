@@ -62,7 +62,7 @@ function initialize() {
   _.map([1,2,3,4], (ant : number) => drawAntenna(floorSVG, ant));
   _.map(_.range(0, 10), (i : number) => drawMarker(i));
 
-  startRefreshInterval();
+  connectReader();
 }
 
 var signals : any = [];
@@ -231,12 +231,38 @@ function startRefreshInterval() {
   refreshInterval = setInterval(refresh, 500);
 }
 
+function stopRefreshInterval() {
+  clearInterval(refreshInterval);
+}
+
 function refresh() {
   $.getJSON( 'query/tags', function( data ) {
     updateTags(data);
   }) .fail(function(jqXHR : any, status : any, err : any) {
     console.error( "Error:\n\n" + jqXHR.responseText );
   });
+}
+
+function connectReader() {
+  $.get('/query/connect', function() {
+    util.log('Connected to reader.');
+    startRefreshInterval();
+  });
+}
+
+function disconnectReader() {
+  $.get('/query/disconnect', function() {
+    util.log('Disconnected from reader.');
+    stopRefreshInterval();  
+  });
+}
+
+function handleConnectButton() {
+  connectReader();
+}
+
+function handleDisconnectButton() {
+  disconnectReader();
 }
 
 //var antennaCoords = [{x:150,y:250},{x:350,y:50},{x:550,y:250},{x:350,y:450}] 
