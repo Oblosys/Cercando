@@ -1,34 +1,45 @@
+/// <reference path="../typings/jquery/jquery.d.ts" />
+/// <reference path="../typings/backbone/backbone.d.ts" />
+/// <reference path="../typings/underscore/underscore.d.ts" />
+/// <reference path="../typings/node/node.d.ts" />
+/// <reference path="../typings/express.d.ts" />
+/// <reference path="../typings/net.d.ts" />
+/// <reference path="../typings/socket.io.d.ts" />
+/// <reference path="../typings/oblo-util/oblo-util.d.ts" />
+
 var remoteHostName = "lucy.oblomov.com";
 var defaultReaderServerPortNr = 8080;
 
+import http     = require("http");
+import express  = require('express');
+import net      = require('net');
+import child_pr = require('child_process'); // for svn revision
+import util     = require('oblo-util');
+import fs       = require('fs');
+import url      = require('url');
+import Backbone = require('backbone');
 
-var http     = require('http')
-  , url      = require('url')
-  , fs       = require('fs')
-  , express  = require('express')  
-  , _        = require('underscore')
-  , Backbone = require('backbone')
-  , child_pr = require('child_process') // for svn revision
-  , path     = require('path')
-  , util     = require('oblo-util')
-  , net      = require('net')
-  , rl       = require('readline')
+import _        = require('underscore');
+import path     = require('path');
+//import rl       = require('readline');
 
-  , socketIO = require('socket.io')
-  , app;
+var socketIO = require('socket.io');
 
-var hostName, portNr;
+var app : express.Express;
+
+var hostName : string, portNr : number;
 
 if (process.argv[2] == 'remote') {
   hostName = remoteHostName;
-  portNr   = process.argv[3] || defaultReaderServerPortNr;
+  portNr   = parseInt(process.argv[3]) || defaultReaderServerPortNr;
 } else {
   hostName = "localhost";
-  portNr   = process.argv[2] || defaultReaderServerPortNr;
+  portNr   = parseInt(process.argv[2]) || defaultReaderServerPortNr;
 }
 
-var readerServerSocket;
+var readerServerSocket : net.Socket;
 
+interface ReaderEvent {firstSeen : string; lastSeen : string; ePC : string; ant : number; RSSI : number}
 
 function initServer() {
   app = express();
@@ -44,7 +55,7 @@ function initServer() {
   app.use(express.static(__dirname + '/../../www')); // '/' serves 'www' directory
 
   //app.use(express.logger()); 
-  app.use(function(req, res, next) { // logger only seems to report in GMT, so we log by hand
+  app.use(function(req : express.Request, res : express.Response, next : Function) { // logger only seems to report in GMT, so we log by hand
     var now = new Date();
     util.log('\nRQ: ' + util.showDate(now) + ' ' + util.showTime(now) + ' (' + req.ip + ', "' + req.headers['user-agent'].slice(0,20) + '..") path:' + req.path);
     next();
@@ -107,8 +118,8 @@ server.listen(8201);
 function connectReaderServer() {
   readerServerSocket = new net.Socket();
 
-  readerServerSocket.on('error', function(err) {
-    util.log('Connection to reader server failed, retrying..', err.code);
+  readerServerSocket.on('error', function(err : any) { // TODO: not typed
+    util.log('Connection to reader server failed (error code: ' + err.code + '), retrying..');
   });
   var connectInterval = 
     setInterval(function() {
@@ -123,7 +134,7 @@ function connectReaderServer() {
       }, 500);
 }
 
-function readerServerConnected(readerServerSocket) {
+function readerServerConnected(readerServerSocket : net.Socket) {
   util.log('Connected to reader server at: ' + hostName + ':' + portNr);
 /*
     var fileStream = fs.createWriteStream('calibratie/Output-'+new Date()+'.json');
@@ -137,7 +148,7 @@ function readerServerConnected(readerServerSocket) {
   // raw data listener
   var lineBuffer = '';
   var counter = 0;
-  readerServerSocket.on('data', function(data) {
+  readerServerSocket.on('data', function(data : string) {
     //util.log('CHUNK:\n'+data);
     var lines = (''+data).split('\0'); // length at least 1
     var firstLines = _.initial(lines);
@@ -156,7 +167,7 @@ function readerServerConnected(readerServerSocket) {
       //  util.log('char '+j+':\''+line.charAt(j)+'\'');
       //}
       try {
-        var readerEvent = JSON.parse(line);
+        var readerEvent : ReaderEvent = JSON.parse(line);
         processReaderEvent(readerEvent);
       } catch (e) {
         console.error('JSON parse error in line:\n'+line, e); 
@@ -179,17 +190,19 @@ function readerServerConnected(readerServerSocket) {
   });
 }
 
-var tagsState = [];
+interface TagState {epc : string; rssis : number[]}
+
+var tagsState : TagState[] = [];
 
 
-function processReaderEvent(readerEvent) {
+function processReaderEvent(readerEvent : ReaderEvent) {
   //util.log('emitting');
   //io.sockets.emit('llrp', readerEvent);
   //util.log(JSON.stringify(readerEvent));
   //if (fileStream) {
   //  fileStream.write(JSON.stringify(readerEvent)+'\n');
   //}
-  tag=_.findWhere(tagsState, {epc: readerEvent.ePC});
+  var tag = _.findWhere(tagsState, {epc: readerEvent.ePC});
   if (!tag) {
     tagsState.push({ epc:readerEvent.ePC, rssis: [] });
   }
