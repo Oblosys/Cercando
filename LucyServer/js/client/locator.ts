@@ -5,7 +5,7 @@
 /// <reference path="../typings/socket.io-client.d.ts" />
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 
-
+/// <reference path="Trilateration.ts" />
 /* 
 TODO remove errors and warnings
 fix antenna nrs and ids
@@ -13,6 +13,8 @@ move to server
 */
 var tagNrs : any = [];
 var tagColors : string[] = [];
+var refreshInterval : NodeTimer;
+
 
 function initRefreshSocket(floorSVG : D3.Selection) {
   //util.log(location.host);
@@ -53,14 +55,14 @@ function initialize() {
     .attr('width', floorWidth)
     .attr('height', floorHeight);
   floorSVG.append('g').attr('id', 'annotation-plane');
+  floorSVG.append('g').attr('id', 'rssi-plane');
   floorSVG.append('g').attr('id', 'triangulation-plane');
   floorSVG.append('g').attr('id', 'visitor-plane');
 
   _.map([1,2,3,4], (ant : number) => drawAntenna(floorSVG, ant));
-  _.map(_.range(0, 10), (i : number) => drawMarker(floorSVG, i));
+  _.map(_.range(0, 10), (i : number) => drawMarker(i));
 
-  initRefreshSocket(floorSVG);
-
+  startRefreshInterval();
 }
 
 var signals : any = [];
@@ -81,9 +83,10 @@ function drawAntenna(floorSVG : D3.Selection, antenna : number) {
     .attr('fill', 'white');
   
 }
-function drawMarker(floorSVG : D3.Selection, markerNr : number) {
+function drawMarker(markerNr : number) {
+  var triangulationPlaneSVG = d3.select('#triangulation-plane');
  
-  floorSVG.append('circle').attr('class', 'm-'+markerNr)
+  triangulationPlaneSVG.append('circle').attr('class', 'm-'+markerNr)
     .style('stroke', 'white')
     .style('fill', tagColors[markerNr])
     .attr('r', 4)
@@ -91,6 +94,61 @@ function drawMarker(floorSVG : D3.Selection, markerNr : number) {
     .attr('cy', 20);
 }
 
+interface TagState {epc : string; rssis : number[]}
+
+function updateTags(tagsState : TagState[]) {
+  var rssiPlaneSVG = d3.select('#rssi-plane');
+  
+  _.map(tagsState, (tagState) => {
+    var tagNr = tagNrs[tagState.epc];
+    util.log(tagState.epc + '(' + tagNr + ':' + tagColors[tagNr] + ')' + tagState.rssis);
+    
+    for (var ant=0; ant<antennaCoords.length; ant++) {
+      var rssi = tagState.rssis[ant];
+
+      // show in table
+      $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+(ant+1)+')').text(rssi);
+      util.log(tagNr + '-' + ant +' '+ rssi);
+
+      var rangeClass = 'r-'+ant+'-'+tagNr; 
+      var range = d3.select('.'+rangeClass)
+      if (range.empty() && tagNr <=11) { // use <= to filter tags
+        util.log('Creating range for ant '+ant + ': '+rangeClass);
+        
+        var tagColor = tagColors[tagNr];
+        range = rssiPlaneSVG.append('circle').attr('class', rangeClass)
+                  .style('stroke', tagColor ? tagColor : 'transparent')
+                  .style('fill', 'transparent')
+                  .attr('cx', antennaCoords[ant].x)
+                  .attr('cy', antennaCoords[ant].y);
+      }
+      var distance = Trilateration.dist(rssi)/50;
+  
+      if (false && tagNr == 1) { // override for testing
+        switch(ant) {
+          case 1:
+            distance = 100;
+            break;
+          case 2:
+            distance = 200;
+            break;
+          case 3:
+            distance = 200;
+            break;
+          case 4:
+            distance = 300;
+            break;
+        }
+      }
+  
+      util.log('A'+ant+': tag'+tagNr+': '+distance);
+      range.attr('r', distance+tagNr); // +tagNr to prevent overlap
+
+    }
+    
+  });
+  
+}
 
 var count = 1;
 
@@ -124,7 +182,7 @@ function drawLlrpEvent(floorSVG : D3.Selection, epc : string, ant : number, rawR
               .attr('cx', antennaCoords[ant-1].x)
               .attr('cy', antennaCoords[ant-1].y);
   }
-  var distance = dist(rssi)/50;
+  var distance = Trilateration.dist(rssi)/50;
   
   if (false && tagNr == 1) { // override for testing
     switch(ant) {
@@ -143,13 +201,13 @@ function drawLlrpEvent(floorSVG : D3.Selection, epc : string, ant : number, rawR
     }
   }
   
-  //util.log('A'+ant+': tag'+tagNr+': '+distance);
+  util.log('A'+ant+': tag'+tagNr+': '+distance);
   range.attr('r', distance+tagNr); // +tagNr to prevent overlap
   //range.attr('r',-(50+rssi)*20+tagNr);  
-  storeRange(tagNr, ant, distance);
-  if (count % 50 == 0) {
-    trilaterateRanges(floorSVG);
-  }
+  //storeRange(tagNr, ant, distance);
+  //if (count % 50 == 0) {
+  //  trilaterateRanges(floorSVG);
+  //}
   //util.log(count);
   count++;
 }   
@@ -169,7 +227,17 @@ function storeRange(tagNr : number, antenna : number, distance : number) {
   tagRanges[antenna-1] = distance;
 }
 
+function startRefreshInterval() {
+  refreshInterval = setInterval(refresh, 500);
+}
 
+function refresh() {
+  $.getJSON( 'query/tags', function( data ) {
+    updateTags(data);
+  }) .fail(function(jqXHR : any, status : any, err : any) {
+    console.error( "Error:\n\n" + jqXHR.responseText );
+  });
+}
 
 //var antennaCoords = [{x:150,y:250},{x:350,y:50},{x:550,y:250},{x:350,y:450}] 
 var antennaCoords = [{x:550,y:250},{x:350,y:450},{x:150,y:250},{x:350,y:50}] 

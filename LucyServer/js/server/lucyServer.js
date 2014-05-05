@@ -58,7 +58,7 @@ function initServer() {
   
   app.get('/query/tags', function(req, res) {  
     res.setHeader('content-type', 'application/json');
-    res.send(JSON.stringify(tagState));
+    res.send(JSON.stringify(tagsState));
   });
 
   app.get('/query/test', function(req, res) {  
@@ -162,7 +162,7 @@ function readerServerConnected(readerServerSocket) {
   });
 }
 
-var tagState = {};
+var tagsState = [];
 
 
 function processReaderEvent(readerEvent) {
@@ -172,9 +172,10 @@ function processReaderEvent(readerEvent) {
   //if (fileStream) {
   //  fileStream.write(JSON.stringify(readerEvent)+'\n');
   //}
-  if (!tagState[readerEvent.ePC]) {
-    tagState[readerEvent.ePC] = [];
+  tag=_.findWhere(tagsState, {epc: readerEvent.ePC});
+  if (!tag) {
+    tagsState.push({ epc:readerEvent.ePC, rssis: [] });
   }
-  tagState[readerEvent.ePC][readerEvent.ant] = readerEvent.RSSI;
-  //util.log(tagState);
+  tag.rssis[readerEvent.ant] = readerEvent.RSSI;
+  util.log(tagsState);
 }
