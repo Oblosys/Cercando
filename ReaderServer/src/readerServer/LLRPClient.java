@@ -235,13 +235,18 @@ public class LLRPClient implements LLRPEndpoint {
       
       for (TagReportData tag : tags) {
       	String epcVerbose = tag.getEPCParameter().toString();
-      	CharSequence epcString = epcVerbose.subSequence(15, epcVerbose.length());
+        String firstSeenVerbose = tag.getFirstSeenTimestampUTC().toString();
+        String lastSeenVerbose = tag.getLastSeenTimestampUTC().toString();
+      	CharSequence epcStr = epcVerbose.subSequence(15, epcVerbose.length());
+        CharSequence firstSeenStr = firstSeenVerbose.subSequence(37, firstSeenVerbose.length());
+        CharSequence lastSeenStr = lastSeenVerbose.subSequence(36, lastSeenVerbose.length());
       	String json =
-      	  "{\"firstSeen\":\""+tag.getFirstSeenTimestampUTC().toString() +"\""+
-            ",\"lastSeen\":\""+tag.getLastSeenTimestampUTC().toString() +"\""+
-            ",\"ePC\":\""+epcString+"\""+
-      	  ",\"ant\":"+tag.getAntennaID().getAntennaID().toString()+
-      	  ",\"RSSI\":"+tag.getPeakRSSI().getPeakRSSI().toString()+"}";//tag.getEPCParameter().toString()+tag.getPeakRSSI().toString()+tag.getLastSeenTimestampUTC().toString()
+      	  "{\"firstSeen\":\"" + firstSeenStr + "\"" +
+          ",\"lastSeen\":\"" + lastSeenStr + "\"" +
+          ",\"ePC\":\"" + epcStr + "\"" +
+      	  ",\"ant\":" + tag.getAntennaID().getAntennaID().toString() +
+      	  ",\"RSSI\":" + tag.getPeakRSSI().getPeakRSSI().toString() +
+      	  "}";
       	sendLine(json);
           //System.out.println(tag.getEPCParameter());
           //System.out.println(tag.getPeakRSSI());
