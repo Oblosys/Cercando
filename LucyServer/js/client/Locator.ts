@@ -107,13 +107,15 @@ function updateTags(tagsState : Shared.TagState[]) {
       var rssi = tagState.rssis[ant];
 
       // show in table
-      $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+(ant+1)+')').text(rssi);
-      util.log(tagNr + '-' + ant +' '+ rssi);
+      if (rssi) {
+        $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+')').text(rssi);
+      }
+      //util.log(tagNr + '-' + ant +' '+ rssi);
 
-      var rangeClass = 'r-'+ant+'-'+tagNr; 
+      var rangeClass = 'r-'+(ant+1)+'-'+tagNr; 
       var range = d3.select('.'+rangeClass)
       if (range.empty() && tagNr <=11) { // use <= to filter tags
-        util.log('Creating range for ant '+ant + ': '+rangeClass);
+        util.log('Creating range for ant '+(ant+1) + ': '+rangeClass);
         
         var tagColor = tagColors[tagNr];
         range = rssiPlaneSVG.append('circle').attr('class', rangeClass)
@@ -141,7 +143,7 @@ function updateTags(tagsState : Shared.TagState[]) {
         }
       }
   
-      util.log('A'+ant+': tag'+tagNr+': '+distance);
+      //util.log('A'+ant+': tag'+tagNr+': '+distance);
       range.attr('r', distance+tagNr); // +tagNr to prevent overlap
 
     }
