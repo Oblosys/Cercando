@@ -4,6 +4,7 @@
 /// <reference path="../typings/underscore/underscore.d.ts" />
 /// <reference path="../typings/socket.io-client.d.ts" />
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
+/// <reference path="../shared/Shared.ts" />
 
 /// <reference path="Trilateration.ts" />
 /* 
@@ -11,6 +12,7 @@ TODO remove errors and warnings
 fix antenna nrs and ids
 move to server
 */
+
 var tagNrs : any = [];
 var tagColors : string[] = [];
 var refreshInterval : NodeTimer;
@@ -94,9 +96,7 @@ function drawMarker(markerNr : number) {
     .attr('cy', 20);
 }
 
-interface TagState {epc : string; rssis : number[]}
-
-function updateTags(tagsState : TagState[]) {
+function updateTags(tagsState : Shared.TagState[]) {
   var rssiPlaneSVG = d3.select('#rssi-plane');
   
   _.map(tagsState, (tagState) => {

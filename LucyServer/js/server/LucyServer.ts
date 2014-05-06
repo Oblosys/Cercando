@@ -6,6 +6,7 @@
 /// <reference path="../typings/net.d.ts" />
 /// <reference path="../typings/socket.io.d.ts" />
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
+/// <reference path="../shared/Shared.ts" />
 
 var remoteHostName = "lucy.oblomov.com";
 var defaultReaderServerPortNr = 8080;
@@ -190,9 +191,7 @@ function readerServerConnected(readerServerSocket : net.Socket) {
   });
 }
 
-interface TagState {epc : string; rssis : number[]}
-
-var tagsState : TagState[] = [];
+var tagsState : Shared.TagState[] = [];
 
 
 function processReaderEvent(readerEvent : ReaderEvent) {
