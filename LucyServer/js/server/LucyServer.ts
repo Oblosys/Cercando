@@ -7,7 +7,7 @@
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 /// <reference path="../shared/Shared.ts" />
 
-var defaultServerPortNr = 8201; // port for the Lucy web server
+var defaultServerPortNr = 8080; // port for the Lucy web server
 
 var remoteHostName = "lucy.oblomov.com";
 var readerServerPortNr = 8193;
@@ -28,6 +28,7 @@ import path     = require('path');
 var socketIO = require('socket.io');
 
 var app : express.Express;
+var readerServerSocket : net.Socket;
 
 var readerServerHostName : string;
 var serverPortNr : number
