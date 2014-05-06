@@ -144,7 +144,7 @@ function updateTags(tagsState : Shared.TagState[]) {
       }
   
       //util.log('A'+ant+': tag'+tagNr+': '+distance);
-      storeRange(tagNr, ant, distance);
+      storeRange(tagNr, ant+1, distance);
       range.attr('r', distance+tagNr); // +tagNr to prevent overlap
 
     }

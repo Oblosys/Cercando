@@ -214,6 +214,6 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   if (!tag) {
     tagsState.push({ epc:readerEvent.ePC, rssis: [] });
   }
-  tag.rssis[readerEvent.ant] = readerEvent.RSSI;
+  tag.rssis[readerEvent.ant-1] = readerEvent.RSSI;
   //util.log(tagsState);
 }
