@@ -71,9 +71,12 @@ function initServer() {
   app.use(express.bodyParser()); 
 
   app.get('/query/version', function(req, res) {  
-    child_pr.exec( "svnversion"
+    child_pr.exec( "/Users/martijn/git/Cercando/scripts/generateGitInfo.sh"
                  , {cwd: '../..'}
-                 , function(error, stdout, stderr) { res.send('Revision '+stdout); } );
+                 , function(error, stdout, stderr) { 
+                     res.setHeader('content-type', 'application/json');
+                     res.send(stdout); 
+                   } );
   });
   
   app.get('/query/tags', function(req, res) {  
