@@ -5,8 +5,8 @@
 /// <reference path="../typings/socket.io/socket.io-client.d.ts" />
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 /// <reference path="../shared/Shared.ts" />
-
 /// <reference path="Trilateration.ts" />
+
 /* 
 TODO remove errors and warnings
 fix antenna nrs and ids
@@ -228,11 +228,14 @@ function storeRange(tagNr : number, antenna : number, distance : number) {
 }
 
 function startRefreshInterval() {
-  refreshInterval = setInterval(refresh, 500);
+  refreshInterval = <any>setInterval(refresh, 500); 
+  // unfortunately Eclipse TypeScript is stupid and doesn't respect reference paths, so it includes all TypeScript
+  // declarations in the source tree and assumes a different type for setInterval here
+  // (returning NodeTimer instead of number, as declared in node.d.ts)
 }
 
 function stopRefreshInterval() {
-  clearInterval(refreshInterval);
+  <any>clearInterval(refreshInterval); // see Eclipse TypeScript comment above
 }
 
 function refresh() {
