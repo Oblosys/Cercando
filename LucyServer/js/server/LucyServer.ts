@@ -58,7 +58,8 @@ function initServer() {
   app.use('/js/client', express.static(__dirname + '/../client'));
   app.use('/js/shared', express.static(__dirname + '/../shared'));
   app.use('/js/node_modules', express.static(__dirname + '/../node_modules'));
-  app.use(express.static(__dirname + '/../../www')); // '/' serves 'www' directory
+  app.get('/', function(req, res) { res.redirect('/locator.html'); }); // redirect '/' to '/locator.html'
+  app.use(express.static(__dirname + '/../../www')); //  serve 'www' directory as root directory
 
   //app.use(express.logger()); 
   app.use(function(req : express.Request, res : express.Response, next : Function) { // logger only seems to report in GMT, so we log by hand
