@@ -7,7 +7,7 @@ module Trilateration {
   }
   
   
-  function trilaterateRanges(floorSVG : D3.Selection) : void {
+  export function trilaterateRanges(floorSVG : D3.Selection) : void {
     //util.log('Trilaterate'+JSON.stringify(ranges));
     for (var tagNr = 0; tagNr < 11; tagNr++) {
       var range = ranges[tagNr];

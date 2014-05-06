@@ -101,7 +101,7 @@ function updateTags(tagsState : Shared.TagState[]) {
   
   _.map(tagsState, (tagState) => {
     var tagNr = tagNrs[tagState.epc];
-    util.log(tagState.epc + '(' + tagNr + ':' + tagColors[tagNr] + ')' + tagState.rssis);
+    //util.log(tagState.epc + '(' + tagNr + ':' + tagColors[tagNr] + ')' + tagState.rssis);
     
     for (var ant=0; ant<antennaCoords.length; ant++) {
       var rssi = tagState.rssis[ant];
@@ -144,11 +144,15 @@ function updateTags(tagsState : Shared.TagState[]) {
       }
   
       //util.log('A'+ant+': tag'+tagNr+': '+distance);
+      storeRange(tagNr, ant, distance);
       range.attr('r', distance+tagNr); // +tagNr to prevent overlap
 
     }
     
   });
+  Trilateration.trilaterateRanges(rssiPlaneSVG);
+  util.log(count);
+  
   
 }
 
@@ -203,7 +207,7 @@ function drawLlrpEvent(floorSVG : D3.Selection, epc : string, ant : number, rawR
     }
   }
   
-  util.log('A'+ant+': tag'+tagNr+': '+distance);
+  //util.log('A'+ant+': tag'+tagNr+': '+distance);
   range.attr('r', distance+tagNr); // +tagNr to prevent overlap
   //range.attr('r',-(50+rssi)*20+tagNr);  
   //storeRange(tagNr, ant, distance);
