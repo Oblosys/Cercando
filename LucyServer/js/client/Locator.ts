@@ -1,8 +1,9 @@
-/// <reference path="../typings/d3.d.ts" />
+/// <reference path="../typings/d3/d3.d.ts" />
+/// <reference path="../typings/node/node.d.ts" />
 /// <reference path="../typings/jquery/jquery.d.ts" />
 /// <reference path="../typings/backbone/backbone.d.ts" />
 /// <reference path="../typings/underscore/underscore.d.ts" />
-/// <reference path="../typings/socket.io-client.d.ts" />
+/// <reference path="../typings/socket.io/socket.io-client.d.ts" />
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 /// <reference path="../shared/Shared.ts" />
 
@@ -15,7 +16,7 @@ move to server
 
 var tagNrs : any = [];
 var tagColors : string[] = [];
-var refreshInterval : NodeTimer;
+var refreshInterval : number;
 
 
 function initRefreshSocket(floorSVG : D3.Selection) {

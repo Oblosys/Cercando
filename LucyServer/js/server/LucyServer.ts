@@ -2,9 +2,8 @@
 /// <reference path="../typings/backbone/backbone.d.ts" />
 /// <reference path="../typings/underscore/underscore.d.ts" />
 /// <reference path="../typings/node/node.d.ts" />
-/// <reference path="../typings/express.d.ts" />
-/// <reference path="../typings/net.d.ts" />
-/// <reference path="../typings/socket.io.d.ts" />
+/// <reference path="../typings/express/express.d.ts" />
+/// <reference path="../typings/socket.io/socket.io.d.ts" />
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 /// <reference path="../shared/Shared.ts" />
 
