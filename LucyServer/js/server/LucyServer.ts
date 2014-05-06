@@ -7,8 +7,10 @@
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 /// <reference path="../shared/Shared.ts" />
 
+var defaultServerPortNr = 8201; // port for the Lucy web server
+
 var remoteHostName = "lucy.oblomov.com";
-var defaultReaderServerPortNr = 8080;
+var readerServerPortNr = 8080;
 
 import http     = require("http");
 import express  = require('express');
@@ -27,17 +29,20 @@ var socketIO = require('socket.io');
 
 var app : express.Express;
 
-var hostName : string, portNr : number;
+var readerServerHostName : string;
+var serverPortNr : number
 
-if (process.argv[2] == 'remote') {
-  hostName = remoteHostName;
-  portNr   = parseInt(process.argv[3]) || defaultReaderServerPortNr;
+// usage: LucyServer [portNr] [remoteReader]
+var portArg = parseInt(process.argv[2]);
+serverPortNr = portArg || defaultServerPortNr;
+
+if (process.argv[2] == 'remoteReader' || portArg && process.argv[3] == 'remoteReader') {
+  // use remoteReader to connect to reader server on lucy.oblomov.com instead of localhost 
+  readerServerHostName = remoteHostName;
 } else {
-  hostName = "localhost";
-  portNr   = parseInt(process.argv[2]) || defaultReaderServerPortNr;
+  readerServerHostName = "localhost";
 }
-
-var readerServerSocket : net.Socket;
+util.log('\n\n\nStarting web server on port ' + serverPortNr + ', using reader server on ' + readerServerHostName + '\n\n');
 
 interface ReaderEvent {firstSeen : string; lastSeen : string; ePC : string; ant : number; RSSI : number}
 
@@ -103,7 +108,7 @@ var server = http.createServer(app)
   , io = socketIO.listen(server);
 
 io.set('log level', 1); // reduce logging
-server.listen(8201);
+server.listen(serverPortNr);
 
 /* 
   io.sockets.on('connection', function (socket) {
@@ -123,8 +128,8 @@ function connectReaderServer() {
   });
   var connectInterval = 
     setInterval(function() {
-      util.log('Trying to connect to reader server on '+hostName+':'+portNr);
-      readerServerSocket.connect(portNr, hostName);
+      util.log('Trying to connect to reader server on '+readerServerHostName+':'+readerServerPortNr);
+      readerServerSocket.connect(readerServerPortNr, readerServerHostName);
      
       readerServerSocket.on('connect', function() {
         util.log('Connected to reader server');
@@ -135,7 +140,7 @@ function connectReaderServer() {
 }
 
 function readerServerConnected(readerServerSocket : net.Socket) {
-  util.log('Connected to reader server at: ' + hostName + ':' + portNr);
+  util.log('Connected to reader server at: ' + readerServerHostName + ':' + readerServerPortNr);
 /*
     var fileStream = fs.createWriteStream('calibratie/Output-'+new Date()+'.json');
     fileStream.once('open', function(fd) {
@@ -205,5 +210,5 @@ function processReaderEvent(readerEvent : ReaderEvent) {
     tagsState.push({ epc:readerEvent.ePC, rssis: [] });
   }
   tag.rssis[readerEvent.ant] = readerEvent.RSSI;
-  util.log(tagsState);
+  //util.log(tagsState);
 }
