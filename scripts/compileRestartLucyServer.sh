@@ -1,9 +1,13 @@
 cd ~/git/Cercando
 
-echo Killing old server process, if existing
-killall node
+nodePid=`pgrep -f "node.*LucyServer.js"`
+if [ -n "$nodePid" ]; then
+echo "Killing active process"
+kill $nodePid
+sleep 2
+fi
 
 scripts/compileTypeScript.sh
 
 echo Starting Lucy server
-node LucyServer/js/server/LucyServer.js
+scripts/restartLucyServer.sh $1
