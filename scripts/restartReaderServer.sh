@@ -1,3 +1,5 @@
+cd ~/git/Cercando
+
 runServer="java -cp ReaderServer/bin:ReaderServer/lib/ltkjava-1.0.0.7-with-dependencies.jar readerServer.Main"
 
 javaPid=`pgrep -f "java.*readerServer.Main"`
