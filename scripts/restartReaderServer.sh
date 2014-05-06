@@ -10,7 +10,6 @@ sleep 2
 fi
 
 if [ "$1" = "--daemon" ]; then
-echo "Running as daemon"
 $runServer </dev/null >/dev/null 2>&1 &
 else
 $runServer
