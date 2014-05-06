@@ -1,6 +1,6 @@
 cd ~/git/Cercando
 
-runServer="node LucyServer/js/server/LucyServer.js"
+runServer="/usr/local/bin/node LucyServer/js/server/LucyServer.js"
 
 nodePid=`pgrep -f "node.*LucyServer.js"`
 if [ -n "$nodePid" ]; then
