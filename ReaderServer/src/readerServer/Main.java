@@ -16,10 +16,11 @@ import java.net.Socket;
 public class Main {
   
   private static final String readerIP = "10.0.0.30";
+  private static final int readerServerPort = 8193;
   
   public static void main(String[] args)
   {
-    startServer(8080);
+    startServer(readerServerPort);
   }
 
   @SuppressWarnings("resource")

@@ -10,7 +10,7 @@
 var defaultServerPortNr = 8201; // port for the Lucy web server
 
 var remoteHostName = "lucy.oblomov.com";
-var readerServerPortNr = 8080;
+var readerServerPortNr = 8193;
 
 import http     = require("http");
 import express  = require('express');
