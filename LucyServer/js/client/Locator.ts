@@ -1,5 +1,4 @@
 /// <reference path="../typings/d3/d3.d.ts" />
-/// <reference path="../typings/node/node.d.ts" />
 /// <reference path="../typings/jquery/jquery.d.ts" />
 /// <reference path="../typings/backbone/backbone.d.ts" />
 /// <reference path="../typings/underscore/underscore.d.ts" />
@@ -16,7 +15,7 @@ move to server
 
 var tagNrs : any = [];
 var tagColors : string[] = [];
-var refreshInterval : number;
+var refreshInterval : number; // setInterval() returns a number
 
 
 function initRefreshSocket(floorSVG : D3.Selection) {
