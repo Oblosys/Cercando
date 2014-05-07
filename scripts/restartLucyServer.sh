@@ -1,6 +1,7 @@
+export PATH=/usr/local/bin:$PATH
 cd ~/git/Cercando
 
-runServer="/usr/local/bin/node LucyServer/js/server/LucyServer.js"
+runServer="node LucyServer/js/server/LucyServer.js"
 
 nodePid=`pgrep -f "node.*LucyServer.js"`
 if [ -n "$nodePid" ]; then

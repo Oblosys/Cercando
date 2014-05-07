@@ -1,3 +1,4 @@
+export PATH=/usr/local/bin:$PATH
 cd ~/git/Cercando
 
 nodePid=`pgrep -f "node.*LucyServer.js"`

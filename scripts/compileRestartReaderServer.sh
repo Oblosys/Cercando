@@ -1,3 +1,4 @@
+export PATH=/usr/local/bin:$PATH
 cd ~/git/Cercando
 
 javaPid=`pgrep -f "java.*readerServer.Main"`

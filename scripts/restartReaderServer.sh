@@ -1,3 +1,4 @@
+export PATH=/usr/local/bin:$PATH
 cd ~/git/Cercando
 
 runServer="java -cp ReaderServer/bin:ReaderServer/lib/ltkjava-1.0.0.7-with-dependencies.jar readerServer.Main"
