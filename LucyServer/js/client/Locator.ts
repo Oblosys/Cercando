@@ -62,6 +62,7 @@ function initialize() {
   floorSVG.append('g').attr('id', 'visitor-plane');
 
   _.map([1,2,3,4], (ant : number) => drawAntenna(floorSVG, ant));
+  drawTagSetup();
   _.map(_.range(0, 10), (i : number) => drawMarker(i));
 
   connectReader();
@@ -85,13 +86,33 @@ function drawAntenna(floorSVG : D3.Selection, antenna : number) {
     .attr('fill', 'white');
   
 }
+
+function drawTagSetup() {
+  var pxPerCm = 400/300;
+  _(tagCoords).each((coord, tagNr)=>{
+    drawSquare(coord.x*pxPerCm+350,coord.y*pxPerCm+250,10, tagColors[tagNr]);
+  });
+}
+
+function drawSquare(x : number, y : number, size : number, color : string) {
+  var annotationPlaneSVG = d3.select('#annotation-plane');
+ 
+  annotationPlaneSVG.append('rect')
+    .style('stroke', 'white')
+    .style('fill', color)
+    .attr('x', x-size/2)
+    .attr('y', y-size/2)
+    .attr('width', size)
+    .attr('height', size);
+}
+
 function drawMarker(markerNr : number) {
   var triangulationPlaneSVG = d3.select('#triangulation-plane');
  
   triangulationPlaneSVG.append('circle').attr('class', 'm-'+markerNr)
     .style('stroke', 'white')
     .style('fill', tagColors[markerNr])
-    .attr('r', 4)
+    .attr('r', 6)
     .attr('cx', 20+markerNr * 10)
     .attr('cy', 20);
 }
@@ -274,8 +295,28 @@ function handleDisconnectButton() {
   disconnectReader();
 }
 
+function handleToggleTagLocationsButton() {
+  util.log('test:' + $('#annotation-plane').css('display')=='none');
+  
+  if ($('#annotation-plane').css('display')=='none') {
+    $('#toggle-locations-button').attr('value','Show tag locations');
+    $('#annotation-plane').show();
+  } else {
+    $('#toggle-locations-button').attr('value','Hide tag locations');
+    $('#annotation-plane').hide();
+  }
+}
+
+
 //var antennaCoords = [{x:150,y:250},{x:350,y:50},{x:550,y:250},{x:350,y:450}] 
 var antennaCoords = [{x:550,y:250},{x:350,y:450},{x:150,y:250},{x:350,y:50}] 
+var tagCoords =
+  [ {x:0,y:0}
+  , {x:53,y:-53},{x:53,y:53},{x:-53,y:53},{x:-53,y:-53}
+  , {x:106,y:-106},{x:106,y:106},{x:-106,y:106},{x:-106,y:-106}
+  , {x:142,y:0},{x:142,y:-50}
+  ];
+
 var tagIds = 
   [ '0000000000000000000000000370802'
   , '0000000000000000000000000370870'
@@ -291,26 +332,26 @@ var tagIds =
   ]
    
 function initTagData() {
-  tagNrs['0000000000000000000000000370802'] = 0; // 1 (floor antenna 3)
+  tagNrs['0000000000000000000000000100842'] = 0; // 1 (floor antenna 3)
   tagColors[0]                              = "red";
-  tagNrs['0000000000000000000000000370870'] = 1; // 2 on chair, underneath antenna 1
+  tagNrs['0000000000000000000000000503968'] = 1; // 2 on chair, underneath antenna 1
   tagColors[1]                              = "yellow";
-  tagNrs['0000000000000000000000000370869'] = 2; // 3 window, near antenna 1
+  tagNrs['0000000000000000000000000503972'] = 2; // 3 window, near antenna 1
   tagColors[2]                              = "gray";
-  tagNrs['0000000000000000000000000503968'] = 3; // 4 on chair, underneath antenna 4
+  tagNrs['0000000000000000000000000370802'] = 3; // 4 on chair, underneath antenna 4
   tagColors[3]                              = "black";
-  tagNrs['0000000000000000000000000503972'] = 4; // 5 (stuck on antenne 3?)
+  tagNrs['0000000000000000000000000370870'] = 4; // 5 (stuck on antenne 3?)
   tagColors[4]                              = "orange";
-  tagNrs['0000000000000000000000000370845'] = 5; // 6 on chair, underneath antenna 2
+  tagNrs['0000000000000000000000000370869'] = 5; // 6 on chair, underneath antenna 2
   tagColors[5]                              = "green";
-  tagNrs['0000000000000000000000000000795'] = 6;
+  tagNrs['0000000000000000000000000103921'] = 6;
   tagColors[6]                              = "purple";
-  tagNrs['0000000000000000000000000023040'] = 7;
+  tagNrs['0000000000000000000000000000795'] = 7;
   tagColors[7]                              = "brown"
-  tagNrs['0000000000000000000000000023140'] = 8;
+  tagNrs['0000000000000000000000000023040'] = 8;
   tagColors[8]                              = "lightblue";
-  tagNrs['0000000000000000000000000100842'] = 9;
+  tagNrs['0000000000000000000000000023140'] = 9;
   tagColors[9]                              = "darkgray";
-  tagNrs['0000000000000000000000000103921'] = 10;
+  tagNrs['0000000000000000000000000370845'] = 10;
   tagColors[10]                             = "white";
 }
