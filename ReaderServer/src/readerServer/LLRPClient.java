@@ -30,7 +30,7 @@ public class LLRPClient implements LLRPEndpoint {
   // An ROSpec specifies start and stop triggers,
   // tag report fields, antennas, etc.
   public ROSpec buildROSpec() { 
-    System.out.println("Building the ROSpec.");
+    //System.out.println("Building the ROSpec.");
      
     // Create a Reader Operation Spec (ROSpec).
     ROSpec roSpec = new ROSpec();
@@ -145,18 +145,18 @@ public class LLRPClient implements LLRPEndpoint {
     ADD_ROSPEC_RESPONSE response;
      
     ROSpec roSpec = buildROSpec();
-    System.out.println("Adding the ROSpec.");
+    //System.out.println("Adding the ROSpec.");
     
     try {
       ADD_ROSPEC roSpecMsg = new ADD_ROSPEC();
       roSpecMsg.setROSpec(roSpec);
       response = (ADD_ROSPEC_RESPONSE)reader.transact(roSpecMsg, TIMEOUT_MS);
-      System.out.println(response.toXMLString());
+      //System.out.println(response.toXMLString());
        
       // Check if the we successfully added the ROSpec.
       StatusCode status = response.getLLRPStatus().getStatusCode();
       if (status.equals(new StatusCode("M_Success"))) {
-        System.out.println("Successfully added ROSpec.");
+        //System.out.println("Successfully added ROSpec.");
       } else {
         System.out.println("Error adding ROSpec.");
         System.exit(1);
@@ -172,13 +172,13 @@ public class LLRPClient implements LLRPEndpoint {
   {
     ENABLE_ROSPEC_RESPONSE response;
      
-    System.out.println("Enabling the ROSpec.");
+    //System.out.println("Enabling the ROSpec.");
     ENABLE_ROSPEC enable = new ENABLE_ROSPEC();
     enable.setROSpecID(new UnsignedInteger(ROSPEC_ID));
     
     try {
       response = (ENABLE_ROSPEC_RESPONSE)reader.transact(enable, TIMEOUT_MS);
-      System.out.println(response.toXMLString());
+      //System.out.println(response.toXMLString());
     } catch (Exception e) {
       System.out.println("Error enabling ROSpec.");
       e.printStackTrace();
@@ -190,13 +190,13 @@ public class LLRPClient implements LLRPEndpoint {
   public void startROSpec()
   {
     START_ROSPEC_RESPONSE response;
-    System.out.println("Starting the ROSpec.");
+    //System.out.println("Starting the ROSpec.");
     START_ROSPEC start = new START_ROSPEC();
     start.setROSpecID(new UnsignedInteger(ROSPEC_ID));
     try {
       response = (START_ROSPEC_RESPONSE)reader.transact(start, TIMEOUT_MS);
 
-      System.out.println(response.toXMLString());
+      //System.out.println(response.toXMLString());
     } catch (Exception e) {
       System.out.println("Error deleting ROSpec.");
       e.printStackTrace();
@@ -208,14 +208,14 @@ public class LLRPClient implements LLRPEndpoint {
   {
     DELETE_ROSPEC_RESPONSE response;
      
-    System.out.println("Deleting all ROSpecs.");
+    //System.out.println("Deleting all ROSpecs.");
     DELETE_ROSPEC del = new DELETE_ROSPEC();
     // Use zero as the ROSpec ID.
     // This means delete all ROSpecs.
     del.setROSpecID(new UnsignedInteger(0));
     try {
       response = (DELETE_ROSPEC_RESPONSE)reader.transact(del, TIMEOUT_MS);
-      System.out.println(response.toXMLString());
+      //System.out.println(response.toXMLString());
     } catch (Exception e) {
       System.out.println("Error deleting ROSpec.");
       e.printStackTrace();
@@ -225,7 +225,7 @@ public class LLRPClient implements LLRPEndpoint {
   // This function gets called asynchronously
   // when a tag report is available.
   public void messageReceived(LLRPMessage message) {
-  	System.out.println("Message received");
+  	//System.out.println("Message received");
     if (message.getTypeNum() == RO_ACCESS_REPORT.TYPENUM) {
       // The message received is an Access Report.
       RO_ACCESS_REPORT report = (RO_ACCESS_REPORT) message;
@@ -291,7 +291,7 @@ public class LLRPClient implements LLRPEndpoint {
     cmd.setRequestedData(new GetReaderCapabilitiesRequestedData(GetReaderCapabilitiesRequestedData.All));
     try {
       response = (GET_READER_CAPABILITIES_RESPONSE)reader.transact(cmd, TIMEOUT_MS);
-      System.out.println(response.toXMLString());
+      //System.out.println(response.toXMLString());
     }
     catch (Exception e) {
     	System.out.println("Error getting reader capabilities.");
@@ -304,7 +304,7 @@ public class LLRPClient implements LLRPEndpoint {
   	ENABLE_EVENTS_AND_REPORTS cmd = new ENABLE_EVENTS_AND_REPORTS();
     try {
       reader.send(cmd);
-      System.out.println("Enabled events and reports.");
+      //System.out.println("Enabled events and reports.");
     } catch (Exception e) {
     	System.out.println("Error enabling events and reports.");
       e.printStackTrace();
@@ -333,11 +333,11 @@ public class LLRPClient implements LLRPEndpoint {
   
   public void sendLine(String message) {
   	try {
-  		System.out.println(message);
+  		//System.out.println(message);
   		clientSocket.writeUTF(message);
   	} catch (Exception e) {
-  		System.out.println("Error while writing to socket.");
-  		e.printStackTrace();
+  		System.out.println("Error while writing to socket: "+e.getMessage());
+  		//e.printStackTrace();
     }   
   }
 }

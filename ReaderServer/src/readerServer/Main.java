@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Basic server that connects to RFID reader and redirects all read events to a socket. 
@@ -26,7 +29,8 @@ public class Main {
   @SuppressWarnings("resource")
   public static void startServer(int port) {
 	  ServerSocket serversocket = null;
-
+	  System.out.println("\n\n######## "+ getTimestamp() +": Starting Reader Server ########\n");
+	  
 	  try {
       System.out.println("Setting up server socket on port " + port);
       serversocket = new ServerSocket(port);
@@ -41,7 +45,7 @@ public class Main {
       try {
         Socket connectionsocket = serversocket.accept();
         InetAddress client = connectionsocket.getInetAddress();
-        System.out.println("Connected to " + client);
+        System.out.println("\n\n" + getTimestamp() + " Connected to " + client);
 
         BufferedReader input =
           new BufferedReader(new InputStreamReader(connectionsocket.getInputStream()));
@@ -50,13 +54,18 @@ public class Main {
           new DataOutputStream(connectionsocket.getOutputStream());
 
         serveLLRPEvents(input, output);
+        System.out.println(getTimestamp() + " Disconnected");
       }
       catch (Exception e) {
         System.out.println("\nError:" + e.getMessage());
       }
     }
 	}
-
+  private static String getTimestamp() {
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    return dateFormat.format(new Date());
+  }
+  
   private static void serveLLRPEvents(BufferedReader input, DataOutputStream output) {
     LLRPClient llrpClient = new LLRPClient(output);
   
