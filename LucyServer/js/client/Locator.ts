@@ -7,9 +7,8 @@
 /// <reference path="../shared/Shared.ts" />
 
 /* 
-TODO remove errors and warnings
-fix antenna nrs and ids
-move to server
+TODO
+Fix stuttering server updates
 */
 
 var refreshInterval : number; // setInterval() returns a number
@@ -138,7 +137,8 @@ function updateTags() {
       var dist =  tagData.distances[ant];
       // show in table
       if (rssi) {
-        $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+')').text(rssi);
+        $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+')').html('<span class="dist-label">' + dist.toFixed(1) + '</span>' +
+                                                                 '<span class="rssi-label">(' + rssi + ')</span>');
       }
       //util.log(tagNr + '-' + ant +' '+ rssi);
 
@@ -154,42 +154,33 @@ function updateTags() {
                   .attr('cx', pos.x)
                   .attr('cy', pos.y);
       }
-      util.log('A'+ant+': tag'+tagNr+': '+dist);
-      //storeRange(tagNr, ant+1, distance);
+      //util.log('A'+ant+': tag'+tagNr+': '+dist);
       range.attr('r', dist*pixelsPerMeter+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation
       
       var markerD3 = d3.select('.m-'+tagNr);
-      var pos = toScreen(tagData.coordinate);
-      markerD3.attr('cx',pos.x);
-      markerD3.attr('cy',pos.y);
-      markerD3.style('fill', tagData.color); // TODO: dynamically create markers
+      
+      if (tagData.coordinate) {
+        var pos = toScreen(tagData.coordinate);
+        markerD3.style('display', 'block');
+        markerD3.attr('cx',pos.x);
+        markerD3.attr('cy',pos.y);
+        markerD3.style('fill', tagData.color); // TODO: dynamically create markers
+      } else {
+        markerD3.style('display', 'none'); 
+      }
+        
     }
     
   });
 }
 
-//util.log(_.findWhere_.zip(_.range(10),['a','b','c']));
+// return the index in tagsData for the tag with this epc 
 function getTagNr(epc : string) {
   for (var i=0; i<serverState.tagsData.length; i++)
     if (serverState.tagsData[i].epc == epc)
       return i;
   
-  return -1;
-}
-
-var antennaTweaks = [1,0.97,1,0.97];
-function tweakAntenna(antennaNr : number, rssi : number) : number {
-  return rssi * antennaTweaks[antennaNr-1];
-}
-
-var ranges : any = [];
-
-function storeRange(tagNr : number, antenna : number, distance : number) {
-  if (!ranges[tagNr]) {
-    ranges[tagNr] = [];
-  }
-  var tagRanges = ranges[tagNr];
-  tagRanges[antenna-1] = distance;
+  return -1; // TODO: handle this error
 }
 
 function startRefreshInterval() {

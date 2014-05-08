@@ -98,7 +98,7 @@ function initServer() {
   });
   
   app.get('/query/tags', function(req, res) {  
-    util.log('Sending tag data to client. (' + new Date() + ')');
+    //util.log('Sending tag data to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
     
     trilaterateAllTags();
@@ -251,8 +251,15 @@ function trilaterateAllTags() {
   });
 }
 
+
 // TODO: share these with client and maybe store in config file
 var antennaCoords = [{x:1.5,y:0},{x:0,y:1.5},{x:-1.5,y:0},{x:0,y:-1.5}] 
+
+// TODO: not used yet
+var antennaTweaks = [1,0.97,1,0.97]; // poor man's calibration
+function tweakAntenna(antennaNr : number, rssi : number) : number {
+  return rssi * antennaTweaks[antennaNr-1];
+}
 
 
 var preferredTagColors =

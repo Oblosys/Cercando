@@ -21,7 +21,7 @@ export function trilaterateDistances(antennaCoords : Coord[], distances : number
       //util.log(JSON.stringify(triangle));
       return trilaterate(sortedCircles[0],sortedCircles[1],sortedCircles[2]);
     } else {
-      return {x:0, y:0};
+      return undefined;
     }   
 }
 
