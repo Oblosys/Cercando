@@ -321,7 +321,7 @@ public class LLRPClient implements LLRPEndpoint {
     enableROSpec();
     enableEventsAndReports();
     startROSpec();
-    sendLine("Reader connection established, sending read events.");
+    System.out.println("Connection established, transmitting read events..");
   }
    
   // Cleanup. Delete all ROSpecs

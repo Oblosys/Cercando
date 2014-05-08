@@ -29,7 +29,8 @@ public class Main {
   @SuppressWarnings("resource")
   public static void startServer(int port) {
 	  ServerSocket serversocket = null;
-	  System.out.println("\n\n######## "+ getTimestamp() +": Starting Reader Server ########\n");
+	  System.out.println("\n\n###########################################\n");
+	  System.out.println(getTimestamp() + ": Starting Reader Server\n");
 	  
 	  try {
       System.out.println("Setting up server socket on port " + port);
