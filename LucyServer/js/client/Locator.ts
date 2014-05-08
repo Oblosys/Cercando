@@ -117,15 +117,15 @@ function drawMarker(markerNr : number) {
     .attr('cy', 20);
 }
 
-function updateTags(tagsState : Shared.TagState[]) {
+function updateTags(serverState : Shared.ServerState) {
   var rssiPlaneSVG = d3.select('#rssi-plane');
   
-  _.map(tagsState, (tagState) => {
-    var tagNr = tagNrs[tagState.epc];
-    //util.log(tagState.epc + '(' + tagNr + ':' + tagColors[tagNr] + ')' + tagState.rssis);
+  _.map(serverState.tagRssis, (tagRssis) => {
+    var tagNr = tagNrs[tagRssis.epc];
+    //util.log(tagRssis.epc + '(' + tagNr + ':' + tagColors[tagNr] + ')' + tagRssis.rssis);
     
     for (var ant=0; ant<antennaCoords.length; ant++) {
-      var rssi = tagState.rssis[ant];
+      var rssi = tagRssis.rssis[ant];
 
       // show in table
       if (rssi) {

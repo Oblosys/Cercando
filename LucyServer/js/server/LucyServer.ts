@@ -33,6 +33,9 @@ var readerServerSocket : net.Socket;
 var readerServerHostName : string;
 var serverPortNr : number
 
+var state : Shared.ServerState
+
+
 // usage: LucyServer [portNr] [remoteReader]
 var portArg = parseInt(process.argv[2]);
 serverPortNr = portArg || defaultServerPortNr;
@@ -48,6 +51,8 @@ util.log('\n\n\nStarting web server on port ' + serverPortNr + ', using reader s
 interface ReaderEvent {firstSeen : string; lastSeen : string; ePC : string; ant : number; RSSI : number}
 
 function initServer() {
+  initializeState();
+  
   app = express();
 
   app.enable('trust proxy'); // Need this to get correct ip address when redirecting from lucy.oblomov.com
@@ -84,7 +89,7 @@ function initServer() {
   app.get('/query/tags', function(req, res) {  
     util.log('Sending tag data to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
-    res.send(JSON.stringify(tagsState));
+    res.send(JSON.stringify(state));
   });
 
   app.get('/query/connect', function(req, res) {  
@@ -203,9 +208,6 @@ function readerServerConnected(readerServerSocket : net.Socket) {
   });
 }
 
-var tagsState : Shared.TagState[] = [];
-
-
 function processReaderEvent(readerEvent : ReaderEvent) {
   //util.log('emitting');
   //io.sockets.emit('llrp', readerEvent);
@@ -213,10 +215,18 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   //if (fileStream) {
   //  fileStream.write(JSON.stringify(readerEvent)+'\n');
   //}
-  var tag = _.findWhere(tagsState, {epc: readerEvent.ePC});
+  var tag = _.findWhere(state.tagRssis, {epc: readerEvent.ePC});
   if (!tag) {
-    tagsState.push({ epc:readerEvent.ePC, rssis: [] });
+    state.tagRssis.push({ epc:readerEvent.ePC, rssis: [] });
   }
   tag.rssis[readerEvent.ant-1] = readerEvent.RSSI;
   //util.log(tagsState);
 }
+
+function initializeState() {
+  state = {
+    status: {isConnected: false, isSaving: false},
+    tagRssis: []
+  };
+}
+

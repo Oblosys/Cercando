@@ -1,3 +1,6 @@
 module Shared {
-  export interface TagState {epc : string; rssis : number[]} 
+  export interface ServerState {
+    status: {isConnected : boolean; isSaving : boolean}
+    tagRssis: {epc : string; rssis : number[]}[]
+  }
 }
