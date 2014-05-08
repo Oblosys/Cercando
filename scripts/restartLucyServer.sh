@@ -13,6 +13,7 @@ fi
 if [ "$1" = "--daemon" ]; then
 $runServer </dev/null >/dev/null 2>&1 &
 else
-$runServer
+# Start a normal server, and pass optional 'remoteReader' arg in $1
+$runServer $1
 fi
 
