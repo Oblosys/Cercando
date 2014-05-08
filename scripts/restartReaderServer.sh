@@ -3,16 +3,13 @@ cd ~/git/Cercando
 
 runServer="java -cp ReaderServer/bin:ReaderServer/lib/ltkjava-1.0.0.7-with-dependencies.jar readerServer.Main"
 
-javaPid=`pgrep -f "java.*readerServer.Main"`
-if [ -n "$javaPid" ]; then
-echo "Killing active process"
-kill $javaPid
+scripts/killReaderServer.sh
 sleep 2
-fi
 
 if [ "$1" = "--daemon" ]; then
-$runServer </dev/null >/dev/null 2>&1 &
+bash scripts/startGuardedReaderServer.sh </dev/null >~/logs/readerServer.log 2>&1 &
 else
-$runServer
+# Start a normal server, and pass optional 'remoteReader' arg in $1
+$runServer $1
 fi
 

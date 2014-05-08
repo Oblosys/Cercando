@@ -1,11 +1,7 @@
 export PATH=/usr/local/bin:$PATH
 cd ~/git/Cercando
 
-javaPid=`pgrep -f "java.*readerServer.Main"`
-if [ -n "$javaPid" ]; then
-echo "Killing active process"
-kill $javaPid
-fi
+scripts/killReaderServer.sh
 
 rm -rf ReaderServer/bin/readerServer
 
