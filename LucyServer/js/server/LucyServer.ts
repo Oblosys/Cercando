@@ -82,6 +82,7 @@ function initServer() {
   });
   
   app.get('/query/tags', function(req, res) {  
+    util.log('Sending tag data to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
     res.send(JSON.stringify(tagsState));
   });
