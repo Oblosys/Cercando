@@ -17,6 +17,26 @@ body {
   fill: #392b8c;
   stroke: #000;
 }
+#tags-data {
+	display: inline-block;
+	color: white;
+	margin-top: 20px;
+}
+
+.tag-rssis {
+  color: white;
+  float: left;
+}
+.tag-label {
+	text-align: right;
+	margin-right: 10px;
+	float: left;
+	width: 100px;
+}
+.ant-rssi {
+  float: left;
+  width: 100px;
+}
 
 #copyright {
   float: right;
