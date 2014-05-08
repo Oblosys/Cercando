@@ -58,6 +58,8 @@ function initServer() {
   app.use('/js/client', express.static(__dirname + '/../client'));
   app.use('/js/shared', express.static(__dirname + '/../shared'));
   app.use('/js/node_modules', express.static(__dirname + '/../node_modules'));
+  app.use('/data', express.directory(process.env['HOME'] + '/lucyData'));
+  app.use('/data', express.static(process.env['HOME'] + '/lucyData'));
   app.get('/', function(req, res) { res.redirect('/locator.html'); }); // redirect '/' to '/locator.html'
   app.use(express.static(__dirname + '/../../www')); //  serve 'www' directory as root directory
 
