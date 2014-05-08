@@ -28,6 +28,10 @@ var debug = true;
 var floorHeight = 500;
 var floorWidth = 700;
 
+var origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
+var pixelsPerMeter = 400/3; // 3 meters is 400 pixels
+
+
 /***** Initialization *****/
 
 $(document).ready(function(){
@@ -79,16 +83,16 @@ function initialize() {
 var signals : any = [];
 
 function drawAntenna(floorSVG : D3.Selection, antenna : number) {
-  
+  var pos = toScreen(antennaCoords[antenna-1]);
   floorSVG.append('circle').attr('class', 'a-'+antenna)
     .style('stroke', 'white')
     .style('fill', 'blue')
     .attr('r', 8)
-    .attr('cx', antennaCoords[antenna-1].x)
-    .attr('cy', antennaCoords[antenna-1].y);
+    .attr('cx', pos.x)
+    .attr('cy', pos.y);
   floorSVG.append('text').text(''+antenna)
-    .attr('x', antennaCoords[antenna-1].x-3)
-    .attr('y', antennaCoords[antenna-1].y+3.5)
+    .attr('x', pos.x-3)
+    .attr('y', pos.y+3.5)
     .attr('font-family', 'verdana')
     .attr('font-size', '10px')
     .attr('fill', 'white');
@@ -147,11 +151,12 @@ function updateTags() {
       if (range.empty() && tagNr <=11) { // use <= to filter tags
         util.log('Creating range for ant '+(ant+1) + ': '+rangeClass);
         
+        var pos = toScreen(antennaCoords[ant]);
         range = rssiPlaneSVG.append('circle').attr('class', rangeClass)
                   .style('stroke', tagData.color)
                   .style('fill', 'transparent')
-                  .attr('cx', antennaCoords[ant].x)
-                  .attr('cy', antennaCoords[ant].y);
+                  .attr('cx', pos.x)
+                  .attr('cy', pos.y);
       }
       var distance = Trilateration.dist(rssi)/50;
   
@@ -175,11 +180,16 @@ function updateTags() {
       //util.log('A'+ant+': tag'+tagNr+': '+distance);
       storeRange(tagNr, ant+1, distance);
       range.attr('r', distance+tagNr); // +tagNr to prevent overlap
-
+      
+      var markerD3 = d3.select('.m-'+tagNr);
+      var pos = toScreen(tagData.coordinate);
+      markerD3.attr('cx',pos.x);
+      markerD3.attr('cy',pos.y);
+      markerD3.style('fill', tagData.color); // TODO: dynamically create markers
     }
     
   });
-  Trilateration.trilaterateRanges(rssiPlaneSVG);
+  //Trilateration.trilaterateRanges(rssiPlaneSVG);
 }
 
 //util.log(_.findWhere_.zip(_.range(10),['a','b','c']));
@@ -260,14 +270,17 @@ function handleToggleTagLocationsButton() {
   }
 }
 
-
+// convert coordinate in meters to pixels
+function toScreen(coord : {x : number; y : number }) {
+  return {x: coord.x*pixelsPerMeter + origin.x, y: coord.y*pixelsPerMeter + origin.y};
+}
 //var antennaCoords = [{x:150,y:250},{x:350,y:50},{x:550,y:250},{x:350,y:450}] 
-var antennaCoords = [{x:550,y:250},{x:350,y:450},{x:150,y:250},{x:350,y:50}] 
+var antennaCoords = [{x:1.5,y:0},{x:0,y:1.5},{x:-1.5,y:0},{x:0,y:-1.5}] 
 var tagCoords =
   [ {x:0,y:0}
-  , {x:53,y:-53},{x:53,y:53},{x:-53,y:53},{x:-53,y:-53}
-  , {x:106,y:-106},{x:106,y:106},{x:-106,y:106},{x:-106,y:-106}
-  , {x:142,y:0},{x:142,y:-50}
+  , {x:0.53,y:-0.53},{x:0.53,y:0.53},{x:-0.53,y:0.53},{x:-0.53,y:-0.53}
+  , {x:1.06,y:-1.06},{x:1.06,y:1.06},{x:-1.06,y:1.06},{x:-1.06,y:-1.06}
+  , {x:1.42,y:0},{x:1.42,y:-50}
   ];
 
 var tagIds = 

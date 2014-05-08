@@ -98,6 +98,9 @@ function initServer() {
   app.get('/query/tags', function(req, res) {  
     util.log('Sending tag data to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
+    
+    trilaterateAllTags();
+    
     res.send(JSON.stringify(state));
   });
 
@@ -235,6 +238,11 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   //util.log(tagsState);
 }
 
+function trilaterateAllTags() {
+  _(state.tagData).each((tag,i) => {
+    tag.coordinate = {x: i/10, y: i/10};
+  });
+}
 
 var preferredTagColors =
   [ {epc:'0000000000000000000000000100842', color:'red'} 
