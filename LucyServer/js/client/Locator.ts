@@ -49,13 +49,6 @@ function initialServerState() : Shared.ServerState {
 function initialize() {
   serverState = initialServerState();
   
-  /*
-  for (var tagNr=0; tagNr<tagColors.length; tagNr++) {
-    var $tagLabel = $('.tag-rssis:eq('+tagNr+') .tag-label');
-    $tagLabel.css('color',tagColors[tagNr]);
-    $tagLabel.text(tagNr + ' ' +tagIds[tagNr].slice(-7));
-  }
- */
   var floorSVG = d3.select('#floor')
     .append('svg:svg')
     .attr('width', floorWidth)
@@ -133,9 +126,12 @@ function updateTags() {
   
   _.map(serverState.tagsData, (tagData) => {
     //util.log(tagRssis.epc + '(' + tagNr + ':' + tagColors[tagNr] + ')' + tagRssis.rssis);
-    
+    var tagNr = getTagNr(tagData.epc);
+    //$('.tag-rssis:eq('+tagNr+') .tag-label').text(tagData.epc);
+    var $tagLabel = $('.tag-rssis:eq('+tagNr+') .tag-label');
+    $tagLabel.css('color',tagData.color);
+    $tagLabel.text(tagNr + ' ' +tagData.epc.slice(-7));
     for (var ant=0; ant<antennaCoords.length; ant++) {
-      var tagNr = getTagNr(tagData.epc);
       util.log('epc:'+tagData.epc+'  '+tagNr);
       var rssi = tagData.rssis[ant];
 

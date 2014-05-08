@@ -98,7 +98,7 @@ function initServer() {
   });
   
   app.get('/query/tags', function(req, res) {  
-    //util.log('Sending tag data to client. (' + new Date() + ')');
+    util.log('Sending tag data to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
     
     trilaterateAllTags();
@@ -163,7 +163,7 @@ function connectReaderServer() {
         clearInterval(connectInterval);
         readerServerConnected(readerServerSocket);
       });
-      }, 500);
+      }, 2000); // TODO: interval can fire before connect failed, use timeout
 }
 
 function readerServerConnected(readerServerSocket : net.Socket) {
@@ -223,7 +223,7 @@ function readerServerConnected(readerServerSocket : net.Socket) {
 }
 
 function processReaderEvent(readerEvent : ReaderEvent) {
-  util.log('Reader event');
+  //util.log('Reader event');
   //util.log('emitting');
   //io.sockets.emit('llrp', readerEvent);
   //util.log(JSON.stringify(readerEvent));
@@ -243,12 +243,17 @@ function processReaderEvent(readerEvent : ReaderEvent) {
 
 function trilaterateAllTags() {
   _(state.tagsData).each((tag,i) => {
-    tag.coordinate = {x: i/10, y: i/10};
-    tag.distances = _(tag.rssis).map((rssi) => {
-      return trilateration.dist(rssi);
+    var rssiDistances = _(tag.rssis).map((rssi) => {
+      return trilateration.getRssiDistance(rssi);
     });
+    tag.coordinate = trilateration.trilaterateDistances(antennaCoords, rssiDistances);
+    tag.distances = rssiDistances;
   });
 }
+
+// TODO: share these with client and maybe store in config file
+var antennaCoords = [{x:1.5,y:0},{x:0,y:1.5},{x:-1.5,y:0},{x:0,y:-1.5}] 
+
 
 var preferredTagColors =
   [ {epc:'0000000000000000000000000100842', color:'red'} 
