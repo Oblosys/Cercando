@@ -5,7 +5,6 @@
 /// <reference path="../typings/socket.io/socket.io-client.d.ts" />
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 /// <reference path="../shared/Shared.ts" />
-/// <reference path="Trilateration.ts" />
 
 /* 
 TODO remove errors and warnings
@@ -43,7 +42,7 @@ function initialServerState() : Shared.ServerState {
   return {
     visibleTags: [],
     status: {isConnected: false, isSaving: false},
-    tagData: []
+    tagsData: []
   };
 }
 
@@ -132,7 +131,7 @@ function drawMarker(markerNr : number) {
 function updateTags() {
   var rssiPlaneSVG = d3.select('#rssi-plane');
   
-  _.map(serverState.tagData, (tagData) => {
+  _.map(serverState.tagsData, (tagData) => {
     //util.log(tagRssis.epc + '(' + tagNr + ':' + tagColors[tagNr] + ')' + tagRssis.rssis);
     
     for (var ant=0; ant<antennaCoords.length; ant++) {
@@ -140,6 +139,7 @@ function updateTags() {
       util.log('epc:'+tagData.epc+'  '+tagNr);
       var rssi = tagData.rssis[ant];
 
+      var dist =  tagData.distances[ant];
       // show in table
       if (rssi) {
         $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+')').text(rssi);
@@ -158,28 +158,9 @@ function updateTags() {
                   .attr('cx', pos.x)
                   .attr('cy', pos.y);
       }
-      var distance = Trilateration.dist(rssi)/50;
-  
-      if (false && tagNr == 1) { // override for testing
-        switch(ant) {
-          case 1:
-            distance = 100;
-            break;
-          case 2:
-            distance = 200;
-            break;
-          case 3:
-            distance = 200;
-            break;
-          case 4:
-            distance = 300;
-            break;
-        }
-      }
-  
-      //util.log('A'+ant+': tag'+tagNr+': '+distance);
-      storeRange(tagNr, ant+1, distance);
-      range.attr('r', distance+tagNr); // +tagNr to prevent overlap
+      util.log('A'+ant+': tag'+tagNr+': '+dist);
+      //storeRange(tagNr, ant+1, distance);
+      range.attr('r', dist*pixelsPerMeter+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation
       
       var markerD3 = d3.select('.m-'+tagNr);
       var pos = toScreen(tagData.coordinate);
@@ -189,13 +170,12 @@ function updateTags() {
     }
     
   });
-  //Trilateration.trilaterateRanges(rssiPlaneSVG);
 }
 
 //util.log(_.findWhere_.zip(_.range(10),['a','b','c']));
 function getTagNr(epc : string) {
-  for (var i=0; i<serverState.tagData.length; i++)
-    if (serverState.tagData[i].epc == epc)
+  for (var i=0; i<serverState.tagsData.length; i++)
+    if (serverState.tagsData[i].epc == epc)
       return i;
   
   return -1;

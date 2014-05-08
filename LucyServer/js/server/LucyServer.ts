@@ -6,6 +6,7 @@
 /// <reference path="../typings/socket.io/socket.io.d.ts" />
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 /// <reference path="../shared/Shared.ts" />
+/// <reference path="./Trilateration.ts" />
 
 var defaultServerPortNr = 8080; // port for the Lucy web server
 
@@ -24,6 +25,7 @@ import Backbone = require('backbone');
 import _        = require('underscore');
 import path     = require('path');
 //import rl       = require('readline');
+import trilateration = require('./Trilateration');
 
 var socketIO = require('socket.io');
 
@@ -55,7 +57,7 @@ function initialServerState() : Shared.ServerState {
   return {
     visibleTags: [],
     status: {isConnected: false, isSaving: false},
-    tagData: []
+    tagsData: []
   };
 }
 
@@ -96,7 +98,7 @@ function initServer() {
   });
   
   app.get('/query/tags', function(req, res) {  
-    util.log('Sending tag data to client. (' + new Date() + ')');
+    //util.log('Sending tag data to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
     
     trilaterateAllTags();
@@ -221,6 +223,7 @@ function readerServerConnected(readerServerSocket : net.Socket) {
 }
 
 function processReaderEvent(readerEvent : ReaderEvent) {
+  util.log('Reader event');
   //util.log('emitting');
   //io.sockets.emit('llrp', readerEvent);
   //util.log(JSON.stringify(readerEvent));
@@ -228,19 +231,22 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   //  fileStream.write(JSON.stringify(readerEvent)+'\n');
   //}
 
-  var tag = _.findWhere(state.tagData, {epc: readerEvent.ePC});
+  var tag = _.findWhere(state.tagsData, {epc: readerEvent.ePC});
   if (!tag) {
     var preferredColorObj = _.findWhere(preferredTagColors, {epc: readerEvent.ePC});
     var color = preferredColorObj ? preferredColorObj.color : 'white';
-    state.tagData.push({ epc:readerEvent.ePC, color: color, rssis: [] });
+    state.tagsData.push({ epc:readerEvent.ePC, color: color, rssis: [] });
   }
   tag.rssis[readerEvent.ant-1] = readerEvent.RSSI;
   //util.log(tagsState);
 }
 
 function trilaterateAllTags() {
-  _(state.tagData).each((tag,i) => {
+  _(state.tagsData).each((tag,i) => {
     tag.coordinate = {x: i/10, y: i/10};
+    tag.distances = _(tag.rssis).map((rssi) => {
+      return trilateration.dist(rssi);
+    });
   });
 }
 

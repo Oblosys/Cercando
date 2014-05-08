@@ -1,11 +1,11 @@
-module Trilateration {  
-  export function dist(prd : number) {
-    var d0 = 0.9;
+  export function dist(rssi : number) {
+    var d0 = 1/6000;
     var prd0 = 32;
     var n = 1
-    return d0 * Math.exp((prd0-prd)/(10*n));
+    return d0 * Math.exp((prd0-rssi)/(10*n));
   }
   
+  /*
   
   export function trilaterateRanges(floorSVG : D3.Selection) : void {
     //util.log('Trilaterate'+JSON.stringify(ranges));
@@ -34,11 +34,11 @@ module Trilateration {
     var r1 = c1.r;
     var r2 = c2.r;
     var r3 = c3.r;
-    /*
-    (0,0)   (d,0)
     
-        (i,j)
-    */
+    //  (0,0)   (d,0)
+    //
+    //      (i,j)
+   
     var ct2 = transform(c1.x,c1.y, c2.x,c2.y, c2.x,c2.y);
     var ct3 = transform(c1.x,c1.y, c2.x,c2.y, c3.x,c3.y);
   
@@ -95,4 +95,4 @@ module Trilateration {
   function distance(x1 : number, y1 : number, x2 : number, y2 : number) : number {
     return Math.sqrt(square(x1-x2) + square(y1-y2));
   } 
-}
+*/
