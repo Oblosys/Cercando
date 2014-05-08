@@ -7,7 +7,7 @@ scripts/killReaderServer.sh
 sleep 2
 
 if [ "$1" = "--daemon" ]; then
-bash scripts/startGuardedReaderServer.sh </dev/null >~/logs/readerServer.log 2>&1 &
+bash scripts/startGuardedReaderServer.sh </dev/null >>~/lucyData/logs/readerServer.log 2>&1 &
 else
 # Start a normal server, and pass optional 'remoteReader' arg in $1
 $runServer $1
