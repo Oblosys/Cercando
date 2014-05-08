@@ -50,8 +50,17 @@ util.log('\n\n\nStarting web server on port ' + serverPortNr + ', using reader s
 
 interface ReaderEvent {firstSeen : string; lastSeen : string; ePC : string; ant : number; RSSI : number}
 
+// Duplicated, until we find an elegant way to share both types and code between client and server TypeScript
+function initialServerState() : Shared.ServerState {
+  return {
+    visibleTags: [],
+    status: {isConnected: false, isSaving: false},
+    tagData: []
+  };
+}
+
 function initServer() {
-  initializeState();
+  state = initialServerState();
   
   app = express();
 
@@ -215,18 +224,29 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   //if (fileStream) {
   //  fileStream.write(JSON.stringify(readerEvent)+'\n');
   //}
-  var tag = _.findWhere(state.tagRssis, {epc: readerEvent.ePC});
+
+  var tag = _.findWhere(state.tagData, {epc: readerEvent.ePC});
   if (!tag) {
-    state.tagRssis.push({ epc:readerEvent.ePC, rssis: [] });
+    var preferredColorObj = _.findWhere(preferredTagColors, {epc: readerEvent.ePC});
+    var color = preferredColorObj ? preferredColorObj.color : 'white';
+    state.tagData.push({ epc:readerEvent.ePC, color: color, rssis: [] });
   }
   tag.rssis[readerEvent.ant-1] = readerEvent.RSSI;
   //util.log(tagsState);
 }
 
-function initializeState() {
-  state = {
-    status: {isConnected: false, isSaving: false},
-    tagRssis: []
-  };
-}
 
+var preferredTagColors =
+  [ {epc:'0000000000000000000000000100842', color:'red'} 
+  , {epc:'0000000000000000000000000503968', color:'yellow'}
+  , {epc:'0000000000000000000000000503968', color:'yellow'}
+  , {epc:'0000000000000000000000000503972', color:'gray'}
+  , {epc:'0000000000000000000000000370802', color:'black'}
+  , {epc:'0000000000000000000000000370870', color:'orange'}
+  , {epc:'0000000000000000000000000370869', color:'green'}
+  , {epc:'0000000000000000000000000103921', color:'purple'}
+  , {epc:'0000000000000000000000000000795', color:'brown'}
+  , {epc:'0000000000000000000000000023040', color:'lightblue'}
+  , {epc:'0000000000000000000000000023140', color:'darkgray'}
+  , {epc:'0000000000000000000000000370845', color:'white'}
+  ];
