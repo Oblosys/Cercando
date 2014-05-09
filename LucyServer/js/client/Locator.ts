@@ -27,7 +27,7 @@ var floorHeight = 500;
 var floorWidth = 700;
 
 var origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
-var pixelsPerMeter = 400/3; // 3 meters is 400 pixels
+var pixelsPerMeter = 80;
 
 
 /***** Initialization *****/
