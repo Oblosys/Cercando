@@ -1,5 +1,7 @@
 module Shared {
   export interface Coord { x: number; y : number};
+  
+  export interface Antenna { id : string; name : string; coord : Coord }
 
   export interface ServerState {
     status : {isConnected : boolean; isSaving : boolean}

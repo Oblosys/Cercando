@@ -106,6 +106,12 @@ function initServer() {
     res.send(JSON.stringify(state));
   });
 
+  app.get('/query/antennas', function(req, res) {  
+    util.log('Sending antenna data to client. (' + new Date() + ')');
+    res.setHeader('content-type', 'application/json');
+    res.send(JSON.stringify(allAntennas));
+  });
+  
   app.get('/query/connect', function(req, res) {  
     util.log('connect');
     connectReaderServer();
@@ -246,14 +252,10 @@ function trilaterateAllTags() {
     var rssiDistances = _(tag.rssis).map((rssi) => {
       return trilateration.getRssiDistance(rssi);
     });
-    tag.coordinate = trilateration.trilaterateDistances(antennaCoords, rssiDistances);
+    tag.coordinate = trilateration.trilaterateDistances(allAntennas, rssiDistances);
     tag.distances = rssiDistances;
   });
 }
-
-
-// TODO: share these with client and maybe store in config file
-var antennaCoords = [{x:1.5,y:0},{x:0,y:1.5},{x:-1.5,y:0},{x:0,y:-1.5}] 
 
 // TODO: not used yet
 var antennaTweaks = [1,0.97,1,0.97]; // poor man's calibration
@@ -261,6 +263,10 @@ function tweakAntenna(antennaNr : number, rssi : number) : number {
   return rssi * antennaTweaks[antennaNr-1];
 }
 
+// TODO: maybe store in config file
+var allAntennas : Shared.Antenna[] =
+   [{id:'r1-a1',name:'1', coord:{x:1.5,y:0}},{id:'r1-a2',name:'2', coord:{x:0,y:1.5}},
+    {id:'r1-a3',name:'3', coord:{x:-1.5,y:0}},{id:'r1-a4',name:'4', coord:{x:0,y:-1.5}}];
 
 var preferredTagColors =
   [ {epc:'0000000000000000000000000100842', color:'red'} 

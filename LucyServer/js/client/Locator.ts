@@ -47,7 +47,7 @@ function initialServerState() : Shared.ServerState {
 
 function initialize() {
   serverState = initialServerState();
-  
+  queryAntennas();
   var floorSVG = d3.select('#floor')
     .append('svg:svg')
     .attr('width', floorWidth)
@@ -72,7 +72,14 @@ function initialize() {
   connectReader();
 }
 
-var signals : any = [];
+function queryAntennas() {
+  $.getJSON( 'query/antennas', function( data ) {
+    allAntennas = data;
+    drawAntennas();
+  }) .fail(function(jqXHR : any, status : any, err : any) {
+    console.error( "Error:\n\n" + jqXHR.responseText );
+  });
+}
 
 function drawAntennas() {
   var antennaPlaneSVG = d3.select('#antenna-plane');
@@ -81,7 +88,7 @@ function drawAntennas() {
 
 }
 
-function drawAntenna(floorSVG : D3.Selection, antenna : Antenna, antennaNr : number) {
+function drawAntenna(floorSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
   var pos = toScreen(antenna.coord);
   floorSVG.append('circle').attr('class', 'a-'+antennaNr)
     .style('stroke', 'white')
@@ -250,11 +257,7 @@ function toScreen(coord : {x : number; y : number }) {
   return {x: coord.x*pixelsPerMeter + origin.x, y: coord.y*pixelsPerMeter + origin.y};
 }
 
-interface Antenna { id : string; name : string; coord : Shared.Coord }
-
-var allAntennas : Antenna[] =
-   [{id:'r1-a1',name:'1', coord:{x:1.5,y:0}},{id:'r1-a2',name:'2', coord:{x:0,y:1.5}},
-    {id:'r1-a3',name:'3', coord:{x:-1.5,y:0}},{id:'r1-a4',name:'4', coord:{x:0,y:-1.5}}];
+var allAntennas : Shared.Antenna[];
  
 var tagCoords =
   [ {x:0,y:0}
@@ -262,18 +265,3 @@ var tagCoords =
   , {x:1.06,y:-1.06},{x:1.06,y:1.06},{x:-1.06,y:1.06},{x:-1.06,y:-1.06}
   , {x:1.42,y:0},{x:1.42,y:-50}
   ];
-
-var tagIds = 
-  [ '0000000000000000000000000370802'
-  , '0000000000000000000000000370870'
-  , '0000000000000000000000000370869'
-  , '0000000000000000000000000503968'
-  , '0000000000000000000000000503972'
-  , '0000000000000000000000000370845'
-  , '0000000000000000000000000000795'
-  , '0000000000000000000000000023040'
-  , '0000000000000000000000000023140'
-  , '0000000000000000000000000100842'
-  , '0000000000000000000000000103921'
-  ]
-   

@@ -28,12 +28,12 @@ function convert3dTo2d(dist3d : number) {
   return  Math.sqrt( util.square(dist3d) - util.square(antennaHeight - meanVisitorHeight) );
 }
 
-export function trilaterateDistances(antennaCoords : Shared.Coord[], distances : number[]) : Shared.Coord {
+export function trilaterateDistances(antennas : Shared.Antenna[], distances : number[]) : Shared.Coord {
     //util.log('Trilaterate'+JSON.stringify(ranges));
     var circles : Circle[] = [];
     for (var i=0; i<4; i++) {
       if (distances[i])
-        circles.push({x: antennaCoords[i].x, y: antennaCoords[i].y, r: distances[i], inTriangle: false});
+        circles.push({x: antennas[i].coord.x, y: antennas[i].coord.y, r: distances[i], inTriangle: false});
     }
     if (circles.length > 2) {
       var sortedCircles = _.sortBy(circles, function(c:Circle) {return c.r;});
