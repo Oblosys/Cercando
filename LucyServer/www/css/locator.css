@@ -58,3 +58,8 @@ body {
   text-decoration: none;
   color: #ddd;
 }
+
+/* IE compatibility */
+svg { overflow: hidden; }
+
+
