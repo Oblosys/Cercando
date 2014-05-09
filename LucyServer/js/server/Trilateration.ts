@@ -28,7 +28,7 @@ function convert3dTo2d(dist3d : number) {
   return  Math.sqrt( util.square(dist3d) - util.square(antennaHeight - meanVisitorHeight) );
 }
 
-export function trilaterateDistances(antennaCoords : Coord[], distances : number[]) : Coord {
+export function trilaterateDistances(antennaCoords : Shared.Coord[], distances : number[]) : Shared.Coord {
     //util.log('Trilaterate'+JSON.stringify(ranges));
     var circles : Circle[] = [];
     for (var i=0; i<4; i++) {
@@ -45,9 +45,8 @@ export function trilaterateDistances(antennaCoords : Coord[], distances : number
     }   
 }
 
-export interface Coord { x: number; y : number};
 interface Circle { x: number; y : number; r : number; inTriangle : boolean};
-function trilaterate(c1 : Circle, c2 : Circle, c3 : Circle) : Coord {
+function trilaterate(c1 : Circle, c2 : Circle, c3 : Circle) : Shared.Coord {
   // assume 3 receivers
   // http://en.wikipedia.org/wiki/Trilateration
   var r1 = c1.r;
@@ -76,7 +75,7 @@ function trilaterate(c1 : Circle, c2 : Circle, c3 : Circle) : Coord {
   return p;
 }
 // tranform p(x,y) to coordinate system in which P1 = (0,0) and P2( distance(P1,P2), 0)
-function transform(x1 : number, sy1 : number, x2 : number, sy2 : number, x : number, sy : number) : Coord {
+function transform(x1 : number, sy1 : number, x2 : number, sy2 : number, x : number, sy : number) : Shared.Coord {
   // positive y is downward in screencoordinates, so we need to flip y's
   var y1 = -sy1;
   var y2 = -sy2;
@@ -91,7 +90,7 @@ function transform(x1 : number, sy1 : number, x2 : number, sy2 : number, x : num
   return {x:x, y: -y}; // flip y again for screen coordinates  
 }
 
-function untransform(x1 : number, sy1 : number, x2 : number, sy2 : number, x : number, sy : number) : Coord {
+function untransform(x1 : number, sy1 : number, x2 : number, sy2 : number, x : number, sy : number) : Shared.Coord {
   // positive y is downward in screencoordinates, so we need to flip y's
   var y1 = -sy1;
   var y2 = -sy2;

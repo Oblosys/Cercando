@@ -59,12 +59,13 @@ function initialize() {
     .append('rect').attr('id', 'floor-background')
     .attr('width', floorWidth)
     .attr('height', floorHeight);
+  floorSVG.append('g').attr('id', 'antenna-plane');
   floorSVG.append('g').attr('id', 'annotation-plane');
   floorSVG.append('g').attr('id', 'rssi-plane');
   floorSVG.append('g').attr('id', 'triangulation-plane');
   floorSVG.append('g').attr('id', 'visitor-plane');
 
-  _.map([1,2,3,4], (ant : number) => drawAntenna(floorSVG, ant));
+  drawAntennas();
   //drawTagSetup();
   _.map(_.range(0, 10), (i : number) => drawMarker(i));
 
@@ -73,15 +74,22 @@ function initialize() {
 
 var signals : any = [];
 
-function drawAntenna(floorSVG : D3.Selection, antenna : number) {
-  var pos = toScreen(antennaCoords[antenna-1]);
-  floorSVG.append('circle').attr('class', 'a-'+antenna)
+function drawAntennas() {
+  var antennaPlaneSVG = d3.select('#antenna-plane');
+
+  _.each(allAntennas, (ant, i) => drawAntenna(antennaPlaneSVG, ant, i+1));
+
+}
+
+function drawAntenna(floorSVG : D3.Selection, antenna : Antenna, antennaNr : number) {
+  var pos = toScreen(antenna.coord);
+  floorSVG.append('circle').attr('class', 'a-'+antennaNr)
     .style('stroke', 'white')
     .style('fill', 'blue')
     .attr('r', 8)
     .attr('cx', pos.x)
     .attr('cy', pos.y);
-  floorSVG.append('text').text(''+antenna)
+  floorSVG.append('text').text(''+antenna.name)
     .attr('x', pos.x-3)
     .attr('y', pos.y+3.5)
     .attr('font-family', 'verdana')
@@ -130,7 +138,7 @@ function updateTags() {
     var $tagLabel = $('.tag-rssis:eq('+tagNr+') .tag-label');
     $tagLabel.css('color',tagData.color);
     $tagLabel.text(tagNr + ' ' +tagData.epc.slice(-7));
-    for (var ant=0; ant<antennaCoords.length; ant++) {
+    for (var ant=0; ant<allAntennas.length; ant++) {
       util.log('epc:'+tagData.epc+'  '+tagNr);
       var rssi = tagData.rssis[ant];
 
@@ -147,7 +155,7 @@ function updateTags() {
       if (range.empty() && tagNr <=11) { // use <= to filter tags
         util.log('Creating range for ant '+(ant+1) + ': '+rangeClass);
         
-        var pos = toScreen(antennaCoords[ant]);
+        var pos = toScreen(allAntennas[ant].coord);
         range = rssiPlaneSVG.append('circle').attr('class', rangeClass)
                   .style('stroke', tagData.color)
                   .style('fill', 'transparent')
@@ -241,8 +249,13 @@ function handleToggleTagLocationsButton() {
 function toScreen(coord : {x : number; y : number }) {
   return {x: coord.x*pixelsPerMeter + origin.x, y: coord.y*pixelsPerMeter + origin.y};
 }
-//var antennaCoords = [{x:150,y:250},{x:350,y:50},{x:550,y:250},{x:350,y:450}] 
-var antennaCoords = [{x:1.5,y:0},{x:0,y:1.5},{x:-1.5,y:0},{x:0,y:-1.5}] 
+
+interface Antenna { id : string; name : string; coord : Shared.Coord }
+
+var allAntennas : Antenna[] =
+   [{id:'r1-a1',name:'1', coord:{x:1.5,y:0}},{id:'r1-a2',name:'2', coord:{x:0,y:1.5}},
+    {id:'r1-a3',name:'3', coord:{x:-1.5,y:0}},{id:'r1-a4',name:'4', coord:{x:0,y:-1.5}}];
+ 
 var tagCoords =
   [ {x:0,y:0}
   , {x:0.53,y:-0.53},{x:0.53,y:0.53},{x:-0.53,y:0.53},{x:-0.53,y:-0.53}
