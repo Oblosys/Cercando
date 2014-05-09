@@ -2,10 +2,30 @@ import _        = require('underscore');
 import util     = require('oblo-util');
 
 export function getRssiDistance(rssi : number) {
+  var dist3d = getDistance3d(rssi);
+  //var dist = convert3dTo2d(dist3d) /2;
+  //util.log(dist3d + ' ' +dist);
+  
+  //return dist ? dist : 0;
+  return dist3d;
+}
+
+function getDistance3d(rssi : number) {
+  //var d0 = 1;
+  //var prd0 = -52;
+  //var n = 0.5
+
   var d0 = 1/6000;
   var prd0 = 32;
   var n = 1
   return d0 * Math.exp((prd0-rssi)/(10*n));
+}
+
+function convert3dTo2d(dist3d : number) {
+  var meanVisitorHeight = 1.5;
+  var antennaHeight = 2.7;
+  
+  return  Math.sqrt( util.square(dist3d) - util.square(antennaHeight - meanVisitorHeight) );
 }
 
 export function trilaterateDistances(antennaCoords : Coord[], distances : number[]) : Coord {
