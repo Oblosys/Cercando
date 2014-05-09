@@ -106,6 +106,13 @@ function initServer() {
     res.send(JSON.stringify(state));
   });
 
+  app.get('/query/tag-info', function(req, res) {  
+    util.log('Sending tag info to client. (' + new Date() + ')');
+    res.setHeader('content-type', 'application/json');
+    
+    res.send(JSON.stringify(allTagInfo));
+  });
+
   app.get('/query/antennas', function(req, res) {  
     util.log('Sending antenna data to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
@@ -239,7 +246,7 @@ function processReaderEvent(readerEvent : ReaderEvent) {
 
   var tag = _.findWhere(state.tagsData, {epc: readerEvent.ePC});
   if (!tag) {
-    var preferredColorObj = _.findWhere(preferredTagColors, {epc: readerEvent.ePC});
+    var preferredColorObj = _.findWhere(allTagInfo, {epc: readerEvent.ePC});
     var color = preferredColorObj ? preferredColorObj.color : 'white';
     state.tagsData.push({ epc:readerEvent.ePC, color: color, rssis: [] });
   }
@@ -268,17 +275,16 @@ var allAntennas : Shared.Antenna[] =
    [{id:'r1-a1',name:'1', coord:{x:1.5,y:0}},{id:'r1-a2',name:'2', coord:{x:0,y:1.5}},
     {id:'r1-a3',name:'3', coord:{x:-1.5,y:0}},{id:'r1-a4',name:'4', coord:{x:0,y:-1.5}}];
 
-var preferredTagColors =
-  [ {epc:'0000000000000000000000000100842', color:'red'} 
-  , {epc:'0000000000000000000000000503968', color:'yellow'}
-  , {epc:'0000000000000000000000000503968', color:'yellow'}
-  , {epc:'0000000000000000000000000503972', color:'gray'}
-  , {epc:'0000000000000000000000000370802', color:'black'}
-  , {epc:'0000000000000000000000000370870', color:'orange'}
-  , {epc:'0000000000000000000000000370869', color:'green'}
-  , {epc:'0000000000000000000000000103921', color:'purple'}
-  , {epc:'0000000000000000000000000000795', color:'brown'}
-  , {epc:'0000000000000000000000000023040', color:'lightblue'}
-  , {epc:'0000000000000000000000000023140', color:'darkgray'}
-  , {epc:'0000000000000000000000000370845', color:'white'}
+var allTagInfo : Shared.TagInfo[] =
+  [ {epc:'0000000000000000000000000100842', color:'red',       coord:{x:0,y:0}} 
+  , {epc:'0000000000000000000000000503968', color:'yellow',    coord:{x:0.53,y:-0.53}}
+  , {epc:'0000000000000000000000000503972', color:'gray',      coord:{x:0.53,y:0.53}}
+  , {epc:'0000000000000000000000000370802', color:'black',     coord:{x:-0.53,y:0.53}}
+  , {epc:'0000000000000000000000000370870', color:'orange',    coord:{x:-0.53,y:-0.53}}
+  , {epc:'0000000000000000000000000370869', color:'green',     coord:{x:1.06,y:-1.06}}
+  , {epc:'0000000000000000000000000103921', color:'purple',    coord:{x:1.06,y:1.06}}
+  , {epc:'0000000000000000000000000000795', color:'brown',     coord:{x:-1.06,y:1.06}}
+  , {epc:'0000000000000000000000000023040', color:'lightblue', coord:{x:-1.06,y:-1.06}}
+  , {epc:'0000000000000000000000000023140', color:'darkgray',  coord:{x:1.42,y:0}}
+  , {epc:'0000000000000000000000000370845', color:'white',     coord:{x:1.42,y:-0.5}}
   ];

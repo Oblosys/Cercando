@@ -14,6 +14,9 @@ Fix stuttering server updates
 var refreshInterval : number; // setInterval() returns a number
 var serverState : Shared.ServerState;
 
+var allAntennas : Shared.Antenna[];
+var allTagInfo : Shared.TagInfo[];
+
 function initRefreshSocket(floorSVG : D3.Selection) {
   //util.log(location.host);
   var socket = io.connect('http://'+location.host);
@@ -49,6 +52,7 @@ function initialize() {
   $.ajaxSetup({ cache: false });
   serverState = initialServerState();
   queryAntennas();
+  queryTagInfo();
   var floorSVG = d3.select('#floor')
     .append('svg:svg')
     .attr('width', floorWidth)
@@ -60,14 +64,15 @@ function initialize() {
     .append('rect').attr('id', 'floor-background')
     .attr('width', floorWidth)
     .attr('height', floorHeight);
-  floorSVG.append('g').attr('id', 'antenna-plane');
+  floorSVG.append('g').attr('id', 'tag-info-plane');
   floorSVG.append('g').attr('id', 'annotation-plane');
   floorSVG.append('g').attr('id', 'rssi-plane');
-  floorSVG.append('g').attr('id', 'triangulation-plane');
+  floorSVG.append('g').attr('id', 'antenna-plane');
+  floorSVG.append('g').attr('id', 'trilateration-plane');
   floorSVG.append('g').attr('id', 'visitor-plane');
 
   drawAntennas();
-  //drawTagSetup();
+  drawTagSetup();
   _.map(_.range(0, 10), (i : number) => drawMarker(i));
 
   connectReader();
@@ -89,15 +94,15 @@ function drawAntennas() {
 
 }
 
-function drawAntenna(floorSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
+function drawAntenna(planeSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
   var pos = toScreen(antenna.coord);
-  floorSVG.append('circle').attr('class', 'a-'+antennaNr)
+  planeSVG.append('circle').attr('class', 'a-'+antennaNr)
     .style('stroke', 'white')
     .style('fill', 'blue')
     .attr('r', 8)
     .attr('cx', pos.x)
     .attr('cy', pos.y);
-  floorSVG.append('text').text(''+antenna.name)
+  planeSVG.append('text').text(''+antenna.name)
     .attr('x', pos.x-3)
     .attr('y', pos.y+3.5)
     .attr('font-family', 'verdana')
@@ -105,18 +110,26 @@ function drawAntenna(floorSVG : D3.Selection, antenna : Shared.Antenna, antennaN
     .attr('fill', 'white');
   
 }
-/*
-function drawTagSetup() {
-  var pxPerCm = 400/300;
-  _(tagCoords).each((coord, tagNr)=>{
-    drawSquare(coord.x*pxPerCm+350,coord.y*pxPerCm+250,10, tagColors[tagNr]);
+
+function queryTagInfo() {
+  $.getJSON( 'query/tag-info', function( data ) {
+    allTagInfo = data;
+    drawTagSetup();
+  }) .fail(function(jqXHR : any, status : any, err : any) {
+    console.error( "Error:\n\n" + jqXHR.responseText );
   });
 }
-*/
-function drawSquare(x : number, y : number, size : number, color : string) {
-  var annotationPlaneSVG = d3.select('#annotation-plane');
- 
-  annotationPlaneSVG.append('rect')
+
+function drawTagSetup() {
+  var tagInfoPlaneSVG = d3.select('#tag-info-plane');
+  _(allTagInfo).each((tag, tagNr)=>{
+    var tagCoord = toScreen(tag.coord);
+    drawSquare(tagInfoPlaneSVG, tagCoord.x, tagCoord.y, 10, tag.color);
+  });
+}
+
+function drawSquare(planeSVG : D3.Selection, x : number, y : number, size : number, color : string) {
+  planeSVG.append('rect')
     .style('stroke', 'white')
     .style('fill', color)
     .attr('x', x-size/2)
@@ -126,9 +139,9 @@ function drawSquare(x : number, y : number, size : number, color : string) {
 }
 
 function drawMarker(markerNr : number) {
-  var triangulationPlaneSVG = d3.select('#triangulation-plane');
+  var trilaterationPlaneSVG = d3.select('#trilateration-plane');
  
-  triangulationPlaneSVG.append('circle').attr('class', 'm-'+markerNr)
+  trilaterationPlaneSVG.append('circle').attr('class', 'm-'+markerNr)
     .style('stroke', 'white')
     .style('fill', 'yellow')
     .attr('r', 6)
@@ -142,9 +155,6 @@ function updateTags() {
   _.map(serverState.tagsData, (tagData) => {
     //util.log(tagRssis.epc + '(' + tagNr + ':' + tagColors[tagNr] + ')' + tagRssis.rssis);
     var tagNr = getTagNr(tagData.epc);
-    if (tagNr==6) {
-      util.log(tagData.rssis);
-    }
     //$('.tag-rssis:eq('+tagNr+') .tag-label').text(tagData.epc);
     var $tagLabel = $('.tag-rssis:eq('+tagNr+') .tag-label');
     $tagLabel.css('color',tagData.color);
@@ -245,14 +255,14 @@ function handleDisconnectButton() {
 }
 
 function handleToggleTagLocationsButton() {
-  util.log('test:' + $('#annotation-plane').css('display')=='none');
+  util.log('test:' + $('#tag-info-plane').css('display')=='none');
   
-  if ($('#annotation-plane').css('display')=='none') {
+  if ($('#tag-info-plane').css('display')=='none') {
     $('#toggle-locations-button').attr('value','Show tag locations');
-    $('#annotation-plane').show();
+    $('#tag-info-plane').show();
   } else {
     $('#toggle-locations-button').attr('value','Hide tag locations');
-    $('#annotation-plane').hide();
+    $('#tag-info-plane').hide();
   }
 }
 
@@ -260,12 +270,3 @@ function handleToggleTagLocationsButton() {
 function toScreen(coord : {x : number; y : number }) {
   return {x: coord.x*pixelsPerMeter + origin.x, y: coord.y*pixelsPerMeter + origin.y};
 }
-
-var allAntennas : Shared.Antenna[];
- 
-var tagCoords =
-  [ {x:0,y:0}
-  , {x:0.53,y:-0.53},{x:0.53,y:0.53},{x:-0.53,y:0.53},{x:-0.53,y:-0.53}
-  , {x:1.06,y:-1.06},{x:1.06,y:1.06},{x:-1.06,y:1.06},{x:-1.06,y:-1.06}
-  , {x:1.42,y:0},{x:1.42,y:-50}
-  ];
