@@ -7,6 +7,6 @@ module Shared {
    
   export interface ServerState {
     status : {isConnected : boolean; isSaving : boolean}
-    tagsData : {epc : string; color : string; rssis : number[]; distances? : number[]; coordinate? : {x : number; y : number} }[]
+    tagsData : {epc : string; color : string; rssis : {value : number; timestamp : Date; age? : number; distance? : number}[]; coordinate? : {x : number; y : number} }[]
   }
 } 

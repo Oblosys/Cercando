@@ -152,7 +152,7 @@ function drawMarker(markerNr : number) {
 
 function updateTags() {
   var rssiPlaneSVG = d3.select('#rssi-plane');
-  
+  var now = new Date();
   _.map(serverState.tagsData, (tagData) => {
     //util.log(tagRssis.epc + '(' + tagNr + ':' + tagColors[tagNr] + ')' + tagRssis.rssis);
     var tagNr = getTagNr(tagData.epc);
@@ -161,52 +161,54 @@ function updateTags() {
     $tagLabel.css('color',tagData.color);
     $tagLabel.text(tagNr + ' ' +tagData.epc.slice(-7));
     for (var ant=0; ant<allAntennas.length; ant++) {
-      //util.log('epc:'+tagData.epc+'  '+tagNr);
-      var rssi = tagData.rssis[ant];
-
-      var dist =  tagData.distances[ant];
-      // show in table
-      if (rssi) {
-        $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+')').html('<span class="dist-label">' + dist.toFixed(1) + '</span>' +
-                                                                 '<span class="rssi-label">(' + rssi + ')</span>');
-      }
-      //util.log(tagNr + '-' + ant +' '+ rssi);
-
-      var rangeClass = 'r-'+(ant+1)+'-'+tagNr; 
-      var range = d3.select('.'+rangeClass)
-      if (range.empty() && tagNr <=11) { // use <= to filter tags
-        util.log('Creating range for ant '+(ant+1) + ': '+rangeClass);
+      if (tagData.rssis[ant]) {
+        //util.log('epc:'+tagData.epc+'  '+tagNr);
+        var rssi = tagData.rssis[ant].value;
+        var signalAge = tagData.rssis[ant].age;
+        var dist =  tagData.rssis[ant].distance;
+        // show in table
+        if (rssi) {
+          $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+')').html('<span class="dist-label">' + dist.toFixed(1) + '</span>' +
+                                                                   '<span class="rssi-label">(' + rssi + ')</span>');
+        }
+        //util.log(tagNr + '-' + ant +' '+ rssi);
+  
+        var rangeClass = 'r-'+(ant+1)+'-'+tagNr; 
+        var range = d3.select('.'+rangeClass)
+        if (range.empty() && tagNr <=11) { // use <= to filter tags
+          util.log('Creating range for ant '+(ant+1) + ': '+rangeClass);
+          
+          var pos = toScreen(allAntennas[ant].coord);
+          range = rssiPlaneSVG.append('circle').attr('class', rangeClass)
+                    .style('stroke', tagData.color)
+                    .style('fill', 'transparent')
+                    .attr('cx', pos.x)
+                    .attr('cy', pos.y);
+        }
+        //util.log('A'+ant+': tag'+tagNr+': '+dist);
+        util.log(signalAge);
+        var isRangeOutdated = signalAge>2000; // todo: do this server side
+        var isTrilaterationOutdated = false; // todo add timestamp to trilateration (and first try to trilaterate with only fresh ranges)
+        range.transition()
+             .duration(refreshRate)
+             .style('stroke-dasharray', isRangeOutdated ? '5,2' : '')
+             .attr('r', dist*pixelsPerMeter+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation
         
-        var pos = toScreen(allAntennas[ant].coord);
-        range = rssiPlaneSVG.append('circle').attr('class', rangeClass)
-                  .style('stroke', tagData.color)
-                  .style('fill', 'transparent')
-                  .attr('cx', pos.x)
-                  .attr('cy', pos.y);
-      }
-      //util.log('A'+ant+': tag'+tagNr+': '+dist);
-      var isRangeOutdated = false; // todo use timestamp on range
-      var isTrilaterationOutdated = false; // todo add timestamp to trilateration (and first try to trilaterate with only fresh ranges)
-      range.transition()
-           .duration(refreshRate)
-           .style('stroke-dasharray', isRangeOutdated ? '5,2' : '')
-           .attr('r', dist*pixelsPerMeter+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation
-      
-      var markerD3 = d3.select('.m-'+tagNr);
-      
-      if (tagData.coordinate) {
-        var pos = toScreen(tagData.coordinate);
-        markerD3.style('display', 'block');
-        markerD3.transition()
-                .duration(refreshRate)
-                .style('stroke-dasharray', isTrilaterationOutdated ? '1,1' : '')
-                .attr('cx',pos.x)
-                .attr('cy',pos.y);
-        markerD3.style('fill', tagData.color); // TODO: dynamically create markers
-      } else {
-        markerD3.style('display', 'none'); 
-      }
+        var markerD3 = d3.select('.m-'+tagNr);
         
+        if (tagData.coordinate) {
+          var pos = toScreen(tagData.coordinate);
+          markerD3.style('display', 'block');
+          markerD3.transition()
+                  .duration(refreshRate)
+                  .style('stroke-dasharray', isTrilaterationOutdated ? '1,1' : '')
+                  .attr('cx',pos.x)
+                  .attr('cy',pos.y);
+          markerD3.style('fill', tagData.color); // TODO: dynamically create markers
+        } else {
+          markerD3.style('display', 'none'); 
+        }
+      }       
     }
     
   });

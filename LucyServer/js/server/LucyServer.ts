@@ -250,17 +250,24 @@ function processReaderEvent(readerEvent : ReaderEvent) {
     var color = preferredColorObj ? preferredColorObj.color : 'white';
     state.tagsData.push({ epc:readerEvent.ePC, color: color, rssis: [] });
   }
-  tag.rssis[readerEvent.ant-1] = readerEvent.RSSI;
+  
+  // take the time in between firstSeen and lastSeen. TODO Reader time is not in sync with server. For now, just use server time.
+  //var timestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
+  var timestamp = new Date(); // use current time as timestamp.
+  tag.rssis[readerEvent.ant-1] = {value: readerEvent.RSSI, timestamp: timestamp};
   //util.log(tagsState);
 }
 
+// trilaterate all tags and age and distance for each rssi value
 function trilaterateAllTags() {
+  var now = new Date();
   _(state.tagsData).each((tag,i) => {
     var rssiDistances = _(tag.rssis).map((rssi) => {
-      return trilateration.getRssiDistance(rssi);
+      rssi.distance = trilateration.getRssiDistance(rssi.value);
+      rssi.age = now.getTime() - rssi.timestamp.getTime(); 
+      return rssi.distance;
     });
     tag.coordinate = trilateration.trilaterateDistances(allAntennas, rssiDistances);
-    tag.distances = rssiDistances;
   });
 }
 
