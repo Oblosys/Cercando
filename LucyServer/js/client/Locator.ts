@@ -11,6 +11,7 @@ TODO
 Fix stuttering server updates
 */
 
+var refreshRate = 500;
 var refreshInterval : number; // setInterval() returns a number
 var serverState : Shared.ServerState;
 
@@ -184,15 +185,23 @@ function updateTags() {
                   .attr('cy', pos.y);
       }
       //util.log('A'+ant+': tag'+tagNr+': '+dist);
-      range.attr('r', dist*pixelsPerMeter+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation
+      var isRangeOutdated = false; // todo use timestamp on range
+      var isTrilaterationOutdated = false; // todo add timestamp to trilateration (and first try to trilaterate with only fresh ranges)
+      range.transition()
+           .duration(refreshRate)
+           .style('stroke-dasharray', isRangeOutdated ? '5,2' : '')
+           .attr('r', dist*pixelsPerMeter+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation
       
       var markerD3 = d3.select('.m-'+tagNr);
       
       if (tagData.coordinate) {
         var pos = toScreen(tagData.coordinate);
         markerD3.style('display', 'block');
-        markerD3.attr('cx',pos.x);
-        markerD3.attr('cy',pos.y);
+        markerD3.transition()
+                .duration(refreshRate)
+                .style('stroke-dasharray', isTrilaterationOutdated ? '1,1' : '')
+                .attr('cx',pos.x)
+                .attr('cy',pos.y);
         markerD3.style('fill', tagData.color); // TODO: dynamically create markers
       } else {
         markerD3.style('display', 'none'); 
@@ -213,7 +222,7 @@ function getTagNr(epc : string) {
 }
 
 function startRefreshInterval() {
-  refreshInterval = <any>setInterval(refresh, 500); 
+  refreshInterval = <any>setInterval(refresh, refreshRate); 
   // unfortunately Eclipse TypeScript is stupid and doesn't respect reference paths, so it includes all TypeScript
   // declarations in the source tree and assumes a different type for setInterval here
   // (returning NodeTimer instead of number, as declared in node.d.ts)
