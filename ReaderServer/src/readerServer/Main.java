@@ -1,8 +1,6 @@
 package readerServer;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,8 +19,19 @@ public class Main {
   private static final String readerIP = "10.0.0.30";
   private static final int readerServerPort = 8193;
   
+  private static LLRPClient llrpClient = new LLRPClient();
+ 
   public static void main(String[] args)
   {
+    Runtime.getRuntime().addShutdownHook(new Thread() {
+      public void run() {
+        System.out.println(getTimestamp() + ": Shutdown signal received, stopping reader.");
+        if (llrpClient != null) {
+          llrpClient.stop();
+        }
+        System.out.println(getTimestamp() + ": Exiting reader server.");
+      }
+    });
     startServer(readerServerPort);
   }
 
@@ -40,6 +49,10 @@ public class Main {
 	    return;
 	  }
 	  
+    System.out.println("Starting reader at "+readerIP+".");
+    llrpClient.run(readerIP);
+
+    
     while (true) {
       System.out.println("\nWaiting for client connection on " + port);
       
@@ -48,39 +61,22 @@ public class Main {
         InetAddress client = connectionsocket.getInetAddress();
         System.out.println("\n\n" + getTimestamp() + " Connected to " + client);
 
-        BufferedReader input =
-          new BufferedReader(new InputStreamReader(connectionsocket.getInputStream()));
-
         DataOutputStream output =
           new DataOutputStream(connectionsocket.getOutputStream());
 
-        serveLLRPEvents(input, output);
-        System.out.println(getTimestamp() + " Disconnected");
+        llrpClient.addSocketStream(output);
+        //System.out.println(getTimestamp() + " Disconnected");
       }
       catch (Exception e) {
-        System.out.println("\nError:" + e.getMessage());
+        System.out.println("\nError in main loop:\n" + e.getMessage());
+        System.exit(1);
       }
     }
 	}
+  
   private static String getTimestamp() {
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     return dateFormat.format(new Date());
-  }
-  
-  private static void serveLLRPEvents(BufferedReader input, DataOutputStream output) {
-    LLRPClient llrpClient = new LLRPClient(output);
-  
-    System.out.println("Starting reader at "+readerIP+".");
-    llrpClient.run(readerIP);
-    
-    try { // Keep sending events until newline from client (or broken socket) 
-  	  input.readLine();
-    } catch (Exception e) {
-        System.out.println("Error while waiting for newline on client socket:");
-        e.printStackTrace();
-    }   
-    System.out.println("Stopping reader.");
-    llrpClient.stop();
   }
 }
 

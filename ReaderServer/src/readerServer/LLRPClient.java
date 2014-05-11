@@ -1,5 +1,6 @@
 package readerServer;
 import java.io.DataOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.llrp.ltk.generated.enumerations.*;
@@ -20,10 +21,10 @@ public class LLRPClient implements LLRPEndpoint {
   private LLRPConnection reader;
   private static final int TIMEOUT_MS = 10000;
   private static final int ROSPEC_ID = 1;
-  private DataOutputStream clientSocket;
+  private List<DataOutputStream> socketOutputStreams;
    
-  public LLRPClient(DataOutputStream socketOut) {
-  	this.clientSocket = socketOut;
+  public LLRPClient() {
+  	this.socketOutputStreams = new ArrayList<DataOutputStream>();
   }
   
   // Build the ROSpec.
@@ -170,6 +171,7 @@ public class LLRPClient implements LLRPEndpoint {
   // Enable the ROSpec.
   public void enableROSpec()
   {
+    @SuppressWarnings("unused")
     ENABLE_ROSPEC_RESPONSE response;
      
     //System.out.println("Enabling the ROSpec.");
@@ -189,6 +191,7 @@ public class LLRPClient implements LLRPEndpoint {
   // Start the ROSpec.
   public void startROSpec()
   {
+    @SuppressWarnings("unused")
     START_ROSPEC_RESPONSE response;
     //System.out.println("Starting the ROSpec.");
     START_ROSPEC start = new START_ROSPEC();
@@ -206,6 +209,7 @@ public class LLRPClient implements LLRPEndpoint {
   // Delete all ROSpecs from the reader.
   public void deleteROSpecs()
   {
+    @SuppressWarnings("unused")
     DELETE_ROSPEC_RESPONSE response;
      
     //System.out.println("Deleting all ROSpecs.");
@@ -274,6 +278,7 @@ public class LLRPClient implements LLRPEndpoint {
       e1.printStackTrace();
       System.exit(1);
     }
+    System.out.println("Connected.");
   }
    
   // Disconnect from the reader
@@ -282,6 +287,7 @@ public class LLRPClient implements LLRPEndpoint {
   }
    
   public void getReaderCapabilities() {
+    @SuppressWarnings("unused")
     GET_READER_CAPABILITIES_RESPONSE response;
      
     //System.out.println("Deleting all ROSpecs.");
@@ -331,13 +337,26 @@ public class LLRPClient implements LLRPEndpoint {
     disconnect();
   }
   
-  public void sendLine(String message) {
-  	try {
-  		//System.out.println(message);
-  		clientSocket.writeUTF(message);
-  	} catch (Exception e) {
-  		System.out.println("Error while writing to socket: "+e.getMessage());
-  		//e.printStackTrace();
-    }   
+  public void addSocketStream(DataOutputStream socketOutputStream) {
+    socketOutputStreams.add(socketOutputStream);
+    System.out.println("Added socket connection (active connections: "+socketOutputStreams.size()+")");
+  }
+
+  public void removeSocketStream(DataOutputStream socketOutputStream) {
+    socketOutputStreams.remove(socketOutputStream);
+    System.out.println("Removed socket connection (active connections: "+socketOutputStreams.size()+")");
+  }
+
+  private void sendLine(String message) {
+    for (DataOutputStream socketOutputStream : socketOutputStreams) {
+    	try {
+    		//System.out.println(message);
+    		socketOutputStream.writeUTF(message);
+    	} catch (Exception e) {
+    		System.out.println("Error while writing to socket: "+e.getMessage());
+    		removeSocketStream(socketOutputStream);
+    		//e.printStackTrace();
+      }   
+    }
   }
 }
