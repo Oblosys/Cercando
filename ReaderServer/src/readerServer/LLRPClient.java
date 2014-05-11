@@ -339,21 +339,25 @@ public class LLRPClient implements LLRPEndpoint {
   
   public void addSocketStream(DataOutputStream socketOutputStream) {
     socketOutputStreams.add(socketOutputStream);
-    System.out.println("Added socket connection (active connections: "+socketOutputStreams.size()+")");
+    System.out.println(Util.getTimestamp() + ": Added socket connection (active connections: "+socketOutputStreams.size()+")");
   }
 
   public void removeSocketStream(DataOutputStream socketOutputStream) {
     socketOutputStreams.remove(socketOutputStream);
-    System.out.println("Removed socket connection (active connections: "+socketOutputStreams.size()+")");
+    System.out.println(Util.getTimestamp() + ": Removed socket connection (active connections: "+socketOutputStreams.size()+")");
   }
 
   private void sendLine(String message) {
-    for (DataOutputStream socketOutputStream : socketOutputStreams) {
+    ArrayList<DataOutputStream> streams = new ArrayList<DataOutputStream>(socketOutputStreams); // create a copy, so we can modify the original
+    for (DataOutputStream socketOutputStream : streams) {
     	try {
     		//System.out.println(message);
     		socketOutputStream.writeUTF(message);
     	} catch (Exception e) {
-    		System.out.println("Error while writing to socket: "+e.getMessage());
+    	  if (e.getMessage().equals("Broken pipe")) 
+    	    System.out.println(Util.getTimestamp() + ": Client socket closed.");
+    	  else
+    	    System.out.println(Util.getTimestamp() + ": Error while writing to socket: "+e.getMessage());
     		removeSocketStream(socketOutputStream);
     		//e.printStackTrace();
       }   

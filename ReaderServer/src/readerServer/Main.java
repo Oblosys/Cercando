@@ -4,9 +4,6 @@ import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Basic server that connects to RFID reader and redirects all read events to a socket. 
@@ -25,11 +22,11 @@ public class Main {
   {
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
-        System.out.println(getTimestamp() + ": Shutdown signal received, stopping reader.");
+        System.out.println(Util.getTimestamp() + ": Shutdown signal received, stopping reader.");
         if (llrpClient != null) {
           llrpClient.stop();
         }
-        System.out.println(getTimestamp() + ": Exiting reader server.");
+        System.out.println("Exiting reader server.");
       }
     });
     startServer(readerServerPort);
@@ -39,7 +36,7 @@ public class Main {
   public static void startServer(int port) {
 	  ServerSocket serversocket = null;
 	  System.out.println("\n\n###########################################\n");
-	  System.out.println(getTimestamp() + ": Starting Reader Server\n");
+	  System.out.println(Util.getTimestamp() + ": Starting Reader Server\n");
 	  
 	  try {
       System.out.println("Setting up server socket on port " + port);
@@ -54,12 +51,12 @@ public class Main {
 
     
     while (true) {
-      System.out.println("\nWaiting for client connection on " + port);
+      System.out.println("\n" + Util.getTimestamp() + ": Waiting for client connection on " + port);
       
       try {
         Socket connectionsocket = serversocket.accept();
         InetAddress client = connectionsocket.getInetAddress();
-        System.out.println("\n\n" + getTimestamp() + " Connected to " + client);
+        System.out.println("\n" + Util.getTimestamp() + ": Connected to " + client);
 
         DataOutputStream output =
           new DataOutputStream(connectionsocket.getOutputStream());
@@ -73,11 +70,4 @@ public class Main {
       }
     }
 	}
-  
-  private static String getTimestamp() {
-    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    return dateFormat.format(new Date());
-  }
 }
-
-
