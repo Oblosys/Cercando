@@ -56,7 +56,7 @@ interface ReaderEvent {firstSeen : string; lastSeen : string; ePC : string; ant 
 function initialServerState() : Shared.ServerState {
   return {
     visibleTags: [],
-    status: {isConnected: false, isSaving: false},
+    status: {isConnected: false, isSaving: false, webServerTime : null, readerServerTime : null},
     tagsData: []
   };
 }
@@ -101,6 +101,7 @@ function initServer() {
     //util.log('Sending tag data to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
     
+    state.status.webServerTime = new Date().toString();
     trilaterateAllTags();
     
     res.send(JSON.stringify(state));
@@ -264,8 +265,11 @@ function processReaderEvent(readerEvent : ReaderEvent) {
     state.tagsData.push({ epc:readerEvent.ePC, color: color, rssis: [] });
   }
   
-  // take the time in between firstSeen and lastSeen. TODO Reader time is not in sync with server. For now, just use server time.
-  //var timestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
+  // take the time in between firstSeen and lastSeen.
+  var readerTimestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
+  state.status.readerServerTime = readerTimestamp.toString();
+  
+  //TODO Reader time is not in sync with server. For now, just use server time.
   var timestamp = new Date(); // use current time as timestamp.
   tag.rssis[readerEvent.ant-1] = {value: readerEvent.RSSI, timestamp: timestamp};
   //util.log(tagsState);

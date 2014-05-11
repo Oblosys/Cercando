@@ -46,7 +46,7 @@ $(document).ready(function(){
 function initialServerState() : Shared.ServerState {
   return {
     visibleTags: [],
-    status: {isConnected: false, isSaving: false},
+    status: {isConnected: false, isSaving: false, webServerTime : null, readerServerTime : null},
     tagsData: []
   };
 }
@@ -216,8 +216,14 @@ function updateTrails() {
   });
 }
 
+function showTime(date : Date) {
+  return util.padZero(2, date.getHours()) + ":" + util.padZero(2, date.getMinutes()) + ":" + util.padZero(2, date.getSeconds()) 
+}
 
 function updateTags() {
+  var webServerTime = new Date(serverState.status.webServerTime);
+  $('#server-time-label').text(showTime(new Date(serverState.status.webServerTime)));
+  $('#reader-time-label').text(showTime(new Date(serverState.status.readerServerTime)));
   var rssiPlaneSVG = d3.select('#rssi-plane');
   var now = new Date();
   _.map(serverState.tagsData, (tagData) => {
