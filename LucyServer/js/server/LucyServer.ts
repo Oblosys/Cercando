@@ -129,7 +129,7 @@ function initServer() {
 
   app.get('/query/disconnect', function(req, res) {  
     util.log('disconnect');
-    readerServerSocket.destroy(); // TODO: destroy is probably not the best way to close the socket (end doesn't work reliably though)
+    disconnectReader();
     res.writeHead(204);
     res.end();
   });
@@ -165,10 +165,6 @@ server.listen(serverPortNr);
 
  */
 
-function resetServerState() {
-  state = initialServerState();
-}
-
 function connectReaderServer() {
   if (readerServerSocket)
     readerServerSocket.destroy(); // TODO: destroy is probably not the best way to close the socket (end doesn't work reliably though)
@@ -184,7 +180,11 @@ function connectReaderServer() {
       tryToConnect(readerServerSocket);
     }, 1000);
   });
-  
+  readerServerSocket.on('close', function() {
+    util.log('Connection closed');
+    state.status.isConnected = false;
+  });
+
   tryToConnect(readerServerSocket);
 }
 
@@ -194,6 +194,7 @@ function tryToConnect(readerServerSocket : net.Socket) {
 }
 
 function readerServerConnected(readerServerSocket : net.Socket) {
+  state.status.isConnected = true;
   util.log('Connected to reader server at: ' + readerServerHostName + ':' + readerServerPortNr);
 /*
     var fileStream = fs.createWriteStream('calibratie/Output-'+new Date()+'.json');
@@ -244,9 +245,18 @@ function readerServerConnected(readerServerSocket : net.Socket) {
       
   });
   */
-  readerServerSocket.on('close', function() {
-    util.log('Connection closed');
-  });
+}
+
+function disconnectReader() {
+  readerServerSocket.destroy(); 
+  // TODO: destroy is probably not the best way to close the socket (end doesn't work reliably though)
+
+  state.status.isConnected = false;
+
+}
+
+function resetServerState() {
+  state = initialServerState();
 }
 
 function processReaderEvent(readerEvent : ReaderEvent) {

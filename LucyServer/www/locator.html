@@ -22,8 +22,11 @@
         <input type="button" id="disconnect-button" onclick="handleDisconnectButton()" value="Disconnect"></input>
         <input type="button" id="reset-button" onclick="handleResetButton()" value="Reset"></input><br/>
         <input type="button" id="toggle-locations-button" onclick="handleToggleTagLocationsButton()" value="Show tag locations"></input><br/>
-        Server time: <span id="server-time-label"></span></br>
-        Reader time: <span id="reader-time-label"></span></br>
+        <table>
+        <tr><td>Server time:&nbsp;<td><td><span id="server-time-label"></span><td></tr>
+        <tr><td>Reader time:&nbsp;<td><td><span id="reader-time-label"></span><td></tr>
+        </table>
+        Reader status: <span id="connection-label"></span></br>
       </div>
       <div id="wrap">
         <div id="floor"></div>

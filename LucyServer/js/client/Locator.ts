@@ -216,14 +216,20 @@ function updateTrails() {
   });
 }
 
-function showTime(date : Date) {
-  return util.padZero(2, date.getHours()) + ":" + util.padZero(2, date.getMinutes()) + ":" + util.padZero(2, date.getSeconds()) 
+function updateLabels() {
+  var webServerTime = new Date(serverState.status.webServerTime);
+  $('#server-time-label').text(showTime(new Date(serverState.status.webServerTime)));
+  if (serverState.status.readerServerTime)
+    $('#reader-time-label').text(showTime(new Date(serverState.status.readerServerTime)));
+  $('#reader-time-label').css('color', serverState.status.isConnected ? 'white' : 'grey');
+
+  $('#connection-label').text(serverState.status.isConnected ? 'Connected' : 'Not connected');
+  $('#connection-label').css('color', serverState.status.isConnected ? 'lime' : 'red');
 }
 
 function updateTags() {
-  var webServerTime = new Date(serverState.status.webServerTime);
-  $('#server-time-label').text(showTime(new Date(serverState.status.webServerTime)));
-  $('#reader-time-label').text(showTime(new Date(serverState.status.readerServerTime)));
+  updateLabels();
+    
   var rssiPlaneSVG = d3.select('#rssi-plane');
   var now = new Date();
   _.map(serverState.tagsData, (tagData) => {
@@ -326,7 +332,9 @@ function connectReader() {
 function disconnectReader() {
   $.get('/query/disconnect', function() {
     util.log('Disconnected from reader.');
-    stopRefreshInterval();  
+    stopRefreshInterval();
+    serverState.status.isConnected = false;
+    updateLabels();  
   });
 }
 
@@ -366,4 +374,8 @@ function toScreenX(x : number) {
 
 function toScreenY(y : number) {
   return y*pixelsPerMeter + origin.y
+}
+
+function showTime(date : Date) {
+  return util.padZero(2, date.getHours()) + ":" + util.padZero(2, date.getMinutes()) + ":" + util.padZero(2, date.getSeconds()) 
 }
