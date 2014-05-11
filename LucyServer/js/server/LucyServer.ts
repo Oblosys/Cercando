@@ -128,9 +128,7 @@ function initServer() {
 
   app.get('/query/disconnect', function(req, res) {  
     util.log('disconnect');
-    if (readerServerSocket) {
-      readerServerSocket.write('\n');
-    }
+    readerServerSocket.destroy(); // TODO: destroy is probably not the best way to close the socket (end doesn't work reliably though)
     res.writeHead(204);
     res.end();
   });
@@ -161,22 +159,27 @@ server.listen(serverPortNr);
 
 
 function connectReaderServer() {
-  readerServerSocket = new net.Socket();
+  if (readerServerSocket)
+    readerServerSocket.destroy(); // TODO: destroy is probably not the best way to close the socket (end doesn't work reliably though)
 
+  readerServerSocket = new net.Socket();
+  
+  readerServerSocket.on('connect', function() {
+    readerServerConnected(readerServerSocket);
+  });
   readerServerSocket.on('error', function(err : any) { // TODO: not typed
     util.log('Connection to reader server failed (error code: ' + err.code + '), retrying..');
+    setTimeout(function() {
+      tryToConnect(readerServerSocket);
+    }, 1000);
   });
-  var connectInterval = 
-    setInterval(function() {
-      util.log('Trying to connect to reader server on '+readerServerHostName+':'+readerServerPortNr);
-      readerServerSocket.connect(readerServerPortNr, readerServerHostName);
-     
-      readerServerSocket.on('connect', function() {
-        util.log('Connected to reader server');
-        clearInterval(connectInterval);
-        readerServerConnected(readerServerSocket);
-      });
-      }, 2000); // TODO: interval can fire before connect failed, use timeout
+  
+  tryToConnect(readerServerSocket);
+}
+
+function tryToConnect(readerServerSocket : net.Socket) {
+  util.log('Trying to connect to reader server on '+readerServerHostName+':'+readerServerPortNr);
+  readerServerSocket.connect(readerServerPortNr, readerServerHostName);
 }
 
 function readerServerConnected(readerServerSocket : net.Socket) {
