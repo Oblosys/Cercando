@@ -62,7 +62,7 @@ function initialServerState() : Shared.ServerState {
 }
 
 function initServer() {
-  state = initialServerState();
+  resetServerState();
   
   app = express();
 
@@ -133,6 +133,13 @@ function initServer() {
     res.end();
   });
 
+  app.get('/query/reset', function(req, res) {  
+    util.log('reset');
+    resetServerState();
+    res.writeHead(204);
+    res.end();
+  });
+
   app.get('/query/test', function(req, res) {  
     util.log('test');
     res.writeHead(204);
@@ -157,6 +164,9 @@ server.listen(serverPortNr);
 
  */
 
+function resetServerState() {
+  state = initialServerState();
+}
 
 function connectReaderServer() {
   if (readerServerSocket)

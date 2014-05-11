@@ -51,6 +51,16 @@ function initialServerState() : Shared.ServerState {
   };
 }
 
+function resetClientState() {
+  serverState = initialServerState();
+  tagTrails = [];
+  d3.selectAll('#annotation-plane *').remove();
+  d3.selectAll('#trilateration-plane *').remove();
+  d3.selectAll('#rssi-plane *').remove();
+  initTrails();
+  createMarkers();
+}
+
 function initialize() {
   $.ajaxSetup({ cache: false });
   serverState = initialServerState();
@@ -76,8 +86,7 @@ function initialize() {
 
   drawAntennas();
   drawTagSetup();
-  _.map(_.range(0, 10), (i : number) => drawMarker(i));
-
+  
   connectReader();
 }
 
@@ -114,12 +123,14 @@ function drawAntenna(planeSVG : D3.Selection, antenna : Shared.Antenna, antennaN
   
 }
 
+// TODO: Maybe combine with query antennas so we can easily handle actions that require both to have finished
 function queryTagInfo() {
   $.getJSON( 'query/tag-info', function( data ) {
     util.log('Queried tag info:\n'+JSON.stringify(data));
     allTagInfo = data;
     drawTagSetup();
     initTrails();
+    createMarkers();
   }) .fail(function(jqXHR : any, status : any, err : any) {
     console.error( "Error:\n\n" + jqXHR.responseText );
   });
@@ -143,15 +154,21 @@ function drawSquare(planeSVG : D3.Selection, x : number, y : number, size : numb
     .attr('height', size);
 }
 
-function drawMarker(markerNr : number) {
+function createMarkers() {
+  util.log('fsda');
+  _.map(_.range(0, allTagInfo.length), (i : number) => createMarker(i));
+}
+
+function createMarker(markerNr : number) {
   var trilaterationPlaneSVG = d3.select('#trilateration-plane');
  
   trilaterationPlaneSVG.append('circle').attr('class', 'm-'+markerNr)
     .style('stroke', 'white')
     .style('fill', 'yellow')
     .attr('r', 6)
-    .attr('cx', 20+markerNr * 10)
-    .attr('cy', 20);
+    .attr('cx', toScreenX(0))
+    .attr('cy', toScreenY(0))
+    .style('display', 'none');
 }
 
 // Store coord at the head of the corresponding trail, moving up the rest, and clipping at trailLength.
@@ -226,7 +243,7 @@ function updateTags() {
         var rangeClass = 'r-'+(ant+1)+'-'+tagNr; 
         var range = d3.select('.'+rangeClass)
         if (range.empty() && tagNr <=11) { // use <= to filter tags
-          util.log('Creating range for ant '+(ant+1) + ': '+rangeClass);
+          util.log('Creating range for antenna '+(ant+1) + ': '+rangeClass);
           
           var pos = toScreen(allAntennas[ant].coord);
           range = rssiPlaneSVG.append('circle').attr('class', rangeClass)
@@ -313,6 +330,13 @@ function handleConnectButton() {
 
 function handleDisconnectButton() {
   disconnectReader();
+}
+
+function handleResetButton() {
+  $.get('/query/reset', function() {
+    resetClientState();
+    util.log('Reset server.');
+  });
 }
 
 function handleToggleTagLocationsButton() {

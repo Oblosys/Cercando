@@ -7,8 +7,14 @@ body {
   text-align: center;
   margin-top: 10px;
 }
+#control-panel {
+	text-align: left;
+  display: inline-block;
+  vertical-align: top;
+}
 #wrap {
   display: inline-block;
+  vertical-align: top;
 }
 #floor {
 	margin-top:10px;

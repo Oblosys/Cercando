@@ -17,10 +17,13 @@
   </head>
   <body>
     <div id="main">
-      <div id="wrap">
+      <div id="control-panel">
         <input type="button" id="connect-button" onclick="handleConnectButton()" value="Connect to reader"></input>
         <input type="button" id="disconnect-button" onclick="handleDisconnectButton()" value="Disconnect"></input>
-        <input type="button" id="toggle-locations-button" onclick="handleToggleTagLocationsButton()" value="Show tag locations"></input>
+        <input type="button" id="reset-button" onclick="handleResetButton()" value="Reset"></input><br/>
+        <input type="button" id="toggle-locations-button" onclick="handleToggleTagLocationsButton()" value="Show tag locations"></input><br/>
+      </div>
+      <div id="wrap">
         <div id="floor"></div>
 
         <div id="copyright">&copy; 2014 <a href="http://www.oblomov.com">Oblomov&nbsp;Systems</a></div>
