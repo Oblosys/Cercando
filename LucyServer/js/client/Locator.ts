@@ -10,11 +10,21 @@
 TODO
 Fix stuttering server updates
 */
+  
+var debug = true;
+var floorHeight = 500;
+var floorWidth = 700;
+
+var origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
+var pixelsPerMeter = 80;
+
 
 var refreshRate = 500;
+var trailLength = 30;
+var tagTrails : Shared.Coord[][] = [];
+
 var refreshInterval : number; // setInterval() returns a number
 var serverState : Shared.ServerState;
-
 var allAntennas : Shared.Antenna[];
 var allTagInfo : Shared.TagInfo[];
 
@@ -25,14 +35,6 @@ function initRefreshSocket(floorSVG : D3.Selection) {
     //util.log('LLRP event'+data.RSSI);
   });
 }  
-  
-var debug = true;
-var floorHeight = 500;
-var floorWidth = 700;
-
-var origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
-var pixelsPerMeter = 80;
-
 
 /***** Initialization *****/
 
@@ -114,8 +116,10 @@ function drawAntenna(planeSVG : D3.Selection, antenna : Shared.Antenna, antennaN
 
 function queryTagInfo() {
   $.getJSON( 'query/tag-info', function( data ) {
+    util.log('Queried tag info:\n'+JSON.stringify(data));
     allTagInfo = data;
     drawTagSetup();
+    initTrails();
   }) .fail(function(jqXHR : any, status : any, err : any) {
     console.error( "Error:\n\n" + jqXHR.responseText );
   });
@@ -149,6 +153,52 @@ function drawMarker(markerNr : number) {
     .attr('cx', 20+markerNr * 10)
     .attr('cy', 20);
 }
+
+// Store coord at the head of the corresponding trail, moving up the rest, and clipping at trailLength.
+function recordTrail(epc : string, coord : Shared.Coord) {
+  var tagNr = getTagNr(epc);
+  var tagTrail = tagTrails[tagNr];
+  if (!tagTrail) { // create new trail if non-existent
+    tagTrail = [];
+    tagTrails[tagNr] = tagTrail;
+  }
+  tagTrails[tagNr] = _.union([coord], tagTrail).slice(0,trailLength);
+}
+
+function initTrails() {
+  for (var tagNr=0; tagNr<allTagInfo.length; tagNr++) {
+    var visitorTrail = d3.select('#annotation-plane')
+      .append('path')
+      .attr('id', 'trail-'+tagNr)
+      .attr('class', 'tag-trail')
+      .attr('stroke-dasharray','')
+      //.style('stroke', allTagInfo[tagNr].color)
+      .attr('fill', 'none');
+  }
+}
+
+function updateTrails() {
+  // TODO: handle new tags and disappeared tags
+  _.each(serverState.tagsData, (tagData) => {
+    var tagNr = getTagNr(tagData.epc);
+    var tagTrail = tagTrails[tagNr];
+    
+    if (tagTrail) {
+      var lineFunction = d3.svg.line()
+        .x(function(d) { return toScreenX(d.x); })
+        .y(function(d) { return toScreenY(d.y); })
+        .interpolate('linear');
+    
+      d3.select('#trail-'+tagNr)
+        .attr('d', lineFunction(tagTrail.slice(1)))
+        .attr('stroke-dasharray','')
+        .style('stroke', tagData.color)
+        .style('stroke-opacity', 0.5)
+        .attr('fill', 'none');
+    }
+  });
+}
+
 
 function updateTags() {
   var rssiPlaneSVG = d3.select('#rssi-plane');
@@ -186,32 +236,32 @@ function updateTags() {
                     .attr('cy', pos.y);
         }
         //util.log('A'+ant+': tag'+tagNr+': '+dist);
-        util.log(signalAge);
         var isRangeOutdated = signalAge>2000; // todo: do this server side
         var isTrilaterationOutdated = false; // todo add timestamp to trilateration (and first try to trilaterate with only fresh ranges)
         range.transition()
              .duration(refreshRate)
              .style('stroke-dasharray', isRangeOutdated ? '5,2' : '')
-             .attr('r', dist*pixelsPerMeter+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation
-        
-        var markerD3 = d3.select('.m-'+tagNr);
-        
-        if (tagData.coordinate) {
-          var pos = toScreen(tagData.coordinate);
-          markerD3.style('display', 'block');
-          markerD3.transition()
-                  .duration(refreshRate)
-                  .style('stroke-dasharray', isTrilaterationOutdated ? '1,1' : '')
-                  .attr('cx',pos.x)
-                  .attr('cy',pos.y);
-          markerD3.style('fill', tagData.color); // TODO: dynamically create markers
-        } else {
-          markerD3.style('display', 'none'); 
-        }
+             .attr('r', dist*pixelsPerMeter+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation        
       }       
     }
+    var markerD3 = d3.select('.m-'+tagNr);
     
+    if (tagData.coordinate) {
+      recordTrail(tagData.epc, tagData.coordinate);  // TODO: no coordinate case?
+      var pos = toScreen(tagData.coordinate);
+      markerD3.style('display', 'block');
+      markerD3.transition()
+              .duration(refreshRate)
+              .style('stroke-dasharray', isTrilaterationOutdated ? '1,1' : '')
+              .attr('cx',pos.x)
+              .attr('cy',pos.y);
+      markerD3.style('fill', tagData.color); // TODO: dynamically create markers
+    } else {
+      markerD3.style('display', 'none'); 
+    }
+
   });
+  updateTrails();
 }
 
 // return the index in tagsData for the tag with this epc 
@@ -266,8 +316,6 @@ function handleDisconnectButton() {
 }
 
 function handleToggleTagLocationsButton() {
-  util.log('test:' + $('#tag-info-plane').css('display')=='none');
-  
   if ($('#tag-info-plane').css('display')=='none') {
     $('#toggle-locations-button').attr('value','Show tag locations');
     $('#tag-info-plane').show();
@@ -279,5 +327,13 @@ function handleToggleTagLocationsButton() {
 
 // convert coordinate in meters to pixels
 function toScreen(coord : {x : number; y : number }) {
-  return {x: coord.x*pixelsPerMeter + origin.x, y: coord.y*pixelsPerMeter + origin.y};
+  return {x: toScreenX(coord.x), y: toScreenY(coord.y)};
+}
+
+function toScreenX(x : number) {
+  return x*pixelsPerMeter + origin.x;
+}
+
+function toScreenY(y : number) {
+  return y*pixelsPerMeter + origin.y
 }
