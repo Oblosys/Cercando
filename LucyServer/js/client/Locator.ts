@@ -217,7 +217,7 @@ function updateTrails() {
 }
 
 function updateLabels() {
-  var webServerTime = new Date(serverState.status.webServerTime);
+  $('#client-time-label').text(showTime(new Date()));
   $('#server-time-label').text(showTime(new Date(serverState.status.webServerTime)));
   if (serverState.status.readerServerTime)
     $('#reader-time-label').text(showTime(new Date(serverState.status.readerServerTime)));
