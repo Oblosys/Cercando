@@ -12,6 +12,8 @@ var defaultServerPortNr = 8080; // port for the Lucy web server
 
 var remoteHostName = "lucy.oblomov.com";
 var readerServerPortNr = 8193;
+var lucyDataDirectoryPath = process.env['HOME'] + '/lucyData';
+var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
 
 import http     = require("http");
 import express  = require('express');
@@ -31,6 +33,7 @@ var socketIO = require('socket.io');
 
 var app : express.Express;
 var readerServerSocket : net.Socket;
+var outputFileStream : fs.WriteStream; // for saving reader events
 
 var readerServerHostName : string;
 var serverPortNr : number
@@ -74,8 +77,8 @@ function initServer() {
   app.use('/js/client', express.static(__dirname + '/../client'));
   app.use('/js/shared', express.static(__dirname + '/../shared'));
   app.use('/js/node_modules', express.static(__dirname + '/../node_modules'));
-  app.use('/data', express.directory(process.env['HOME'] + '/lucyData'));
-  app.use('/data', express.static(process.env['HOME'] + '/lucyData'));
+  app.use('/data', express.directory(lucyDataDirectoryPath));
+  app.use('/data', express.static(lucyDataDirectoryPath));
   app.get('/', function(req, res) { res.redirect('/locator.html'); }); // redirect '/' to '/locator.html'
   app.use(express.static(__dirname + '/../../www')); //  serve 'www' directory as root directory
 
@@ -89,7 +92,7 @@ function initServer() {
   app.use(express.bodyParser()); 
 
   app.get('/query/version', function(req, res) {  
-    child_pr.exec( "/Users/martijn/git/Cercando/scripts/generateGitInfo.sh"
+    child_pr.exec( "/Users/martijn/git/Cercando/scripts/generateGitInfo.sh" // TODO: get rid of absolute path
                  , {cwd: '../..'}
                  , function(error, stdout, stderr) { 
                      res.setHeader('content-type', 'application/json');
@@ -137,6 +140,28 @@ function initServer() {
   app.get('/query/reset', function(req, res) {  
     util.log('reset');
     resetServerState();
+    res.writeHead(204);
+    res.end();
+  });
+
+  app.get('/query/start-saving', function(req, res) {
+    util.log('Start-saving request for filename ' + req.query.filename);
+    
+    var cont = { 
+      success: function () {
+        res.writeHead(204);
+        res.end();
+      },
+      error: function(message : string) {
+        res.send(403, { error: message });
+      }
+    };
+    startSaving(decodeURI(req.query.filename), cont);
+  });
+  
+  app.get('/query/stop-saving', function(req, res) {
+    util.log('Stop-saving request');
+    stopSaving();
     res.writeHead(204);
     res.end();
   });
@@ -196,14 +221,6 @@ function tryToConnect(readerServerSocket : net.Socket) {
 function readerServerConnected(readerServerSocket : net.Socket) {
   state.status.isConnected = true;
   util.log('Connected to reader server at: ' + readerServerHostName + ':' + readerServerPortNr);
-/*
-    var fileStream = fs.createWriteStream('calibratie/Output-'+new Date()+'.json');
-    fileStream.once('open', function(fd) {
-      
-      netSocketConnected(fileStream, llrpSocket, socket);
-
-    });
-*/
   
   // raw data listener
   var lineBuffer = '';
@@ -259,14 +276,48 @@ function resetServerState() {
   state = initialServerState();
 }
 
+function startSaving(filePath : string, cont : {success : () => void; error : (message : string) => void}) {
+  if (!isSafeFilePath(filePath))
+    cont.error('Invalid file path: "'+filePath+'"\nMay only contain letters, digits, spaces, and these characters: \'(\' \')\' \'-\' \'_\'');
+  else {
+    var fullFilename = saveDirectoryPath + '/' + filePath+'.csv';
+    outputFileStream = fs.createWriteStream(fullFilename);
+    outputFileStream.on('error', function(err : Error) {
+      util.log('Start-saving failed: ' + err.message);
+      cont.error(err.message);
+    });
+    outputFileStream.once('open', function(fd :  number) {
+      state.status.isSaving = true;
+      // use the same csv format as the SessionOne app
+      outputFileStream.write('EPC, Time, Date, Antenna, RSSI, Channel index, Memory bank, PC, CRC\n')
+      util.log('Started saving events to "'+fullFilename+'"');
+      cont.success();
+    });
+  }
+}
+
+function stopSaving() {
+  outputFileStream.end()
+  outputFileStream = null;
+  state.status.isSaving = false;
+}
+
+var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+
 function processReaderEvent(readerEvent : ReaderEvent) {
   //util.log('Reader event');
   //util.log('emitting');
   //io.sockets.emit('llrp', readerEvent);
   //util.log(JSON.stringify(readerEvent));
-  //if (fileStream) {
-  //  fileStream.write(JSON.stringify(readerEvent)+'\n');
-  //}
+  var readerTimestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
+
+  if (outputFileStream) {
+    var date = months[readerTimestamp.getMonth()]+'-'+readerTimestamp.getDate()+'-'+readerTimestamp.getFullYear();
+    var time = readerTimestamp.getHours()+':'+util.padZero(2,readerTimestamp.getMinutes())+':'+
+      util.padZero(2,readerTimestamp.getSeconds())+':'+util.padZero(4,readerTimestamp.getMilliseconds()*10);
+
+    outputFileStream.write('\'0'+readerEvent.ePC+', '+time+', '+date+', '+readerEvent.ant+', '+readerEvent.RSSI+', , , , \n');
+  }
 
   var tag = _.findWhere(state.tagsData, {epc: readerEvent.ePC});
   if (!tag) {
@@ -276,7 +327,6 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   }
   
   // take the time in between firstSeen and lastSeen.
-  var readerTimestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
   state.status.readerServerTime = readerTimestamp.toString();
   
   //TODO Reader time is not in sync with server. For now, just use server time.
@@ -322,3 +372,9 @@ var allTagInfo : Shared.TagInfo[] =
   , {epc:'0000000000000000000000000023140', color:'darkgray',  coord:{x:1.42,y:0}}
   , {epc:'0000000000000000000000000370845', color:'white',     coord:{x:1.42,y:-0.5}}
   ];
+
+
+// Only allow letters, digits, and slashes
+function isSafeFilePath(filePath : string) : boolean {
+  return /^[a-zA-Z0-9" "\(\)\-\_]+$/.test(filePath);
+}

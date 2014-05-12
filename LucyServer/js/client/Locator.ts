@@ -155,7 +155,6 @@ function drawSquare(planeSVG : D3.Selection, x : number, y : number, size : numb
 }
 
 function createMarkers() {
-  util.log('fsda');
   _.map(_.range(0, allTagInfo.length), (i : number) => createMarker(i));
 }
 
@@ -317,7 +316,7 @@ function refresh() {
   $.getJSON( 'query/tags', function( data ) {
     serverState = data;
     updateTags();
-  }) .fail(function(jqXHR : any, status : any, err : any) {
+  }).fail(function(jqXHR : JQueryXHR, status : any, err : any) {
     console.error( "Error:\n\n" + jqXHR.responseText );
   });
 }
@@ -351,6 +350,28 @@ function handleResetButton() {
     resetClientState();
     util.log('Reset server.');
   });
+}
+
+function handleSaveButton() {
+  if ($('#save-button').val() == 'Start saving') { // Not the prettiest way, but it saves us from keeping another state variable for isSaving
+    var filename = encodeURI($('#filename-field').val());
+    util.setAttr($('#save-button'), 'disabled', true);
+    $.get('/query/start-saving', {filename: filename}, function() {
+      util.log('Started saving events.');
+      $('#save-button').val('Stop saving');
+      util.setAttr($('#save-button'), 'disabled', false);
+    }).fail(function(data : JQueryXHR) {
+      console.log(data);
+      alert('Save failed:\n'+JSON.parse(data.responseText).error);
+      util.setAttr($('#save-button'), 'disabled', false);
+    });
+  } else {
+    $.get('/query/stop-saving', {filename: filename}, function() {
+      util.log('Stopped saving events.');
+      $('#save-button').val('Start saving');
+    }); // Assuma that stop won't fail
+        
+  }
 }
 
 function handleToggleTagLocationsButton() {
