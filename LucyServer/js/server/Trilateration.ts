@@ -28,24 +28,50 @@ function convert3dTo2d(dist3d : number) {
   return  Math.sqrt( util.square(dist3d) - util.square(antennaHeight - meanVisitorHeight) );
 }
 
-export function trilaterateDistances(antennas : Shared.Antenna[], distances : number[]) : Shared.Coord {
-    //util.log('Trilaterate'+JSON.stringify(ranges));
-    var circles : Circle[] = [];
-    for (var i=0; i<4; i++) {
-      if (distances[i])
-        circles.push({x: antennas[i].coord.x, y: antennas[i].coord.y, r: distances[i], inTriangle: false});
-    }
-    if (circles.length > 2) {
-      var sortedCircles = _.sortBy(circles, function(c:Circle) {return c.r;});
-      //var triangle = [sortedCircles[0],sortedCircles[1],sortedCircles[2]];
-      //util.log(JSON.stringify(triangle));
-      return trilaterate(sortedCircles[0],sortedCircles[1],sortedCircles[2]);
-    } else {
-      return undefined;
-    }   
+function isRecentRSSI(rssi : Shared.RSSI) : boolean {
+  return rssi.age < 2000; // TODO: duplicated code from Locator.ts
 }
 
+export function trilaterateRssis(antennas : Shared.Antenna[], rssis : Shared.RSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
+  //util.log('Trilaterate'+JSON.stringify(ranges));
+  var recentRssis = _.filter(rssis, isRecentRSSI);
+  var outdatedRssis = _.filter(rssis, (rssi:Shared.RSSI)=> {return !isRecentRSSI(rssi);});
+  var isRecent = recentRssis.length >= 3;
+  
+  util.log(recentRssis.length +' outdated:' +outdatedRssis.length);
+  var recentCircles = mkCircles(antennas, recentRssis);
+  var outdatedCircles = mkCircles(antennas, outdatedRssis);
+  var sortedCircles = _.union(recentCircles, outdatedCircles).slice(0,3);
+  var result : {coord: Shared.Coord; isRecent : boolean};
+  if (sortedCircles.length == 3) {
+    //var triangle = [sortedCircles[0],sortedCircles[1],sortedCircles[2]];
+    util.log(JSON.stringify(sortedCircles));
+    var coord = trilaterate(sortedCircles[0],sortedCircles[1],sortedCircles[2]);
+    if (coord.x==null || coord.y==null || isNaN(coord.x) || isNaN(coord.y))
+      coord = null;
+    //util.log('coord '+JSON.stringify(coord) + 'X:'+coord.x+ ' x is null: '+(coord.x==null));
+    result = {coord: coord, isRecent : isRecent};
+  } else {
+    result = null;
+  } 
+  //util.log(JSON.stringify(result));
+  return result;  
+}
+
+
 interface Circle { x: number; y : number; r : number; inTriangle : boolean};
+
+function mkCircles (antennas : Shared.Antenna[], rssis : Shared.RSSI[]) : Circle[] {
+  var circles : Circle[] = [];
+  for (var i=0; i<antennas.length; i++) {
+    if (rssis[i])
+      circles.push({x: antennas[i].coord.x, y: antennas[i].coord.y, r: rssis[i].distance, inTriangle: false});
+  }
+  var sortedCircles = _.sortBy(circles, function(c:Circle) {return c.r;});
+    
+  return sortedCircles;
+}
+
 function trilaterate(c1 : Circle, c2 : Circle, c3 : Circle) : Shared.Coord {
   // assume 3 receivers
   // http://en.wikipedia.org/wiki/Trilateration

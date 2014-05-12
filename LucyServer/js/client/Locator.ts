@@ -264,26 +264,25 @@ function updateTags() {
                     .attr('cy', pos.y);
         }
         //util.log('A'+ant+': tag'+tagNr+': '+dist);
-        var isRangeOutdated = signalAge>2000; // todo: do this server side
-        var isTrilaterationOutdated = false; // todo add timestamp to trilateration (and first try to trilaterate with only fresh ranges)
+        var isRangeRecent = signalAge<2000; // todo: do this server side
         range.transition()
              .duration(refreshRate)
-             .style('stroke-dasharray', isRangeOutdated ? '5,2' : '')
+             .style('stroke-dasharray', isRangeRecent ? 'none' : '5,2')
              .attr('r', dist*pixelsPerMeter+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation        
       }       
     }
     var markerD3 = d3.select('.m-'+tagNr);
     
-    if (tagData.coordinate) {
-      recordTrail(tagData.epc, tagData.coordinate);  // TODO: no coordinate case?
-      var pos = toScreen(tagData.coordinate);
+    if (tagData.coordinate && tagData.coordinate.coord) {
+      recordTrail(tagData.epc, tagData.coordinate.coord);  // TODO: no coordinate case?
+      var pos = toScreen(tagData.coordinate.coord);
       markerD3.style('display', 'block');
+      markerD3.style('fill', tagData.color) // TODO: dynamically create markers
+            .style('stroke', tagData.coordinate.isRecent ? 'white' : 'red');
       markerD3.transition()
               .duration(refreshRate)
-              .style('stroke-dasharray', isTrilaterationOutdated ? '1,1' : '')
               .attr('cx',pos.x)
               .attr('cy',pos.y);
-      markerD3.style('fill', tagData.color); // TODO: dynamically create markers
     } else {
       markerD3.style('display', 'none'); 
     }

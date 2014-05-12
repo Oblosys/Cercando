@@ -339,12 +339,12 @@ function processReaderEvent(readerEvent : ReaderEvent) {
 function trilaterateAllTags() {
   var now = new Date();
   _(state.tagsData).each((tag,i) => {
-    var rssiDistances = _(tag.rssis).map((rssi) => {
+    _(tag.rssis).each((rssi) => {
       rssi.distance = trilateration.getRssiDistance(rssi.value);
       rssi.age = now.getTime() - rssi.timestamp.getTime(); 
       return rssi.distance;
     });
-    tag.coordinate = trilateration.trilaterateDistances(allAntennas, rssiDistances);
+    tag.coordinate = trilateration.trilaterateRssis(allAntennas, tag.rssis);
   });
 }
 
