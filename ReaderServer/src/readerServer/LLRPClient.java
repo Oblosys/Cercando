@@ -347,11 +347,18 @@ public class LLRPClient implements LLRPEndpoint {
     System.out.println(Util.getTimestamp() + ": Removed socket connection (active connections: "+socketOutputStreams.size()+")");
   }
 
+  private static String lastTimestamp = "";
+  
   private void sendLine(String message) {
     ArrayList<DataOutputStream> streams = new ArrayList<DataOutputStream>(socketOutputStreams); // create a copy, so we can modify the original
     for (DataOutputStream socketOutputStream : streams) {
     	try {
     		//System.out.println(message);
+    	  String newTimestamp = Util.getTimestamp();
+    	  if (!newTimestamp.equals(lastTimestamp)) {
+    	    System.out.println(Util.getTimestamp());
+    	    lastTimestamp = newTimestamp;
+    	  }
     		socketOutputStream.writeUTF(message);
     	} catch (Exception e) {
     	  if (e.getMessage().equals("Broken pipe")) 
