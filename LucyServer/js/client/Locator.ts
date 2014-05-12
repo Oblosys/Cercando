@@ -244,10 +244,13 @@ function updateTags() {
         var rssi = tagData.rssis[ant].value;
         var signalAge = tagData.rssis[ant].age;
         var dist =  tagData.rssis[ant].distance;
+        var isRangeRecent = signalAge<2000; // todo: do this server side
         // show in table
         if (rssi) {
           $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+')').html('<span class="dist-label">' + dist.toFixed(1) + '</span>' +
                                                                    '<span class="rssi-label">(' + rssi + ')</span>');
+          $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+') .dist-label').css('color', isRangeRecent ? 'white' : 'red');
+          $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+') .rssi-label').css('color', isRangeRecent ? '#bbb' : 'red');
         }
         //util.log(tagNr + '-' + ant +' '+ rssi);
   
@@ -264,7 +267,6 @@ function updateTags() {
                     .attr('cy', pos.y);
         }
         //util.log('A'+ant+': tag'+tagNr+': '+dist);
-        var isRangeRecent = signalAge<2000; // todo: do this server side
         range.transition()
              .duration(refreshRate)
              .style('stroke-dasharray', isRangeRecent ? 'none' : '5,2')
