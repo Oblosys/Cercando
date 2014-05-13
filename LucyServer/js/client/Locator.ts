@@ -139,8 +139,10 @@ function queryTagInfo() {
 function drawTagSetup() {
   var tagInfoPlaneSVG = d3.select('#tag-info-plane');
   _(allTagInfo).each((tag, tagNr)=>{
-    var tagCoord = toScreen(tag.coord);
-    drawSquare(tagInfoPlaneSVG, tagCoord.x, tagCoord.y, 10, tag.color);
+    if (tag.coord) {
+      var tagCoord = toScreen(tag.coord);
+      drawSquare(tagInfoPlaneSVG, tagCoord.x, tagCoord.y, 10, tag.color);
+    }
   });
 }
 

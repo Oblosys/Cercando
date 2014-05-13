@@ -360,17 +360,17 @@ var allAntennas : Shared.Antenna[] =
     {id:'r1-a3',name:'3', coord:{x:-1.5,y:0}},{id:'r1-a4',name:'4', coord:{x:0,y:-1.5}}];
 
 var allTagInfo : Shared.TagInfo[] =
-  [ {epc:'0000000000000000000000000100842', color:'red',       coord:{x:0,y:0}} 
-  , {epc:'0000000000000000000000000503968', color:'yellow',    coord:{x:0.53,y:-0.53}}
-  , {epc:'0000000000000000000000000503972', color:'gray',      coord:{x:0.53,y:0.53}}
-  , {epc:'0000000000000000000000000370802', color:'black',     coord:{x:-0.53,y:0.53}}
-  , {epc:'0000000000000000000000000370870', color:'orange',    coord:{x:-0.53,y:-0.53}}
-  , {epc:'0000000000000000000000000370869', color:'green',     coord:{x:1.06,y:-1.06}}
-  , {epc:'0000000000000000000000000103921', color:'purple',    coord:{x:1.06,y:1.06}}
-  , {epc:'0000000000000000000000000000795', color:'brown',     coord:{x:-1.06,y:1.06}}
-  , {epc:'0000000000000000000000000023040', color:'lightblue', coord:{x:-1.06,y:-1.06}}
-  , {epc:'0000000000000000000000000023140', color:'darkgray',  coord:{x:1.42,y:0}}
-  , {epc:'0000000000000000000000000370845', color:'white',     coord:{x:1.42,y:-0.5}}
+  [ {epc:'0000000000000000000000000370870', color:'orange',    coord:{x:-1.5+0.1, y:0}}
+  , {epc:'0000000000000000000000000370869', color:'green',     coord:{x:-1.0+0.1, y:0}}
+  , {epc:'0000000000000000000000000503968', color:'yellow',    coord:{x:-0.5+0.1, y:0}}
+  , {epc:'0000000000000000000000000370802', color:'black',     coord:{x:0.0+ 0.1, y:0}}
+  , {epc:'0000000000000000000000000000795', color:'red',       coord:{x:0.5+ 0.1, y:0}}
+  , {epc:'0000000000000000000000000370845', color:'white',     coord:{x:0+   0.1, y:1.3}}
+  , {epc:'0000000000000000000000000100842', color:'brown',     coord:null} 
+  , {epc:'0000000000000000000000000503972', color:'gray',      coord:null}
+  , {epc:'0000000000000000000000000103921', color:'purple',    coord:null}
+  , {epc:'0000000000000000000000000023040', color:'lightblue', coord:null}
+  , {epc:'0000000000000000000000000023140', color:'darkgray',  coord:null}
   ];
 
 
