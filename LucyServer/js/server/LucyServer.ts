@@ -245,10 +245,11 @@ function readerServerConnected(readerServerSocket : net.Socket) {
       //}
       try {
         var readerEvent : ReaderEvent = JSON.parse(line);
-        processReaderEvent(readerEvent);
       } catch (e) {
         console.error('JSON parse error in line:\n'+line, e); 
       }
+      if (readerEvent)
+        processReaderEvent(readerEvent);
     }
     lineBuffer += lastLine;
   //   util.log('DATA: ' + data);
@@ -323,7 +324,8 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   if (!tag) {
     var preferredColorObj = _.findWhere(allTagInfo, {epc: readerEvent.ePC});
     var color = preferredColorObj ? preferredColorObj.color : 'white';
-    state.tagsData.push({ epc:readerEvent.ePC, color: color, rssis: [] });
+    tag = { epc:readerEvent.ePC, color: color, rssis: [] }
+    state.tagsData.push(tag);
   }
   
   // take the time in between firstSeen and lastSeen.
@@ -331,20 +333,52 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   
   //TODO Reader time is not in sync with server. For now, just use server time.
   var timestamp = new Date(); // use current time as timestamp.
-  tag.rssis[readerEvent.ant-1] = {value: readerEvent.RSSI, timestamp: timestamp};
+  
+  tag.rssis[readerEvent.ant-1] = filtered(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI, timestamp, tag.rssis[readerEvent.ant-1]);
+  trilateration.getRssiDistance(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI);
   //util.log(tagsState);
 }
+
+function unfiltered(epc : string, antNr : number, rssi : number, timestamp : Date, previousRssi : Shared.RSSI) {
+  return {value: rssi, timestamp: timestamp};
+}
+
+var RC = 1/2;
+
+// epc : string, antNr : number just for logging
+function filtered(epc : string, ant : number, rssi : number, timestamp : Date, previousRssi : Shared.RSSI) {
+  var dT = (previousRssi ? timestamp.getTime() - previousRssi.timestamp.getTime() : 100)/1000;
+  var previousRssiValue = previousRssi ? previousRssi.value : -30;
+  
+  var alpha = dT / (dT + RC);
+  
+  var newRssi = rssi * alpha + previousRssiValue * (1.0 - alpha);
+  //util.log(epc+' '+ant);
+  if (epc == '0000000000000000000000000370870' && ant == 3) {
+    var dist3d = trilateration.getDistance3d(newRssi);
+    var dist2d = trilateration.convert3dTo2d(dist3d);
+    util.log(new Date().getSeconds()+' rssi: '+newRssi.toFixed(1) + ' dist3d: '+dist3d.toFixed(2)+' dist2d: '+dist2d.toFixed(2) +
+             '   raw rssi: '+rssi);
+  
+  }
+
+  //util.log(util.padZero(3,dT) + JSON.stringify(previousRssi) );
+  //util.log(util.padZero(3,dT) + JSON.stringify(previousRssi.value) );
+  return {value: newRssi, timestamp: timestamp};
+}
+
+
 
 // trilaterate all tags and age and distance for each rssi value
 function trilaterateAllTags() {
   var now = new Date();
   _(state.tagsData).each((tag,i) => {
-    _(tag.rssis).each((rssi) => {
-      rssi.distance = trilateration.getRssiDistance(rssi.value);
+    _(tag.rssis).each((rssi,antNr) => {
+      rssi.distance = trilateration.getRssiDistance(tag.epc, antNr, rssi.value);
       rssi.age = now.getTime() - rssi.timestamp.getTime(); 
       return rssi.distance;
     });
-    tag.coordinate = trilateration.trilaterateRssis(allAntennas, tag.rssis);
+    tag.coordinate = trilateration.trilaterateRssis(tag.epc, allAntennas, tag.rssis);
   });
 }
 
