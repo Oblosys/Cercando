@@ -133,7 +133,7 @@ public class LLRPClient implements LLRPEndpoint {
     reportContent.setEnablePeakRSSI(new Bit(1));
     reportContent.setEnableROSpecID(new Bit(0));
     reportContent.setEnableSpecIndex(new Bit(0));
-    reportContent.setEnableTagSeenCount(new Bit(0));
+    reportContent.setEnableTagSeenCount(new Bit(0)); // count is always 1, because the trigger is Upon_N_Tags_Or_End_Of_ROSpec with N=1 
     roReportSpec.setTagReportContentSelector(reportContent);
     roSpec.setROReportSpec(roReportSpec);
      
@@ -297,7 +297,7 @@ public class LLRPClient implements LLRPEndpoint {
     cmd.setRequestedData(new GetReaderCapabilitiesRequestedData(GetReaderCapabilitiesRequestedData.All));
     try {
       response = (GET_READER_CAPABILITIES_RESPONSE)reader.transact(cmd, TIMEOUT_MS);
-      //System.out.println(response.toXMLString());
+      System.out.println(response.toXMLString());
     }
     catch (Exception e) {
     	System.out.println("Error getting reader capabilities.");
