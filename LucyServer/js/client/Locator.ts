@@ -249,8 +249,8 @@ function updateTags() {
         var isRangeRecent = signalAge<2000; // todo: do this server side
         // show in table
         if (rssi) {
-          $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+')').html('<span class="dist-label">' + dist.toFixed(1) + '</span>' +
-                                                                   '<span class="rssi-label">(' + rssi + ')</span>');
+          $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+')').html('<span class="dist-label">' + dist.toFixed(1) + 'm</span>' +
+                                                                   '<span class="rssi-label">(' + rssi.toFixed(1) + ')</span>');
           $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+') .dist-label').css('color', isRangeRecent ? 'white' : 'red');
           $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+') .rssi-label').css('color', isRangeRecent ? '#bbb' : 'red');
         }
