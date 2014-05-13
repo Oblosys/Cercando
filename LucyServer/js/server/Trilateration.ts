@@ -1,16 +1,50 @@
 import _        = require('underscore');
 import util     = require('oblo-util');
 
-export function getRssiDistance(rssi : number) {
+// epc : string, antNr : number just for logging
+export function getRssiDistance(epc : string, antNr : number, rssi : number) {
   var dist3d = getDistance3d(rssi);
+  //var dist2d = convert3dTo2d(dist3d);
+  var dist2d = getDistance2dStaged(rssi);
+  
+  // log specific tag
+  //if (epc == '0000000000000000000000000370870' && antNr == 3) {
+  //  util.log(new Date().getSeconds()+' rssi: '+rssi.toFixed(1) + ' dist3d: '+dist3d.toFixed(2)+' dist2d: '+dist2d.toFixed(2));
+  //}
   //var dist = convert3dTo2d(dist3d) /2;
   //util.log(dist3d + ' ' +dist);
   
   //return dist ? dist : 0;
-  return dist3d;
+  return dist2d;
 }
 
-function getDistance3d(rssi : number) {
+
+// Very basic interval-based linear distance function
+export function getDistance2dStaged(rssi : number) {
+  var intervals = [{r:-50,d:0},{r:-54,d:0.5},{r:-58,d:1.0},{r:-64,d:1.5},{r:-68,d:2.0}]
+  // precondition: intervals.length > 0
+  
+  if (rssi > intervals[0].r) // rssi is negative
+    return intervals[0].d;
+  
+  for (var i=1; i < intervals.length; i++) {
+    var rssiInterval = intervals[i-1].r - intervals[i].r;
+    var distInterval = intervals[i].d - intervals[i-1].d;
+    
+    if (rssi > intervals[i].r) // remember rssi is negative, so this means we're in the right interval
+      return intervals[i-1].d + distInterval * (intervals[i-1].r - rssi) / rssiInterval;
+  }
+  return intervals[intervals.length-1].d;
+}
+
+export function testGetDistance2dStaged() {
+  for (var i=-49; i>-70; i--) {
+    util.log('dist2d(' + i + ') = ' + getDistance2dStaged(i) );
+  }
+}
+//testGetDistance2dStaged();
+
+export function getDistance3d(rssi : number) {
   //var d0 = 1;
   //var prd0 = -52;
   //var n = 0.5
@@ -21,34 +55,39 @@ function getDistance3d(rssi : number) {
   return d0 * Math.exp((prd0-rssi)/(10*n));
 }
 
-function convert3dTo2d(dist3d : number) {
+export function convert3dTo2d(dist3d : number) : number {
   var meanVisitorHeight = 1.5;
   var antennaHeight = 2.7;
-  
-  return  Math.sqrt( util.square(dist3d) - util.square(antennaHeight - meanVisitorHeight) );
+  var distSquared = util.square(dist3d) - util.square(antennaHeight - meanVisitorHeight); 
+  var dist = distSquared > 0 ? Math.sqrt( distSquared ) : 0; // simply take zero if we're too close too the antenna
+  return dist;
 }
 
 function isRecentRSSI(rssi : Shared.RSSI) : boolean {
   return rssi.age < 2000; // TODO: duplicated code from Locator.ts
 }
 
-export function trilaterateRssis(antennas : Shared.Antenna[], rssis : Shared.RSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
+export function trilaterateRssis(epc : string, antennas : Shared.Antenna[], rssis : Shared.RSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
   //util.log('Trilaterate'+JSON.stringify(ranges));
   var recentRssis = _.filter(rssis, isRecentRSSI);
   var outdatedRssis = _.filter(rssis, (rssi:Shared.RSSI)=> {return !isRecentRSSI(rssi);});
   var isRecent = recentRssis.length >= 3;
   
-  util.log(recentRssis.length +' outdated:' +outdatedRssis.length);
+  //util.log(recentRssis.length +' outdated:' +outdatedRssis.length);
   var recentCircles = mkCircles(antennas, recentRssis);
   var outdatedCircles = mkCircles(antennas, outdatedRssis);
   var sortedCircles = _.union(recentCircles, outdatedCircles).slice(0,3);
   var result : {coord: Shared.Coord; isRecent : boolean};
   if (sortedCircles.length == 3) {
     //var triangle = [sortedCircles[0],sortedCircles[1],sortedCircles[2]];
-    util.log(JSON.stringify(sortedCircles));
+    //util.log(JSON.stringify(sortedCircles));
     var coord = trilaterate(sortedCircles[0],sortedCircles[1],sortedCircles[2]);
     if (coord.x==null || coord.y==null || isNaN(coord.x) || isNaN(coord.y))
       coord = null;
+    
+    // log specific tag
+    //if (epc == '0000000000000000000000000370869')
+    //  util.log('trilateration:' + JSON.stringify(coord) + ' '+JSON.stringify(sortedCircles) + JSON.stringify(rssis));
     //util.log('coord '+JSON.stringify(coord) + 'X:'+coord.x+ ' x is null: '+(coord.x==null));
     result = {coord: coord, isRecent : isRecent};
   } else {
@@ -59,19 +98,20 @@ export function trilaterateRssis(antennas : Shared.Antenna[], rssis : Shared.RSS
 }
 
 
-interface Circle { x: number; y : number; r : number; inTriangle : boolean};
+interface Circle { x: number; y : number; r : number};
 
 function mkCircles (antennas : Shared.Antenna[], rssis : Shared.RSSI[]) : Circle[] {
   var circles : Circle[] = [];
   for (var i=0; i<antennas.length; i++) {
     if (rssis[i])
-      circles.push({x: antennas[i].coord.x, y: antennas[i].coord.y, r: rssis[i].distance, inTriangle: false});
+      circles.push({x: antennas[i].coord.x, y: antennas[i].coord.y, r: rssis[i].distance});
   }
   var sortedCircles = _.sortBy(circles, function(c:Circle) {return c.r;});
     
   return sortedCircles;
 }
 
+util.log('Trilateration test: '+JSON.stringify(trilaterate({x:0,y:1.5,r:2.0},{x:-1.5,y:0,r:1.2},{x:0,y:-1.5,r:1.2})));
 function trilaterate(c1 : Circle, c2 : Circle, c3 : Circle) : Shared.Coord {
   // assume 3 receivers
   // http://en.wikipedia.org/wiki/Trilateration
