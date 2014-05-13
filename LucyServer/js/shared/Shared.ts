@@ -5,7 +5,7 @@ module Shared {
   
   export interface TagInfo { epc : string; color: string; coord: Coord}
   
-  export interface RSSI {value : number; timestamp : Date; age? : number; distance? : number}
+  export interface RSSI {ant : number; value : number; timestamp : Date; age? : number; distance? : number}
    
   export interface ServerState {
     status : {isConnected : boolean; isSaving : boolean; webServerTime : string; readerServerTime : string }

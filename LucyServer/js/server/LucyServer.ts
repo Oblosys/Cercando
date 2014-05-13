@@ -364,7 +364,7 @@ function filtered(epc : string, ant : number, rssi : number, timestamp : Date, p
 
   //util.log(util.padZero(3,dT) + JSON.stringify(previousRssi) );
   //util.log(util.padZero(3,dT) + JSON.stringify(previousRssi.value) );
-  return {value: newRssi, timestamp: timestamp};
+  return {ant : ant, value: newRssi, timestamp: timestamp};
 }
 
 

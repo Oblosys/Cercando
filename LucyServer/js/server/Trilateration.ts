@@ -102,9 +102,10 @@ interface Circle { x: number; y : number; r : number};
 
 function mkCircles (antennas : Shared.Antenna[], rssis : Shared.RSSI[]) : Circle[] {
   var circles : Circle[] = [];
-  for (var i=0; i<antennas.length; i++) {
+  for (var i=0; i<rssis.length; i++) {
     if (rssis[i])
-      circles.push({x: antennas[i].coord.x, y: antennas[i].coord.y, r: rssis[i].distance});
+      var antNr = rssis[i].ant-1;
+      circles.push({x: antennas[antNr].coord.x, y: antennas[antNr].coord.y, r: rssis[i].distance});
   }
   var sortedCircles = _.sortBy(circles, function(c:Circle) {return c.r;});
     
