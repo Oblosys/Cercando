@@ -1,6 +1,4 @@
 package readerServer;
-import java.io.DataOutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.llrp.ltk.generated.enumerations.*;
@@ -21,10 +19,8 @@ public class LLRPClient implements LLRPEndpoint {
   private LLRPConnection reader;
   private static final int TIMEOUT_MS = 10000;
   private static final int ROSPEC_ID = 1;
-  private List<DataOutputStream> socketOutputStreams;
    
   public LLRPClient() {
-  	this.socketOutputStreams = new ArrayList<DataOutputStream>();
   }
   
   // Build the ROSpec.
@@ -287,7 +283,6 @@ public class LLRPClient implements LLRPEndpoint {
   }
    
   public void getReaderCapabilities() {
-    @SuppressWarnings("unused")
     GET_READER_CAPABILITIES_RESPONSE response;
      
     //System.out.println("Deleting all ROSpecs.");
@@ -336,38 +331,17 @@ public class LLRPClient implements LLRPEndpoint {
     deleteROSpecs();
     disconnect();
   }
-  
-  public void addSocketStream(DataOutputStream socketOutputStream) {
-    socketOutputStreams.add(socketOutputStream);
-    System.out.println(Util.getTimestamp() + ": Added socket connection (active connections: "+socketOutputStreams.size()+")");
-  }
-
-  public void removeSocketStream(DataOutputStream socketOutputStream) {
-    socketOutputStreams.remove(socketOutputStream);
-    System.out.println(Util.getTimestamp() + ": Removed socket connection (active connections: "+socketOutputStreams.size()+")");
-  }
 
   private static String lastTimestamp = "";
   
   private void sendLine(String message) {
-    ArrayList<DataOutputStream> streams = new ArrayList<DataOutputStream>(socketOutputStreams); // create a copy, so we can modify the original
-    for (DataOutputStream socketOutputStream : streams) {
-    	try {
-    		//System.out.println(message);
-    	  String newTimestamp = Util.getTimestamp();
-    	  if (!newTimestamp.equals(lastTimestamp)) {
-    	    System.out.println(Util.getTimestamp());
-    	    lastTimestamp = newTimestamp;
-    	  }
-    		socketOutputStream.writeUTF(message);
-    	} catch (Exception e) {
-    	  if (e.getMessage().equals("Broken pipe")) 
-    	    System.out.println(Util.getTimestamp() + ": Client socket closed.");
-    	  else
-    	    System.out.println(Util.getTimestamp() + ": Error while writing to socket: "+e.getMessage());
-    		removeSocketStream(socketOutputStream);
-    		//e.printStackTrace();
-      }   
-    }
+    EventEmitter.queueEventOnAllEmitters(message);
+    
+	  String newTimestamp = Util.getTimestamp();
+	  if (!newTimestamp.equals(lastTimestamp)) {
+	    System.out.println(Util.getTimestamp() + " active socket connections: " + EventEmitter.getNrOfEmitters());
+	    lastTimestamp = newTimestamp;
+	  }
   }
+ 
 }

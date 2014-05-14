@@ -30,10 +30,11 @@ public class Main {
       }
     });
     startServer(readerServerPort);
+    //test();
   }
 
   @SuppressWarnings("resource")
-  public static void startServer(int port) {
+  private static void startServer(int port) {
 	  ServerSocket serversocket = null;
 	  System.out.println("\n\n###########################################\n");
 	  System.out.println(Util.getTimestamp() + ": Starting Reader Server\n");
@@ -55,13 +56,14 @@ public class Main {
       
       try {
         Socket connectionsocket = serversocket.accept();
-        InetAddress client = connectionsocket.getInetAddress();
-        System.out.println("\n" + Util.getTimestamp() + ": Connected to " + client);
+        InetAddress clientIP = connectionsocket.getInetAddress();
+        System.out.println("\n" + Util.getTimestamp() + ": Connected to " + clientIP);
 
+        
         DataOutputStream output =
           new DataOutputStream(connectionsocket.getOutputStream());
 
-        llrpClient.addSocketStream(output);
+        new EventEmitter(clientIP.toString(), output);
         //System.out.println(getTimestamp() + " Disconnected");
       }
       catch (Exception e) {
@@ -70,4 +72,33 @@ public class Main {
       }
     }
 	}
+  
+  private static void test() {
+    new EventEmitter("1", null);
+    new EventEmitter("2", null);
+    System.out.println("Main waiting for synchronized");
+    
+    EventEmitter.queueEventOnAllEmitters("event 1");
+
+    try {
+      System.out.println("Main sleeping");
+      Thread.sleep(1000);
+      System.out.println("Main woke up");
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    while (true) {
+      EventEmitter.queueEventOnAllEmitters("event 2");
+      EventEmitter.queueEventOnAllEmitters("event 3");
+      try {
+        Thread.sleep(1);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+
+    }
+
+  
+  }
 }
