@@ -12,6 +12,8 @@ import java.util.Vector;
 
 public class EventEmitter implements Runnable {
 
+  private static final int eventBufferSize = 100;
+  
   private static Vector<EventEmitter> allEventEmitters = new Vector<EventEmitter>();
   
   private String originatingIP;
@@ -43,6 +45,10 @@ public class EventEmitter implements Runnable {
   // To be called from main thread
   public void queueEvent(String event) {
     synchronized (eventQueue) {
+      if (eventQueue.size() > eventBufferSize) {
+        System.out.println("Buffer overflow for "+originatingIP+", dropping event");
+        eventQueue.remove(0);
+      }
       eventQueue.add(event);
       //System.out.println("Nr of events in queue for "+originatingIP+":"+eventQueue.size());
       eventQueue.notify();
@@ -51,6 +57,7 @@ public class EventEmitter implements Runnable {
   
   
   // TODO: synchronize adding removing of emitters to allEventEmitters
+  // TODO: check if relying on eventQueue Vector sync is enough for emit loop
   @Override
   public void run() {
     while (true) {
