@@ -77,10 +77,10 @@ function initialize() {
     .append('rect').attr('id', 'floor-background')
     .attr('width', floorWidth)
     .attr('height', floorHeight);
-  floorSVG.append('g').attr('id', 'tag-info-plane');
   floorSVG.append('g').attr('id', 'annotation-plane');
-  floorSVG.append('g').attr('id', 'rssi-plane');
   floorSVG.append('g').attr('id', 'antenna-plane');
+  floorSVG.append('g').attr('id', 'tag-info-plane');
+  floorSVG.append('g').attr('id', 'rssi-plane');
   floorSVG.append('g').attr('id', 'trilateration-plane');
   floorSVG.append('g').attr('id', 'visitor-plane');
 
