@@ -390,8 +390,8 @@ function tweakAntenna(antennaNr : number, rssi : number) : number {
 
 // TODO: maybe store in config file
 var allAntennas : Shared.Antenna[] =
-   [{id:'r1-a1',name:'1', coord:{x:1.5,y:0}},{id:'r1-a2',name:'2', coord:{x:0,y:1.5}},
-    {id:'r1-a3',name:'3', coord:{x:-1.5,y:0}},{id:'r1-a4',name:'4', coord:{x:0,y:-1.5}}];
+   [{id:'r1-a1',name:'1', coord:{x:1.2,y:1.2}},{id:'r1-a2',name:'2', coord:{x:-1.2,y:1.2}},
+    {id:'r1-a3',name:'3', coord:{x:-1.2,y:-1.2}},{id:'r1-a4',name:'4', coord:{x:1.2,y:-1.2}}];
 
 var allTagInfo : Shared.TagInfo[] =
   [ {epc:'0000000000000000000000000370870', color:'orange',    coord:{x:-1.5+0.1, y:0}}
