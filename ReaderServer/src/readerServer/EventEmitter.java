@@ -1,6 +1,7 @@
 package readerServer;
 
 import java.io.DataOutputStream;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -46,8 +47,10 @@ public class EventEmitter implements Runnable {
   public void queueEvent(String event) {
     synchronized (eventQueue) {
       if (eventQueue.size() > eventBufferSize) {
-        System.out.println("Buffer overflow for "+originatingIP+", dropping event");
-        eventQueue.remove(0);
+        int nrOfEventsToDrop = eventBufferSize/10;
+        System.out.println("Buffer overflow for "+originatingIP+", dropping " + nrOfEventsToDrop + " events");
+        List<String> droppedEvents = eventQueue.subList(0, nrOfEventsToDrop);
+        eventQueue.removeAll(droppedEvents);
       }
       eventQueue.add(event);
       //System.out.println("Nr of events in queue for "+originatingIP+":"+eventQueue.size());
