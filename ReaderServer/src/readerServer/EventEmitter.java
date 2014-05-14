@@ -13,7 +13,7 @@ import java.util.Vector;
 
 public class EventEmitter implements Runnable {
 
-  private static final int eventBufferSize = 100;
+  private static final int eventBufferSize = 10000;
   
   private static Vector<EventEmitter> allEventEmitters = new Vector<EventEmitter>();
   
@@ -49,8 +49,9 @@ public class EventEmitter implements Runnable {
       if (eventQueue.size() > eventBufferSize) {
         int nrOfEventsToDrop = eventBufferSize/10;
         System.out.println("Buffer overflow for "+originatingIP+", dropping " + nrOfEventsToDrop + " events");
-        List<String> droppedEvents = eventQueue.subList(0, nrOfEventsToDrop);
-        eventQueue.removeAll(droppedEvents);
+        // not the most efficient way, but this will not happen often anyway
+        for (int i=0; i<nrOfEventsToDrop; i++)
+          eventQueue.remove(0);
       }
       eventQueue.add(event);
       //System.out.println("Nr of events in queue for "+originatingIP+":"+eventQueue.size());
@@ -61,6 +62,7 @@ public class EventEmitter implements Runnable {
   
   // TODO: synchronize adding removing of emitters to allEventEmitters
   // TODO: check if relying on eventQueue Vector sync is enough for emit loop
+  //       (it probably is, since we only add at the end, and removal is done in this thread only)
   @Override
   public void run() {
     while (true) {
