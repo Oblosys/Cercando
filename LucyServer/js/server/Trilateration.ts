@@ -21,8 +21,9 @@ export function getRssiDistance(epc : string, antNr : number, rssi : number) {
 
 // Very basic interval-based linear distance function
 export function getDistance2dStaged(rssi : number) {
-  var intervals = [{r:-50,d:0},{r:-54,d:0.5},{r:-58,d:1.0},{r:-64,d:1.5},{r:-68,d:2.0}]
-  // precondition: intervals.length > 0
+  var intervals = [{r:-50,d:0},{r:-54,d:0.5},{r:-58,d:1.0},{r:-64,d:1.5},{r:-68,d:2.0}]; 
+  // These intervals give acceptable results for the horizontal antenna setup
+  
   
   if (rssi > intervals[0].r) // rssi is negative
     return intervals[0].d;
@@ -86,7 +87,7 @@ export function trilaterateRssis(epc : string, antennas : Shared.Antenna[], rssi
       coord = null;
     
     // log specific tag
-    //if (epc == '0000000000000000000000000370869')
+    //if (epc == '0000000000000000000000000370870')
     //  util.log('trilateration:' + JSON.stringify(coord) + ' '+JSON.stringify(sortedCircles) + JSON.stringify(rssis));
     //util.log('coord '+JSON.stringify(coord) + 'X:'+coord.x+ ' x is null: '+(coord.x==null));
     result = {coord: coord, isRecent : isRecent};
@@ -112,7 +113,9 @@ function mkCircles (antennas : Shared.Antenna[], rssis : Shared.RSSI[]) : Circle
   return sortedCircles;
 }
 
-util.log('Trilateration test: '+JSON.stringify(trilaterate({x:0,y:1.5,r:2.0},{x:-1.5,y:0,r:1.2},{x:0,y:-1.5,r:1.2})));
+util.log('Trilateration test: '+JSON.stringify(trilaterate(
+  {"x":0,"y":0,"r":4},{"x":1,"y":0,"r":1} ,{"x":0.5,"y":1,"r":1})));
+
 function trilaterate(c1 : Circle, c2 : Circle, c3 : Circle) : Shared.Coord {
   // assume 3 receivers
   // http://en.wikipedia.org/wiki/Trilateration
@@ -120,22 +123,31 @@ function trilaterate(c1 : Circle, c2 : Circle, c3 : Circle) : Shared.Coord {
   var r2 = c2.r;
   var r3 = c3.r;
   
-  //  (0,0)   (d,0)
+  //  ct1:(0,0)    ct3:(d,0)
   //
-  //      (i,j)
+  //        ct2:(i,j)
  
   var ct2 = transform(c1.x,c1.y, c2.x,c2.y, c2.x,c2.y);
   var ct3 = transform(c1.x,c1.y, c2.x,c2.y, c3.x,c3.y);
 
   
   var d = ct2.x;
-  
   var i = ct3.x;
   var j = ct3.y;
 
+  /*
+  util.log('r1= '+r1);
+  util.log('r2= '+r2);
+  util.log('r3= '+r3);
+  util.log('d=  '+d);
+  util.log('i=  '+i);
+  util.log('j=  '+j);
+  */
+  // d and j are never 0: two antennas won't have the same coordinate (-> d>0) and are not on a straight line (-> j>0)
   var x = (square(r1)-square(r2)+square(d)) / (2*d);
 
   var y = (square(r1)-square(r3)+square(i)+square(j)) / (2*j) - i/j*x;
+  //util.log('(x,y): '+x+','+y);
   
   var p = untransform(c1.x,c1.y,c2.x,c2.y, x, y);
 
