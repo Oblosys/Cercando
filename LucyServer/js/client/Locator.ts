@@ -57,6 +57,8 @@ function resetClientState() {
   d3.selectAll('#annotation-plane *').remove();
   d3.selectAll('#trilateration-plane *').remove();
   d3.selectAll('#rssi-plane *').remove();
+  $('.tag-rssis .tag-label').text('');
+  $('.tag-rssis .ant-rssi').html('');
   initTrails();
   createMarkers();
 }
