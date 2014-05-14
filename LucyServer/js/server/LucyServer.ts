@@ -376,6 +376,35 @@ function trilaterateAllTags() {
     _(tag.rssis).each((rssi,antNr) => {
       rssi.distance = trilateration.getRssiDistance(tag.epc, antNr, rssi.value);
       rssi.age = now.getTime() - rssi.timestamp.getTime(); 
+
+      
+      /*[{"ant":1,"value":-70.3080407663629,"timestamp":"2014-05-14T07:08:07.897Z","distance":4.465716581123385,"age":30}
+  ,{"ant":2,"value":-57.150192202546535,"timestamp":"2014-05-14T07:08:07.796Z","distance":0.31433948708783727,"age":131}
+  ,{"ant":3,"value":-57.150192202546535,"timestamp":"2014-05-14T07:07:14.045Z","distance":2.998144176986311,"age":53882}
+  ,{"ant":4,"value":-61.35184579400259,"timestamp":"2014-05-14T07:08:07.858Z","distance":1.4579527081920527,"age":69}]
+*/
+/*
+      // override for testing
+      switch (antNr) {
+        case 0:
+          rssi.value = -71.150192202546535;
+          rssi.distance =5.998144176986311;
+          break;
+        case 1:
+          rssi.value = -61.35184579400259;
+          rssi.distance = 1.4579527081920527;
+          break;
+        case 2:
+          rssi.value = -70.3080407663629;
+          rssi.distance = 4.465716581123385;
+          break;
+        case 3:
+          rssi.value = -57.150192202546535;
+          rssi.distance = 0.31433948708783727;
+          break;
+      }
+      rssi.age = 10;
+*/      
       return rssi.distance;
     });
     tag.coordinate = trilateration.trilaterateRssis(tag.epc, allAntennas, tag.rssis);
@@ -394,15 +423,15 @@ var allAntennas : Shared.Antenna[] =
     {id:'r1-a3',name:'3', coord:{x:-1.2,y:-1.2}},{id:'r1-a4',name:'4', coord:{x:1.2,y:-1.2}}];
 
 var allTagInfo : Shared.TagInfo[] =
-  [ {epc:'0000000000000000000000000370870', color:'orange',    coord:{x:-1.5+0.1, y:0}}
-  , {epc:'0000000000000000000000000370869', color:'green',     coord:{x:-1.0+0.1, y:0}}
-  , {epc:'0000000000000000000000000503968', color:'yellow',    coord:{x:-0.5+0.1, y:0}}
-  , {epc:'0000000000000000000000000370802', color:'black',     coord:{x:0.0+ 0.1, y:0}}
-  , {epc:'0000000000000000000000000000795', color:'red',       coord:{x:0.5+ 0.1, y:0}}
-  , {epc:'0000000000000000000000000370845', color:'white',     coord:{x:0+   0.1, y:1.3}}
-  , {epc:'0000000000000000000000000100842', color:'brown',     coord:null} 
-  , {epc:'0000000000000000000000000503972', color:'gray',      coord:null}
-  , {epc:'0000000000000000000000000103921', color:'purple',    coord:null}
+  [ {epc:'0000000000000000000000000370869', color:'green',     coord:{x:1.2-0*0.35, y:1.2-0*0.35}}
+  , {epc:'0000000000000000000000000503968', color:'yellow',    coord:{x:1.2-1*0.35, y:1.2-1*0.35}}
+  , {epc:'0000000000000000000000000370802', color:'black',     coord:{x:1.2-2*0.35-0.03, y:1.2-2*0.35}}
+  , {epc:'0000000000000000000000000103921', color:'purple',    coord:{x:1.2-2*0.35+0.03, y:1.2-2*0.35}}
+  , {epc:'0000000000000000000000000000795', color:'red',       coord:{x:1.2-3*0.35, y:1.2-3*0.35}}
+  , {epc:'0000000000000000000000000370870', color:'orange',    coord:{x:1.2-4*0.35, y:1.2-4*0.35}}
+  , {epc:'0000000000000000000000000370845', color:'white',     coord:{x:1.35, y:1.2-0.5-0*0.5}}
+  , {epc:'0000000000000000000000000100842', color:'brown',     coord:{x:1.35, y:1.2-0.5-1*0.5}} 
+  , {epc:'0000000000000000000000000503972', color:'gray',      coord:{x:1.35, y:1.2-0.5-2*0.5}}
   , {epc:'0000000000000000000000000023040', color:'lightblue', coord:null}
   , {epc:'0000000000000000000000000023140', color:'darkgray',  coord:null}
   ];
