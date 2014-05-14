@@ -60,13 +60,14 @@ public class EventEmitter implements Runnable {
           //System.out.println(originatingIP + " about to wait");
           eventQueue.wait();
           //System.out.println(originatingIP + " woke up");
-          while (!eventQueue.isEmpty()) {
-            String event = eventQueue.elementAt(0);
-            eventQueue.remove(0);
-            socketOut.writeUTF(event);
-            //System.out.println("Sending "+event+" to "+originatingIP + " remaining: "+eventQueue.size());
-          }
         }
+        while (!eventQueue.isEmpty()) {
+          String event = eventQueue.elementAt(0);
+          eventQueue.remove(0);
+          socketOut.writeUTF(event);
+          //System.out.println("Sending "+event+" to "+originatingIP + " remaining: "+eventQueue.size());
+        }
+       
       } catch (InterruptedException e) {
         System.out.println("EventEmitter for "+originatingIP+" received InterruptedException");
         allEventEmitters.remove(this);
