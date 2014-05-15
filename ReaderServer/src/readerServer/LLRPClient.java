@@ -339,13 +339,18 @@ public class LLRPClient implements LLRPEndpoint {
     EventEmitter.queueEventOnAllEmitters(message);
     
 	  Date newTimestamp = new Date();
-
+	  long msDiff = newTimestamp.getTime() - lastTimestamp.getTime(); // time since last event in milliseconds
+    //System.out.println(msDiff);
 	  if (!Util.formatTimestamp(newTimestamp).equals(Util.formatTimestamp(lastTimestamp))) {
-	    long msDiff = newTimestamp.getTime() - lastTimestamp.getTime(); // time since last event in milliseconds
-	    System.out.println(Util.getTimestamp() + " socket connections: " + EventEmitter.getNrOfEmitters() +
-	                      (msDiff > 1000 ? " !! time between reader events: " + msDiff : ""));
-	    lastTimestamp = newTimestamp;
+	    System.out.print(Util.getTimestamp() + ": socket connections: " + EventEmitter.getNrOfEmitters() + "   queue sizes: ");
+	    for (int queueSize : EventEmitter.getQueueSizes())
+	      System.out.print(queueSize + "  ");
+	    System.out.println();
+	    if (msDiff > 1000)
+	      System.out.println("!!!! Delay between reader events: " + msDiff);
 	  }
+    lastTimestamp = newTimestamp;
+
   }
  
 }
