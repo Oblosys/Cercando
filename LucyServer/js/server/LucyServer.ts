@@ -66,6 +66,7 @@ function initialServerState() : Shared.ServerState {
 
 function initServer() {
   resetServerState();
+  connectReaderServer();
   
   app = express();
 
@@ -191,9 +192,11 @@ server.listen(serverPortNr);
  */
 
 function connectReaderServer() {
-  if (readerServerSocket)
-    readerServerSocket.destroy(); // TODO: destroy is probably not the best way to close the socket (end doesn't work reliably though)
-
+  if (readerServerSocket) {
+    util.log('connectReaderServer: already connected');
+    return;
+  }
+  
   readerServerSocket = new net.Socket();
   
   readerServerSocket.on('connect', function() {
@@ -266,9 +269,8 @@ function readerServerConnected(readerServerSocket : net.Socket) {
 }
 
 function disconnectReader() {
-  readerServerSocket.destroy(); 
-  // TODO: destroy is probably not the best way to close the socket (end doesn't work reliably though)
-
+  readerServerSocket.destroy(); // TODO: destroy is probably not the best way to close the socket (end doesn't work reliably though)
+  readerServerSocket = null;
   state.status.isConnected = false;
 
 }
