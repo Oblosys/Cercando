@@ -36,6 +36,17 @@ public class EventEmitter implements Runnable {
     return allEventEmitters.size();
   }
 
+  public static int[] getQueueSizes() {
+    int queueSizes[] = new int[allEventEmitters.size()];
+    
+    synchronized (allEventEmitters) {
+      for (int i=0; i<allEventEmitters.size(); i++) {
+        queueSizes[i] = allEventEmitters.get(i).eventQueue.size();
+      }
+    }
+    return queueSizes;
+  }
+
   public static void queueEventOnAllEmitters(String event) {
     for (EventEmitter emitter : allEventEmitters) {
       emitter.queueEvent(event);
