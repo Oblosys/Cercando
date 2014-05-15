@@ -117,7 +117,8 @@ public class LLRPClient implements LLRPEndpoint {
     // Receive a report every time a tag is read.
     roReportSpec.setROReportTrigger(new ROReportTriggerType
         (ROReportTriggerType.Upon_N_Tags_Or_End_Of_ROSpec));
-    roReportSpec.setN(new UnsignedShort(1));
+    roReportSpec.setN(new UnsignedShort(1)); // only unique tag/antenna pairs are counted, so we need to keep this 1
+                                             // (if N > nrOfAntennas, one tag will never trigger a read event)
     TagReportContentSelector reportContent =
         new TagReportContentSelector();
     // Select which fields we want in the report.
@@ -222,11 +223,27 @@ public class LLRPClient implements LLRPEndpoint {
       e.printStackTrace();
     }
   }
-   
-  // This function gets called asynchronously
-  // when a tag report is available.
+
+  private static Date lastTimestamp = new Date();
+
+  // This function gets called asynchronously from an anonymous thread when a tag report is available.
   public void messageReceived(LLRPMessage message) {
   	//System.out.println("Message received");
+    
+    Date newTimestamp = new Date();
+    long msDiff = newTimestamp.getTime() - lastTimestamp.getTime(); // time since last event in milliseconds
+    //System.out.println(msDiff);
+    if (!Util.formatTimestamp(newTimestamp).equals(Util.formatTimestamp(lastTimestamp))) {
+      if (msDiff > 1000)
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Long delay between reader events: " + msDiff);
+      System.out.print(Util.getTimestamp() + ": socket connections: " + EventEmitter.getNrOfEmitters() + "   queue sizes: ");
+      for (int queueSize : EventEmitter.getQueueSizes())
+        System.out.print(queueSize + "  ");
+      System.out.println();
+    }
+    lastTimestamp = newTimestamp;
+
+    
     if (message.getTypeNum() == RO_ACCESS_REPORT.TYPENUM) {
       // The message received is an Access Report.
       RO_ACCESS_REPORT report = (RO_ACCESS_REPORT) message;
@@ -342,25 +359,9 @@ public class LLRPClient implements LLRPEndpoint {
     deleteROSpecs();
     disconnect();
   }
-
-  private static Date lastTimestamp = new Date();
   
   private void sendLine(String message) {
     EventEmitter.queueEventOnAllEmitters(message);
-    
-	  Date newTimestamp = new Date();
-	  long msDiff = newTimestamp.getTime() - lastTimestamp.getTime(); // time since last event in milliseconds
-    //System.out.println(msDiff);
-	  if (!Util.formatTimestamp(newTimestamp).equals(Util.formatTimestamp(lastTimestamp))) {
-	    System.out.print(Util.getTimestamp() + ": socket connections: " + EventEmitter.getNrOfEmitters() + "   queue sizes: ");
-	    for (int queueSize : EventEmitter.getQueueSizes())
-	      System.out.print(queueSize + "  ");
-	    System.out.println();
-	    if (msDiff > 1000)
-	      System.out.println("!!!! Delay between reader events: " + msDiff);
-	  }
-    lastTimestamp = newTimestamp;
-
   }
  
 }
