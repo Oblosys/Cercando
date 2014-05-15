@@ -26,12 +26,12 @@ import Backbone = require('backbone');
 
 import _        = require('underscore');
 import path     = require('path');
-//import rl       = require('readline');
 import trilateration = require('./Trilateration');
 
 var socketIO = require('socket.io');
 
-var app : express.Express;
+var app = express();
+
 var readerServerSocket : net.Socket;
 var outputFileStream : fs.WriteStream; // for saving reader events
 
@@ -176,20 +176,7 @@ function initServer() {
 
 initServer();
 
-var server = http.createServer(app)
-  , io = socketIO.listen(server);
-
-io.set('log level', 1); // reduce logging
-server.listen(serverPortNr);
-
-/* 
-  io.sockets.on('connection', function (socket) {
-  });
-      //socket.on('my other event', function (data) {
-    //  util.log(data);
-    //});
-
- */
+var server = app.listen(serverPortNr);
 
 function disconnectReader() {
   readerServerSocket.destroy(); // TODO: destroy is probably not the best way to close the socket (end doesn't work reliably though)
@@ -218,7 +205,7 @@ function connectReaderServer() {
     util.log('Connection closed');
     state.status.isConnected = false;
     if (readerServerSocket) 
-      readerServerSocket.destroy(); // destoy socket if it wasn't already destroyed, just to make sure
+      readerServerSocket.destroy(); // destroy socket if it wasn't already destroyed, just to make sure
     readerServerSocket = null;
     
     util.log('Connection to reader server lost, reconnecting..');
@@ -272,15 +259,6 @@ function readerServerConnected(readerServerSocket : net.Socket) {
     lineBuffer += lastLine;
   //   util.log('DATA: ' + data);
   });
-  
-  /* readline can do the line splitting, but it is unclear how to do it without redirecting the stream to some output stream)
-  var i = rl.createInterface(readerServerSocket, process.stdout);
-  i.on('line', function (line) {
-      //socket.write(line);
-      util.log('Line: ' + line+'\n');
-      
-  });
-  */
 }
 
 function resetServerState() {
@@ -316,10 +294,6 @@ function stopSaving() {
 var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
 
 function processReaderEvent(readerEvent : ReaderEvent) {
-  //util.log('Reader event');
-  //util.log('emitting');
-  //io.sockets.emit('llrp', readerEvent);
-  //util.log(JSON.stringify(readerEvent));
   var readerTimestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
 
   if (outputFileStream) {
