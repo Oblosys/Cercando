@@ -56,6 +56,9 @@ public class EventEmitter implements Runnable {
 
   // To be called from main thread
   public void queueEvent(String event) {
+    // When communication is blocked, first the socket buffer will be filled, which is not noticable by this code.
+    // Once the socket buffer is full, further socket write commands will block, and the corresponding event emitter
+    // will cease to consume its eventQueue. The queue will grow to the maximum size, after which events will be dropped.
     synchronized (eventQueue) {
       if (eventQueue.size() > eventBufferSize) {
         int nrOfEventsToDrop = eventBufferSize/10;
