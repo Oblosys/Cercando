@@ -382,8 +382,7 @@ function handleSaveButton() {
     $.get('/query/stop-saving', {filename: filename}, function() {
       util.log('Stopped saving events.');
       $('#save-button').val('Start saving');
-    }); // Assuma that stop won't fail
-        
+    }); // Assume that stop won't fail
   }
 }
 
