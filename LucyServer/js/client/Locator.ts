@@ -88,8 +88,7 @@ function initialize() {
 
   drawAntennas();
   drawTagSetup();
-  
-  connectReader();
+  startRefreshInterval();
 }
 
 function queryAntennas() {
@@ -326,6 +325,7 @@ function refresh() {
   });
 }
 
+
 function connectReader() {
   $.get('/query/connect', function() {
     util.log('Connected to reader.');
@@ -340,6 +340,14 @@ function disconnectReader() {
     serverState.status.isConnected = false;
     updateLabels();  
   });
+}
+
+function handleStartRefreshButton() {
+  startRefreshInterval();
+}
+
+function handleStopRefreshButton() {
+  stopRefreshInterval();
 }
 
 function handleConnectButton() {
