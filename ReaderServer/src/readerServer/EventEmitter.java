@@ -1,11 +1,11 @@
 package readerServer;
 
 import java.io.DataOutputStream;
-import java.util.List;
 import java.util.Vector;
 
 /**
- *
+ * EventEmitter creates a consumer thread that continuously sends queued event to its socket output stream.
+ * New EventEmitters are added to allEventEmitters list on creation, and removed from this list when they disconnect.
  * 
  * @author Martijn Schrage - Oblomov Systems
  * 
@@ -13,7 +13,10 @@ import java.util.Vector;
 
 public class EventEmitter implements Runnable {
 
-  private static final int eventBufferSize = 10000;
+  private static final int eventBufferSize = 100000;
+  // Stores about 8 to 9 minutes worth of events in case of 1 reader, and
+  // takes about 60Mb per stalled connection (2 connections are typically the maximum)
+  
   
   private static Vector<EventEmitter> allEventEmitters = new Vector<EventEmitter>();
   
@@ -21,6 +24,7 @@ public class EventEmitter implements Runnable {
   private Vector<String> eventQueue;
   private DataOutputStream socketOut;
   
+  // Initialize event emitter, add it to the allEventEmitters list and start a new thread.
   public EventEmitter(String originatingIP, DataOutputStream socketOut) {
     this.originatingIP = originatingIP;
     this.eventQueue = new Vector<String>();
@@ -52,9 +56,9 @@ public class EventEmitter implements Runnable {
       emitter.queueEvent(event);
     }
   }
-  
 
-  // To be called from main thread
+  // To be called from any thread except the one started by this event emitter.
+  // Queue event for all event emitters, dropping the oldest events if necessary.
   public void queueEvent(String event) {
     // When communication is blocked, first the socket buffer will be filled, which is not noticable by this code.
     // Once the socket buffer is full, further socket write commands will block, and the corresponding event emitter
@@ -63,29 +67,23 @@ public class EventEmitter implements Runnable {
       if (eventQueue.size() > eventBufferSize) {
         int nrOfEventsToDrop = eventBufferSize/10;
         System.out.println("Buffer overflow for "+originatingIP+", dropping " + nrOfEventsToDrop + " events");
-        // not the most efficient way, but this will not happen often anyway
+        // Not the most efficient way, but this will not happen often anyway
         for (int i=0; i<nrOfEventsToDrop; i++)
           eventQueue.remove(0);
       }
       eventQueue.add(event);
-      //System.out.println("Nr of events in queue for "+originatingIP+":"+eventQueue.size());
-      eventQueue.notify();
+      eventQueue.notify(); // Signal the consumer thread for this event emitter.
    }
   }
   
-  
-  // TODO: synchronize adding removing of emitters to allEventEmitters
-  // TODO: check if relying on eventQueue Vector sync is enough for emit loop
-  //       (it probably is, since we only add at the end, and removal is done in this thread only)
   @Override
+  // Consume events from the queue and send them to the socket, and on an exception remove this emitter
+  // from allEventEmitters list.
   public void run() {
-    while (true) {
-      try {
-        //System.out.println(originatingIP + " about enter sync");
+    while (true) { 
+      try {        
         synchronized (eventQueue) {
-          //System.out.println(originatingIP + " about to wait");
-          eventQueue.wait();
-          //System.out.println(originatingIP + " woke up");
+          eventQueue.wait(); // Block here until events are queued
         }
         while (!eventQueue.isEmpty()) {
           String event = eventQueue.elementAt(0);
@@ -93,14 +91,13 @@ public class EventEmitter implements Runnable {
           socketOut.writeUTF(event);
           //System.out.println("Sending "+event+" to "+originatingIP + " remaining: "+eventQueue.size());
         }
-       
       } catch (InterruptedException e) {
         System.out.println("EventEmitter for "+originatingIP+" received InterruptedException");
         allEventEmitters.remove(this);
       } catch (Exception e) {
-        if (e.getMessage().equals("Broken pipe")) 
-          System.out.println(Util.getTimestamp() + ": Client socket closed.");
-        else
+        if (e.getMessage().equals("Broken pipe")) // Stopping the lucy server breaks the socket, so this is the normal way to disconnect
+          System.out.println("\n" + Util.getTimestamp() + ": Disconnected from " + originatingIP);        
+        else // Any other exceptions are worth logging.
           System.out.println(Util.getTimestamp() + ": Error while writing to socket: "+e.getMessage());
         allEventEmitters.remove(this);
         //e.printStackTrace();

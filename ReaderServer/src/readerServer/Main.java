@@ -57,14 +57,12 @@ public class Main {
       try {
         Socket connectionsocket = serversocket.accept();
         InetAddress clientIP = connectionsocket.getInetAddress();
-        System.out.println("\n" + Util.getTimestamp() + ": Connected to " + clientIP);
-
-        
+        System.out.println("\n" + Util.getTimestamp() + ": Connected to " + clientIP);        
         DataOutputStream output =
           new DataOutputStream(connectionsocket.getOutputStream());
 
         new EventEmitter(clientIP.toString(), output);
-        //System.out.println(getTimestamp() + " Disconnected");
+        // This creates a new event emitter which starts a new thread and adds itself to the EventEmitter.allEventEmitters list
       }
       catch (Exception e) {
         System.out.println("\nError in main loop:\n" + e.getMessage());
@@ -73,6 +71,7 @@ public class Main {
     }
 	}
   
+  @SuppressWarnings("unused")
   private static void test() {
     new EventEmitter("1", null);
     new EventEmitter("2", null);
