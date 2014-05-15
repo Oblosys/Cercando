@@ -191,6 +191,12 @@ server.listen(serverPortNr);
 
  */
 
+function disconnectReader() {
+  readerServerSocket.destroy(); // TODO: destroy is probably not the best way to close the socket (end doesn't work reliably though)
+  readerServerSocket = null;
+  state.status.isConnected = false;
+}
+
 function connectReaderServer() {
   if (readerServerSocket) {
     util.log('connectReaderServer: already connected');
@@ -211,6 +217,15 @@ function connectReaderServer() {
   readerServerSocket.on('close', function() {
     util.log('Connection closed');
     state.status.isConnected = false;
+    if (readerServerSocket) 
+      readerServerSocket.destroy(); // destoy socket if it wasn't already destroyed, just to make sure
+    readerServerSocket = null;
+    
+    util.log('Connection to reader server lost, reconnecting..');
+    setTimeout(function() { // automatically try to reconnect
+      connectReaderServer();
+    }, 1000);
+
   });
 
   tryToConnect(readerServerSocket);
@@ -266,13 +281,6 @@ function readerServerConnected(readerServerSocket : net.Socket) {
       
   });
   */
-}
-
-function disconnectReader() {
-  readerServerSocket.destroy(); // TODO: destroy is probably not the best way to close the socket (end doesn't work reliably though)
-  readerServerSocket = null;
-  state.status.isConnected = false;
-
 }
 
 function resetServerState() {
