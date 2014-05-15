@@ -1,4 +1,5 @@
 package readerServer;
+import java.util.Date;
 import java.util.List;
 
 import org.llrp.ltk.generated.enumerations.*;
@@ -332,14 +333,17 @@ public class LLRPClient implements LLRPEndpoint {
     disconnect();
   }
 
-  private static String lastTimestamp = "";
+  private static Date lastTimestamp = new Date();
   
   private void sendLine(String message) {
     EventEmitter.queueEventOnAllEmitters(message);
     
-	  String newTimestamp = Util.getTimestamp();
-	  if (!newTimestamp.equals(lastTimestamp)) {
-	    System.out.println(Util.getTimestamp() + " active socket connections: " + EventEmitter.getNrOfEmitters());
+	  Date newTimestamp = new Date();
+
+	  if (!Util.formatTimestamp(newTimestamp).equals(Util.formatTimestamp(lastTimestamp))) {
+	    long msDiff = newTimestamp.getTime() - lastTimestamp.getTime(); // time since last event in milliseconds
+	    System.out.println(Util.getTimestamp() + " socket connections: " + EventEmitter.getNrOfEmitters() +
+	                      (msDiff > 1000 ? " !! time between reader events: " + msDiff : ""));
 	    lastTimestamp = newTimestamp;
 	  }
   }

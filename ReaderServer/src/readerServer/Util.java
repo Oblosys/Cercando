@@ -12,7 +12,12 @@ import java.util.Date;
  */
 public class Util {
   static String getTimestamp() {
+    return formatTimestamp(new Date());
+  }
+  
+  static String formatTimestamp(Date date) {
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    return dateFormat.format(new Date());
+    return dateFormat.format(date);
+
   }
 }
