@@ -253,6 +253,16 @@ public class LLRPClient implements LLRPEndpoint {
           //System.out.println(tag.getPeakRSSI());
           //System.out.println(tag.getLastSeenTimestampUTC());
       }
+    } else {
+      try {
+        System.out.println(Util.getTimestamp() + ": Unhandled reader message received: "+message.getTypeNum());
+        System.out.println(message.toXMLString());
+        }
+        catch (Exception e) {
+          System.out.println("Error printing reader message");
+          e.printStackTrace();
+        }
+
     }
   }
    
