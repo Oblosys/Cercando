@@ -251,7 +251,7 @@ public class LLRPClient implements LLRPEndpoint {
         int logInterval = 60*1000; // log active connections every 60 seconds
         
         if (newTimestamp.getTime() / logInterval != lastTimestamp.getTime() / logInterval) {
-          System.out.print(Util.getTimestamp() + ": Reader " + readerIP + ": Socket connections: " + EventEmitter.getNrOfEmitters() +
+          Util.log("Reader " + readerIP + ": Socket connections: " + EventEmitter.getNrOfEmitters() +
                           " queue sizes: " + Util.showList(EventEmitter.getQueueSizes()));
         }
         lastTimestamp = newTimestamp;
