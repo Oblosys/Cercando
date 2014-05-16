@@ -11,6 +11,16 @@ import java.util.Date;
  * 
  */
 public class Util {
+  static <T> String showList(T[] c) {
+    String res = "[";
+    String separator = "";
+    for (T x : c) {
+      res += separator + x.toString();
+      separator = ", ";
+    }
+    return res + "]";
+  }
+  
   static String getTimestamp() {
     return formatTimestamp(new Date());
   }
