@@ -44,6 +44,9 @@ var serverPortNr : number
 
 interface ReaderEvent {readerIp : string; ant : number; epc : string; rssi : number; firstSeen : string; lastSeen : string}
 
+initServer();
+
+
 // Duplicated, until we find an elegant way to share both types and code between client and server TypeScript
 function initialServerState() : Shared.ServerState {
   return {
@@ -52,11 +55,6 @@ function initialServerState() : Shared.ServerState {
     tagsData: []
   };
 }
-
-
-var bla = 'bla';
-initServer();
-var blaa = 'bla';
 
 function initServer() {
   // usage: LucyServer [portNr] [remoteReader]
