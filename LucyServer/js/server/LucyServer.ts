@@ -325,12 +325,12 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   var antNr = getAntennaNr(antId);
   var oldAntennaRssi = getAntennaRssiForAntNr(antNr, tag.antennaRssis);
   
-  var newRssi = !useSmoother ? readerEvent.rssi : filtered( readerEvent.epc, readerEvent.ant, readerEvent.rssi
-                                                          , timestamp, oldAntennaRssi );
+  var newRssi = !useSmoother ? readerEvent.rssi 
+                             : filtered(readerEvent.epc, readerEvent.ant, readerEvent.rssi, timestamp, oldAntennaRssi);
   var newAntennaRssi = {antNr: antNr, value: newRssi, timestamp: timestamp};
   //if (readerEvent.epc == '0000000000000000000000000503968' && readerEvent.ant == 1) {
-    util.log(new Date().getSeconds() + ' ' + readerEvent.epc + ' ant '+readerEvent.ant + ' rawRssi: '+readerEvent.rssi.toFixed(1) + ' dist: '+
-            trilateration.getRssiDistance(readerEvent.epc, ''+readerEvent.ant, readerEvent.rssi));
+  //  util.log(new Date().getSeconds() + ' ' + readerEvent.epc + ' ant '+readerEvent.ant + ' rawRssi: '+readerEvent.rssi.toFixed(1) + ' dist: '+
+  //          trilateration.getRssiDistance(readerEvent.epc, ''+readerEvent.ant, readerEvent.rssi));
   //}
   
   updateAntennaRssi(newAntennaRssi, tag.antennaRssis);
@@ -356,7 +356,7 @@ var RC = 1/2;
 // epc : string, antNr : number just for logging
 function filtered(epc : string, ant : number, rssi : number, timestamp : Date, previousAntennaRssi : Shared.AntennaRSSI) {
   var dT = (previousAntennaRssi ? timestamp.getTime() - previousAntennaRssi.timestamp.getTime() : 100)/1000;
-  var previousRssi = previousAntennaRssi ? previousAntennaRssi.value : -30;
+  var previousRssi = previousAntennaRssi ? previousAntennaRssi.value : rssi;
   
   var alpha = dT / (dT + RC);
   
