@@ -1,7 +1,7 @@
 module Shared {
   export interface Coord { x: number; y : number}
   
-  export interface Antenna { id : string; name : string; coord : Coord }
+  export interface Antenna { antid : string; name : string; coord : Coord }
   
   export interface TagInfo { epc : string; color: string; coord: Coord}
   

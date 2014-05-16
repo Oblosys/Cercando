@@ -241,28 +241,31 @@ function updateTags() {
     var $tagLabel = $('.tag-rssis:eq('+tagNr+') .tag-label');
     $tagLabel.css('color',tagData.color);
     $tagLabel.text(tagNr + ' ' +tagData.epc.slice(-7));
-    for (var ant=0; ant<allAntennas.length; ant++) {
-      if (tagData.rssis[ant]) {
+    
+      for (var i=0; i < tagData.rssis.length; i++) {
+      var antRssi = tagData.rssis[i];
+      var antNr = getAntennaNr('r1-a'+antRssi.ant);
+      if (antNr >= 0) {
         //util.log('epc:'+tagData.epc+'  '+tagNr);
-        var rssi = tagData.rssis[ant].value;
-        var signalAge = tagData.rssis[ant].age;
-        var dist =  tagData.rssis[ant].distance;
+        var rssi = antRssi.value;
+        var signalAge = antRssi.age;
+        var dist =  antRssi.distance;
         var isRangeRecent = signalAge<2000; // todo: do this server side
         // show in table
         if (rssi) {
-          $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+')').html('<span class="dist-label">' + dist.toFixed(1) + 'm</span>' +
+          $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+antNr+')').html('<span class="dist-label">' + dist.toFixed(1) + 'm</span>' +
                                                                    '<span class="rssi-label">(' + rssi.toFixed(1) + ')</span>');
-          $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+') .dist-label').css('color', isRangeRecent ? 'white' : 'red');
-          $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+ant+') .rssi-label').css('color', isRangeRecent ? '#bbb' : 'red');
+          $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+antNr+') .dist-label').css('color', isRangeRecent ? 'white' : 'red');
+          $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+antNr+') .rssi-label').css('color', isRangeRecent ? '#bbb' : 'red');
         }
         //util.log(tagNr + '-' + ant +' '+ rssi);
   
-        var rangeClass = 'r-'+(ant+1)+'-'+tagNr; 
+        var rangeClass = 'r-'+(antNr+1)+'-'+tagNr; 
         var range = d3.select('.'+rangeClass)
         if (range.empty() && tagNr <=11) { // use <= to filter tags
-          util.log('Creating range for antenna '+(ant+1) + ': '+rangeClass);
+          util.log('Creating range for antenna '+antNr + ': '+rangeClass);
           
-          var pos = toScreen(allAntennas[ant].coord);
+          var pos = toScreen(allAntennas[antNr].coord);
           range = rssiPlaneSVG.append('circle').attr('class', rangeClass)
                     .style('stroke', tagData.color)
                     .style('fill', 'transparent')
@@ -296,13 +299,17 @@ function updateTags() {
   updateTrails();
 }
 
+// return the index in allAntennas for the antenna with id ant 
+function getAntennaNr(antid : string) {
+  var ix = _(allAntennas).pluck('antid').indexOf(antid);
+  if (ix == -1) 
+    console.error('Antenna with id %s not found in allAntennas', antid)
+  return ix;
+}
+
 // return the index in tagsData for the tag with this epc 
 function getTagNr(epc : string) {
-  for (var i=0; i<serverState.tagsData.length; i++)
-    if (serverState.tagsData[i].epc == epc)
-      return i;
-  
-  return -1; // TODO: handle this error
+  return _(serverState.tagsData).pluck('epc').indexOf(epc);
 }
 
 function startRefreshInterval() {
