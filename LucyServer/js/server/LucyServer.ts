@@ -39,7 +39,7 @@ var serverPortNr : number
 
 var state : Shared.ServerState
 
-interface ReaderEvent {readerIP : string; ant : number; ePC : string; RSSI : number; firstSeen : string; lastSeen : string}
+interface ReaderEvent {readerIp : string; ant : number; epc : string; rssi : number; firstSeen : string; lastSeen : string}
 
 // Duplicated, until we find an elegant way to share both types and code between client and server TypeScript
 function initialServerState() : Shared.ServerState {
@@ -300,14 +300,14 @@ function processReaderEvent(readerEvent : ReaderEvent) {
       util.padZero(2,readerTimestamp.getSeconds())+':'+util.padZero(4,readerTimestamp.getMilliseconds()*10);
 
     // Mimic the save format created by Motorola SessionOne app
-    outputFileStream.write('\'0'+readerEvent.ePC+', '+time+', '+date+', '+readerEvent.ant+', '+readerEvent.RSSI+', , , , \n');
+    outputFileStream.write('\'0'+readerEvent.epc+', '+time+', '+date+', '+readerEvent.ant+', '+readerEvent.rssi+', , , , \n');
   }
 
-  var tag = _.findWhere(state.tagsData, {epc: readerEvent.ePC});
+  var tag = _.findWhere(state.tagsData, {epc: readerEvent.epc});
   if (!tag) {
-    var preferredColorObj = _.findWhere(allTagInfo, {epc: readerEvent.ePC});
+    var preferredColorObj = _.findWhere(allTagInfo, {epc: readerEvent.epc});
     var color = preferredColorObj ? preferredColorObj.color : 'white';
-    tag = { epc:readerEvent.ePC, color: color, antennaRssis: [] }
+    tag = { epc:readerEvent.epc, color: color, antennaRssis: [] }
     state.tagsData.push(tag);
   }
   
@@ -316,16 +316,16 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   //TODO Reader time is not in sync with server. For now, just use server time.
   var timestamp = new Date(); // use current time as timestamp.
   
-  var antId = 'r'+readerEvent.readerIP+'-a'+readerEvent.ant;
+  var antId = mkAntennaId(readerEvent.readerIp, readerEvent.ant);
   var antNr = getAntennaNr(antId);
   var oldAntennaRssi = getAntennaRssiForAntNr(antNr, tag.antennaRssis);
   
-  var newRssi = !useSmoother ? readerEvent.RSSI : filtered( readerEvent.ePC, readerEvent.ant, readerEvent.RSSI
+  var newRssi = !useSmoother ? readerEvent.rssi : filtered( readerEvent.epc, readerEvent.ant, readerEvent.rssi
                                                           , timestamp, oldAntennaRssi );
   var newAntennaRssi = {antNr: antNr, value: newRssi, timestamp: timestamp};
-  //if (readerEvent.ePC == '0000000000000000000000000503968' && readerEvent.ant == 1) {
-  //  util.log(new Date().getSeconds() + ' ' + readerEvent.ePC + ' ant '+readerEvent.ant + ' rawRssi: '+readerEvent.RSSI.toFixed(1) + ' dist: '+
-  //           trilateration.getRssiDistance(readerEvent.ePC, ''+readerEvent.ant, readerEvent.RSSI));
+  //if (readerEvent.epc == '0000000000000000000000000503968' && readerEvent.ant == 1) {
+    util.log(new Date().getSeconds() + ' ' + readerEvent.epc + ' ant '+readerEvent.ant + ' rawRssi: '+readerEvent.rssi.toFixed(1) + ' dist: '+
+            trilateration.getRssiDistance(readerEvent.epc, ''+readerEvent.ant, readerEvent.rssi));
   //}
   
   updateAntennaRssi(newAntennaRssi, tag.antennaRssis);
@@ -333,9 +333,9 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   //util.log(tagsState);
 }
 
-function getAntennaRssiForAntNr(antNr : number, rssis : Shared.AntennaRSSI[]) {
-  var ix = _(rssis).pluck('antNr').indexOf(antNr);
-  return ix == -1 ? null : rssis[ix];
+function getAntennaRssiForAntNr(antNr : number, antennaRssis : Shared.AntennaRSSI[]) {
+  var ix = _(antennaRssis).pluck('antNr').indexOf(antNr);
+  return ix == -1 ? null : antennaRssis[ix];
 }
 
 function updateAntennaRssi(newAntennaRssi : Shared.AntennaRSSI, antennaRssis : Shared.AntennaRSSI[]) {
@@ -356,10 +356,10 @@ function filtered(epc : string, ant : number, rssi : number, timestamp : Date, p
   var alpha = dT / (dT + RC);
   
   var newRssi = rssi * alpha + previousRssi * (1.0 - alpha);
-  if (epc == '0000000000000000000000000503968' && ant == 1) {
-    util.log(new Date().getSeconds() + ' ' + epc + ' ant '+ant + ' prevRssi: '+previousRssi.toFixed(1) + ' rawRssi: '+rssi.toFixed(1) + ' newDist: '+
-             trilateration.getRssiDistance(epc, ''+ant, newRssi).toFixed(1) + ' newRssi: '+newRssi.toFixed(1));
-  }
+  //if (epc == '0000000000000000000000000503968' && ant == 1) {
+  //  util.log(new Date().getSeconds() + ' ' + epc + ' ant '+ant + ' prevRssi: '+previousRssi.toFixed(1) + ' rawRssi: '+rssi.toFixed(1) + ' newDist: '+
+  //           trilateration.getRssiDistance(epc, ''+ant, newRssi).toFixed(1) + ' newRssi: '+newRssi.toFixed(1));
+  //}
   
   //util.log(util.padZero(3,dT) + JSON.stringify(previousRssi) );
   //util.log(util.padZero(3,dT) + JSON.stringify(previousRssi.value) );

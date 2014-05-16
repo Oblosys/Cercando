@@ -271,10 +271,10 @@ public class LLRPClient implements LLRPEndpoint {
           CharSequence firstSeenStr = firstSeenVerbose.subSequence(37, firstSeenVerbose.length());
           CharSequence lastSeenStr = lastSeenVerbose.subSequence(36, lastSeenVerbose.length());
         	String json =
-        	  "{\"readerIP\":\"" + readerIP + "\"" +
+        	  "{\"readerIp\":\"" + readerIP + "\"" +
             ",\"ant\":" + tag.getAntennaID().getAntennaID().toString() +
-            ",\"ePC\":\"" + epcStr + "\"" +
-            ",\"RSSI\":" + tag.getPeakRSSI().getPeakRSSI().toString() +
+            ",\"epc\":\"" + epcStr + "\"" +
+            ",\"rssi\":" + tag.getPeakRSSI().getPeakRSSI().toString() +
             ",\"firstSeen\":\"" + firstSeenStr + "\"" +
             ",\"lastSeen\":\"" + lastSeenStr + "\"" +
             "}";
