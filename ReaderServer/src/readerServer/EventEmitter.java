@@ -40,8 +40,8 @@ public class EventEmitter implements Runnable {
     return allEventEmitters.size();
   }
 
-  public static int[] getQueueSizes() {
-    int queueSizes[] = new int[allEventEmitters.size()];
+  public static Integer[] getQueueSizes() {
+    Integer queueSizes[] = new Integer[allEventEmitters.size()];
     
     synchronized (allEventEmitters) {
       for (int i=0; i<allEventEmitters.size(); i++) {

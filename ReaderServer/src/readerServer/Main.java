@@ -19,6 +19,8 @@ public class Main {
   
   private static Vector<LLRPClient> llrpClients = new Vector<LLRPClient>();
  
+  // TODO: maybe we don't want to shut down the entire server if one reader fails.
+  
   public static void main(String[] args)
   {
     Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -50,7 +52,9 @@ public class Main {
 	    System.err.println("Error:" + e.getMessage());
 	    return;
 	  }
-	  Util.log("Initializing "+readerIPs.length + " reader" + (readerIPs.length>1 ? "s" : "") + ".");
+	  Util.log("Initializing "+readerIPs.length + " reader" + (readerIPs.length>1 ? "s" : "") +
+	           " at IP adress" + (readerIPs.length>1 ? "es" : "") + ": ");
+	  Util.log(Util.showList(readerIPs));
 	  for (String readerIP : readerIPs) {
 	    LLRPClient llrpClient = new LLRPClient(readerIP);
 	    llrpClient.run();
