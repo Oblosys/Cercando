@@ -39,7 +39,7 @@ var serverPortNr : number
 
 var state : Shared.ServerState
 
-interface ReaderEvent {firstSeen : string; lastSeen : string; ePC : string; ant : number; RSSI : number}
+interface ReaderEvent {readerIP : string; ant : number; ePC : string; RSSI : number; firstSeen : string; lastSeen : string}
 
 // Duplicated, until we find an elegant way to share both types and code between client and server TypeScript
 function initialServerState() : Shared.ServerState {
@@ -316,10 +316,13 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   //TODO Reader time is not in sync with server. For now, just use server time.
   var timestamp = new Date(); // use current time as timestamp.
   
-  var antNr = _(tag.rssis).pluck('antid').indexOf('r1-a'+readerEvent.ant);
+  var antId = 'r'+readerEvent.readerIP+'-a'+readerEvent.ant;
+  var antNr = getAntennaNr(antId);
+  var oldAntennaRssi = getAntennaRssiForAntNr(antNr, tag.rssis);
+  
   var newRssi = !useSmoother ? readerEvent.RSSI : filtered( readerEvent.ePC, readerEvent.ant, readerEvent.RSSI
-                                                          , timestamp, tag.rssis[antNr] );
-  var newAntennaRssi = {antid : 'r1-a'+readerEvent.ant, value: newRssi, timestamp: timestamp};
+                                                          , timestamp, oldAntennaRssi );
+  var newAntennaRssi = {antNr: antNr, value: newRssi, timestamp: timestamp};
   //if (readerEvent.ePC == '0000000000000000000000000503968' && readerEvent.ant == 1) {
   //  util.log(new Date().getSeconds() + ' ' + readerEvent.ePC + ' ant '+readerEvent.ant + ' rawRssi: '+readerEvent.RSSI.toFixed(1) + ' dist: '+
   //           trilateration.getRssiDistance(readerEvent.ePC, ''+readerEvent.ant, readerEvent.RSSI));
@@ -330,8 +333,13 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   //util.log(tagsState);
 }
 
+function getAntennaRssiForAntNr(antNr : number, rssis : Shared.RSSI[]) {
+  var ix = _(rssis).pluck('antNr').indexOf(antNr);
+  return ix == -1 ? null : rssis[ix];
+}
+
 function updateAntennaRssi(newAntennaRssi : Shared.RSSI, rssis : Shared.RSSI[]) {
-  var ix = _(rssis).pluck('antid').indexOf(newAntennaRssi.antid);
+  var ix = _(rssis).pluck('antNr').indexOf(newAntennaRssi.antNr);
   if (ix >= 0)
     rssis[ix] = newAntennaRssi; // update
   else
@@ -365,7 +373,7 @@ function trilaterateAllTags() {
   var now = new Date();
   _(state.tagsData).each((tag) => {
     _(tag.rssis).each((rssi) => {
-      rssi.distance = trilateration.getRssiDistance(tag.epc, rssi.antid, rssi.value);
+      rssi.distance = trilateration.getRssiDistance(tag.epc, allAntennas[rssi.antNr].name, rssi.value);
       rssi.age = now.getTime() - rssi.timestamp.getTime(); 
 
       
@@ -410,8 +418,8 @@ function tweakAntenna(antennaNr : number, rssi : number) : number {
 
 // TODO: maybe store in config file
 var allAntennas : Shared.Antenna[] =
-   [{antid:'r1-a1',name:'1', coord:{x:1.2,y:1.2}},{antid:'r1-a2',name:'2', coord:{x:-1.2,y:1.2}},
-    {antid:'r1-a3',name:'3', coord:{x:-1.2,y:-1.2}},{antid:'r1-a4',name:'4', coord:{x:1.2,y:-1.2}}];
+   [{antid:'r10.0.0.30-a1',name:'1', coord:{x:1.2,y:1.2}},{antid:'r10.0.0.30-a2',name:'2', coord:{x:-1.2,y:1.2}},
+    {antid:'r10.0.0.30-a3',name:'3', coord:{x:-1.2,y:-1.2}},{antid:'r10.0.0.30-a4',name:'4', coord:{x:1.2,y:-1.2}}];
 
 var allTagInfo : Shared.TagInfo[] =
   [ {epc:'0000000000000000000000000370869', color:'green',     coord:{x:1.2-0*0.35, y:1.2-0*0.35}}
@@ -427,6 +435,14 @@ var allTagInfo : Shared.TagInfo[] =
   , {epc:'0000000000000000000000000023140', color:'darkgray',  coord:null}
   ];
 
+
+// return the index in allAntennas for the antenna with id ant 
+function getAntennaNr(antid : string) {
+  var ix = _(allAntennas).pluck('antid').indexOf(antid);
+  if (ix == -1) 
+    console.error('Antenna with id %s not found in allAntennas', antid)
+  return ix;
+}
 
 // Only allow letters, digits, and slashes
 function isSafeFilePath(filePath : string) : boolean {

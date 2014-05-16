@@ -2,7 +2,7 @@ import _        = require('underscore');
 import util     = require('oblo-util');
 
 // epc : string, antNr : number just for logging
-export function getRssiDistance(epc : string, antid : string, rssi : number) {
+export function getRssiDistance(epc : string, antName : string, rssi : number) {
   var dist3d = getDistance3d(rssi);
   //var dist2d = convert3dTo2d(dist3d);
   var dist2d = getDistance2dStaged(rssi);
@@ -112,9 +112,10 @@ interface Circle { x: number; y : number; r : number};
 function mkCircles (antennas : Shared.Antenna[], rssis : Shared.RSSI[]) : Circle[] {
   var circles : Circle[] = [];
   for (var i=0; i<rssis.length; i++) {
-    if (rssis[i])
-      var antNr = getAntennaNr(rssis[i].antid, antennas);
+    if (rssis[i]) {
+      var antNr = rssis[i].antNr;
       circles.push({x: antennas[antNr].coord.x, y: antennas[antNr].coord.y, r: rssis[i].distance});
+    }
   }
   var sortedCircles = _.sortBy(circles, function(c:Circle) {return c.r;});
     
