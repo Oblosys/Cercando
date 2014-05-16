@@ -66,7 +66,7 @@ public class EventEmitter implements Runnable {
     synchronized (eventQueue) {
       if (eventQueue.size() > eventBufferSize) {
         int nrOfEventsToDrop = eventBufferSize/10;
-        System.out.println("Buffer overflow for "+originatingIP+", dropping " + nrOfEventsToDrop + " events");
+        Util.log("Buffer overflow for "+originatingIP+", dropping " + nrOfEventsToDrop + " events");
         // Not the most efficient way, but this will not happen often anyway
         for (int i=0; i<nrOfEventsToDrop; i++)
           eventQueue.remove(0);
@@ -89,10 +89,10 @@ public class EventEmitter implements Runnable {
           String event = eventQueue.elementAt(0);
           eventQueue.remove(0);
           socketOut.writeUTF(event);
-          //System.out.println("Sending "+event+" to "+originatingIP + " remaining: "+eventQueue.size());
+          //Util.log("Sending "+event+" to "+originatingIP + " remaining: "+eventQueue.size());
         }
       } catch (InterruptedException e) {
-        System.out.println("EventEmitter for "+originatingIP+" received InterruptedException");
+        Util.log("EventEmitter for "+originatingIP+" received InterruptedException");
         allEventEmitters.remove(this);
         Util.log("Socket connections: " + EventEmitter.getNrOfEmitters());
       } catch (Exception e) {

@@ -29,7 +29,7 @@ public class Main {
             llrpClient.stop();
           }
         }
-        System.out.println("Exiting reader server.");
+        Util.log("Exiting reader server.");
       }
     });
     
@@ -44,7 +44,7 @@ public class Main {
 	  Util.log("Starting Reader Server\n");
 	  
 	  try {
-      System.out.println("Setting up server socket on port " + port);
+      Util.log("Setting up server socket on port " + port);
       serversocket = new ServerSocket(port);
     } catch (Exception e) {
 	    System.err.println("Error:" + e.getMessage());
@@ -75,7 +75,7 @@ public class Main {
         Util.log("Socket connections: " + EventEmitter.getNrOfEmitters());
       }
       catch (Exception e) {
-        System.out.println("\nError in main loop:\n" + e.getMessage());
+        Util.log("Error in main loop:\n" + e.getMessage());
         System.exit(1);
       }
     }

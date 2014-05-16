@@ -31,7 +31,7 @@ public class LLRPClient implements LLRPEndpoint {
   // An ROSpec specifies start and stop triggers,
   // tag report fields, antennas, etc.
   public ROSpec buildROSpec() { 
-    //System.out.println("Building the ROSpec.");
+    //Util.log("Building the ROSpec.");
      
     // Create a Reader Operation Spec (ROSpec).
     ROSpec roSpec = new ROSpec();
@@ -147,7 +147,7 @@ public class LLRPClient implements LLRPEndpoint {
     ADD_ROSPEC_RESPONSE response;
      
     ROSpec roSpec = buildROSpec();
-    //System.out.println("Adding the ROSpec.");
+    //Util.log("Adding the ROSpec.");
     
     try {
       ADD_ROSPEC roSpecMsg = new ADD_ROSPEC();
@@ -158,13 +158,13 @@ public class LLRPClient implements LLRPEndpoint {
       // Check if the we successfully added the ROSpec.
       StatusCode status = response.getLLRPStatus().getStatusCode();
       if (status.equals(new StatusCode("M_Success"))) {
-        //System.out.println("Successfully added ROSpec.");
+        //Util.log("Successfully added ROSpec.");
       } else {
-        System.out.println("Reader " + readerIP + ": Error adding ROSpec.");
+        Util.log("Reader " + readerIP + ": Error adding ROSpec.");
         System.exit(1);
       }
     } catch (Exception e) {
-      System.out.println("Reader " + readerIP + ": Error adding ROSpec.");
+      Util.log("Reader " + readerIP + ": Error adding ROSpec.");
       e.printStackTrace();
     }
   }
@@ -175,7 +175,7 @@ public class LLRPClient implements LLRPEndpoint {
     @SuppressWarnings("unused")
     ENABLE_ROSPEC_RESPONSE response;
      
-    //System.out.println("Enabling the ROSpec.");
+    //Util.log("Enabling the ROSpec.");
     ENABLE_ROSPEC enable = new ENABLE_ROSPEC();
     enable.setROSpecID(new UnsignedInteger(ROSPEC_ID));
     
@@ -183,7 +183,7 @@ public class LLRPClient implements LLRPEndpoint {
       response = (ENABLE_ROSPEC_RESPONSE)reader.transact(enable, TIMEOUT_MS);
       //System.out.println(response.toXMLString());
     } catch (Exception e) {
-      System.out.println("Reader " + readerIP + ": Error enabling ROSpec.");
+      Util.log("Reader " + readerIP + ": Error enabling ROSpec.");
       e.printStackTrace();
     }
   }
@@ -194,7 +194,7 @@ public class LLRPClient implements LLRPEndpoint {
   {
     @SuppressWarnings("unused")
     START_ROSPEC_RESPONSE response;
-    //System.out.println("Starting the ROSpec.");
+    //Util.log("Starting the ROSpec.");
     START_ROSPEC start = new START_ROSPEC();
     start.setROSpecID(new UnsignedInteger(ROSPEC_ID));
     try {
@@ -202,7 +202,7 @@ public class LLRPClient implements LLRPEndpoint {
 
       //System.out.println(response.toXMLString());
     } catch (Exception e) {
-      System.out.println("Reader " + readerIP + ": Error deleting ROSpec.");
+      Util.log("Reader " + readerIP + ": Error deleting ROSpec.");
       e.printStackTrace();
     }
   }
@@ -213,7 +213,7 @@ public class LLRPClient implements LLRPEndpoint {
     @SuppressWarnings("unused")
     DELETE_ROSPEC_RESPONSE response;
      
-    //System.out.println("Deleting all ROSpecs.");
+    //Util.log("Deleting all ROSpecs.");
     DELETE_ROSPEC del = new DELETE_ROSPEC();
     // Use zero as the ROSpec ID.
     // This means delete all ROSpecs.
@@ -222,7 +222,7 @@ public class LLRPClient implements LLRPEndpoint {
       response = (DELETE_ROSPEC_RESPONSE)reader.transact(del, TIMEOUT_MS);
       //System.out.println(response.toXMLString());
     } catch (Exception e) {
-      System.out.println("Reader " + readerIP + ": Error deleting ROSpec.");
+      Util.log("Reader " + readerIP + ": Error deleting ROSpec.");
       e.printStackTrace();
     }
   }
@@ -231,7 +231,7 @@ public class LLRPClient implements LLRPEndpoint {
 
   // This function gets called asynchronously from an anonymous thread when a tag report is available.
   public void messageReceived(LLRPMessage message) {
-  	//System.out.println("Message received");
+  	//Util.log("Message received");
         
     try {
       if (message.getTypeNum() == RO_ACCESS_REPORT.TYPENUM) {
@@ -244,9 +244,9 @@ public class LLRPClient implements LLRPEndpoint {
           lastTimestamp = newTimestamp; // for first event, set last timestamp equal to new timestamp
         
         long msDiff = newTimestamp.getTime() - lastTimestamp.getTime(); // time since last read event in milliseconds
-        //System.out.println(msDiff);
+        //Util.log(msDiff);
         if (msDiff > 1000)
-          System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Reader " + readerIP + ":  Long delay between reader events: " + msDiff);
+          Util.log("!!!!!!!!!! Reader " + readerIP + ":  Long delay between reader events: " + msDiff + "!!!!!!!!!!");
         
         int logInterval = 60*1000; // log active connections every 60 seconds
         
@@ -343,7 +343,7 @@ public class LLRPClient implements LLRPEndpoint {
       }
     }
     catch (Exception e) {
-      System.out.println("Error printing reader message");
+      Util.log("Error printing reader message");
       e.printStackTrace();
     }
   }
@@ -351,7 +351,7 @@ public class LLRPClient implements LLRPEndpoint {
   // This function gets called asynchronously
   // when an error occurs.
   public void errorOccured(String s) {
-    System.out.println("Reader " + readerIP + ": An error occurred: " + s);
+    Util.log("Reader " + readerIP + ": An error occurred: " + s);
   }
    
   // Connect to the reader
@@ -361,7 +361,7 @@ public class LLRPClient implements LLRPEndpoint {
     // Try connecting to the reader.
     try
     {
-      System.out.println("Connecting to reader at " + readerIP + ".");
+      Util.log("Connecting to reader at " + readerIP + ".");
       ((LLRPConnector) reader).connect();
     } catch (LLRPConnectionAttemptFailedException e) { // handled by messageReceived()
       //e.printStackTrace();
@@ -377,7 +377,7 @@ public class LLRPClient implements LLRPEndpoint {
   public void getReaderCapabilities() {
     GET_READER_CAPABILITIES_RESPONSE response;
      
-    //System.out.println("Deleting all ROSpecs.");
+    //Util.log("Deleting all ROSpecs.");
     GET_READER_CAPABILITIES cmd = new GET_READER_CAPABILITIES();
     // Use zero as the ROSpec ID.
     // This means delete all ROSpecs.
@@ -387,7 +387,7 @@ public class LLRPClient implements LLRPEndpoint {
       System.out.println(response.toXMLString());
     }
     catch (Exception e) {
-    	System.out.println("Reader " + readerIP + ": Error getting reader capabilities.");
+    	Util.log("Reader " + readerIP + ": Error getting reader capabilities.");
       e.printStackTrace();
     }
   }
@@ -397,9 +397,9 @@ public class LLRPClient implements LLRPEndpoint {
   	ENABLE_EVENTS_AND_REPORTS cmd = new ENABLE_EVENTS_AND_REPORTS();
     try {
       reader.send(cmd);
-      //System.out.println("Enabled events and reports.");
+      //Util.log("Enabled events and reports.");
     } catch (Exception e) {
-    	System.out.println("Reader " + readerIP + ": Error enabling events and reports.");
+    	Util.log("Reader " + readerIP + ": Error enabling events and reports.");
       e.printStackTrace();
     }
   }
@@ -407,7 +407,7 @@ public class LLRPClient implements LLRPEndpoint {
   // Connect to the reader, setup the ROSpec
   // and run it.
   public void run() {
-    System.out.println("Initializing reader at " + readerIP + ".");
+    Util.log("Initializing reader at " + readerIP + ".");
     connect(readerIP);
     //getReaderCapabilities();
     deleteROSpecs();
@@ -415,13 +415,13 @@ public class LLRPClient implements LLRPEndpoint {
     enableROSpec();
     enableEventsAndReports();
     startROSpec();
-    System.out.println("Initialization for reader at " + readerIP + " completed.");
+    Util.log("Initialization for reader at " + readerIP + " completed.");
   }
    
   // Cleanup. Delete all ROSpecs
   // and disconnect from the reader.
   public void stop() {
-    System.out.println("Stopping reader at " + readerIP + ".");
+    Util.log("Stopping reader at " + readerIP + ".");
     deleteROSpecs();
     disconnect();
   }
