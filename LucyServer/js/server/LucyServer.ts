@@ -12,6 +12,7 @@ var defaultServerPortNr = 8080; // port for the Lucy web server
 var remoteHostName = "lucy.oblomov.com";
 var readerServerPortNr = 8193;
 var reconnectInterval = 2000; // time in ms to wait before trying to reconnect to the reader server
+var useSmoother = true;
 var lucyDataDirectoryPath = process.env['HOME'] + '/lucyData';
 var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
 
@@ -291,12 +292,14 @@ var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov',
 
 function processReaderEvent(readerEvent : ReaderEvent) {
   var readerTimestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
+  // take the time in between firstSeen and lastSeen.
 
   if (outputFileStream) {
     var date = months[readerTimestamp.getMonth()]+'-'+readerTimestamp.getDate()+'-'+readerTimestamp.getFullYear();
     var time = readerTimestamp.getHours()+':'+util.padZero(2,readerTimestamp.getMinutes())+':'+
       util.padZero(2,readerTimestamp.getSeconds())+':'+util.padZero(4,readerTimestamp.getMilliseconds()*10);
 
+    // Mimic the save format created by Motorola SessionOne app
     outputFileStream.write('\'0'+readerEvent.ePC+', '+time+', '+date+', '+readerEvent.ant+', '+readerEvent.RSSI+', , , , \n');
   }
 
@@ -308,19 +311,16 @@ function processReaderEvent(readerEvent : ReaderEvent) {
     state.tagsData.push(tag);
   }
   
-  // take the time in between firstSeen and lastSeen.
   state.status.readerServerTime = readerTimestamp.toString();
   
   //TODO Reader time is not in sync with server. For now, just use server time.
   var timestamp = new Date(); // use current time as timestamp.
   
-  tag.rssis[readerEvent.ant-1] = filtered(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI, timestamp, tag.rssis[readerEvent.ant-1]);
-  trilateration.getRssiDistance(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI);
+  var newRssi = !useSmoother ? readerEvent.RSSI : filtered(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI, timestamp, tag.rssis[readerEvent.ant-1]);
+  var newAntennaRssi = {ant : readerEvent.ant, value: newRssi, timestamp: timestamp};
+  tag.rssis[readerEvent.ant-1] = newAntennaRssi;
+  //trilateration.getRssiDistance(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI);
   //util.log(tagsState);
-}
-
-function unfiltered(epc : string, antNr : number, rssi : number, timestamp : Date, previousRssi : Shared.RSSI) {
-  return {value: rssi, timestamp: timestamp};
 }
 
 var RC = 1/2;
@@ -344,7 +344,7 @@ function filtered(epc : string, ant : number, rssi : number, timestamp : Date, p
 
   //util.log(util.padZero(3,dT) + JSON.stringify(previousRssi) );
   //util.log(util.padZero(3,dT) + JSON.stringify(previousRssi.value) );
-  return {ant : ant, value: newRssi, timestamp: timestamp};
+  return newRssi;
 }
 
 
