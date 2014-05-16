@@ -328,6 +328,7 @@ function refresh() {
     serverState = data;
     updateTags();
   }).fail(function(jqXHR : JQueryXHR, status : any, err : any) {
+    resetClientState();
     console.error( "Error:\n\n" + jqXHR.responseText );
   });
 }
