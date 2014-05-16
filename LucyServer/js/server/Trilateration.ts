@@ -98,14 +98,6 @@ export function trilaterateRssis(epc : string, antennas : Shared.Antenna[], ante
   return result;  
 }
 
-// Temporary
-function getAntennaNr(antid : string, antennas : Shared.Antenna[]) {
-  var ix = _(antennas).pluck('antId').indexOf(antid);
-  if (ix == -1) 
-    console.error('Antenna with id %s not found in antennas', antid)
-  return ix;
-}
-
 
 interface Circle { x: number; y : number; r : number};
 
