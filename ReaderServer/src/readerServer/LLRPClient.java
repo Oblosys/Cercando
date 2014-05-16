@@ -233,16 +233,18 @@ public class LLRPClient implements LLRPEndpoint {
     Date newTimestamp = new Date();
     long msDiff = newTimestamp.getTime() - lastTimestamp.getTime(); // time since last event in milliseconds
     //System.out.println(msDiff);
-    if (!Util.formatTimestamp(newTimestamp).equals(Util.formatTimestamp(lastTimestamp))) {
-      if (msDiff > 1000)
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Long delay between reader events: " + msDiff);
+    if (msDiff > 1000)
+      System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Long delay between reader events: " + msDiff);
+    
+    int logInterval = 60*1000; // log active connections every 60 seconds
+    
+    if (newTimestamp.getTime() / logInterval != lastTimestamp.getTime() / logInterval) {
       System.out.print(Util.getTimestamp() + ": socket connections: " + EventEmitter.getNrOfEmitters() + "   queue sizes: ");
       for (int queueSize : EventEmitter.getQueueSizes())
         System.out.print(queueSize + "  ");
       System.out.println();
     }
     lastTimestamp = newTimestamp;
-
     
     if (message.getTypeNum() == RO_ACCESS_REPORT.TYPENUM) {
       // The message received is an Access Report.
