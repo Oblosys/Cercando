@@ -11,6 +11,7 @@ var defaultServerPortNr = 8080; // port for the Lucy web server
 
 var remoteHostName = "lucy.oblomov.com";
 var readerServerPortNr = 8193;
+var reconnectInterval = 2000; // time in ms to wait before trying to reconnect to the reader server
 var lucyDataDirectoryPath = process.env['HOME'] + '/lucyData';
 var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
 
@@ -219,7 +220,7 @@ function destroySocketAndRetryConnection() {
   util.log('Connection to reader server lost, reconnecting..');
   setTimeout(function() { // automatically try to reconnect
     connectReaderServer();
-  }, 2000);
+  }, reconnectInterval);
 }
 
 function readerServerConnected(readerServerSocket : net.Socket) {
@@ -228,35 +229,31 @@ function readerServerConnected(readerServerSocket : net.Socket) {
   
   // raw data listener
   var lineBuffer = '';
-  var counter = 0;
-  readerServerSocket.on('data', function(data : string) {
+  readerServerSocket.on('data', function(buffer : NodeBuffer) {
+    var chunk : string = buffer.toString('utf8');
     //util.log('CHUNK:\n'+data);
-    var lines = (''+data).split('\0'); // length at least 1
-    var firstLines = _.initial(lines);
+    var lines = chunk.split('\0\ufffd'); // \0\fffd precedes every string received from the socket 
+    
+    // util.log('LINES:'+lines);
+    var firstLines = _.initial(lines); // lines.length will be at least 1
     var lastLine = _.last(lines);
     for (var i=0; i<firstLines.length; i++) {
-      //util.log('array: '+firstLines[i]);
       var line = firstLines[i];
       if (i==0) {
         line = lineBuffer + line;
-        counter++;
         lineBuffer = '';
       }
-      line = (''+line).substring(1); // TODO: why is there a < character at the start of every line??
-      //util.log('LINE '+counter +'('+ line.length+'):\n'+line);
-      //for(var j=0; j<line.length; j++) {
-      //  util.log('char '+j+':\''+line.charAt(j)+'\'');
-      //}
-      try {
-        var readerEvent : ReaderEvent = JSON.parse(line);
-      } catch (e) {
-        console.error('JSON parse error in line:\n'+line, e); 
+      if (line != '') { // first line of strean will always be ''
+        try {
+          var readerEvent : ReaderEvent = JSON.parse(line);
+        } catch (e) {
+          console.error('JSON parse error in line:\n"'+line+'"', e); 
+        }
+        if (readerEvent)
+          processReaderEvent(readerEvent);
       }
-      if (readerEvent)
-        processReaderEvent(readerEvent);
     }
     lineBuffer += lastLine;
-  //   util.log('DATA: ' + data);
   });
 }
 

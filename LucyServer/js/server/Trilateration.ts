@@ -113,8 +113,7 @@ function mkCircles (antennas : Shared.Antenna[], rssis : Shared.RSSI[]) : Circle
   return sortedCircles;
 }
 
-util.log('Trilateration test: '+JSON.stringify(trilaterate(
-  {"x":0,"y":0,"r":4},{"x":1,"y":0,"r":1} ,{"x":0.5,"y":1,"r":1})));
+//util.log('Trilateration test: '+JSON.stringify(trilaterate({"x":0,"y":0,"r":4},{"x":1,"y":0,"r":1} ,{"x":0.5,"y":1,"r":1})));
 
 function trilaterate(c1 : Circle, c2 : Circle, c3 : Circle) : Shared.Coord {
   // assume 3 receivers
