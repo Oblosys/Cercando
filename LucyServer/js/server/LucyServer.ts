@@ -307,7 +307,7 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   if (!tag) {
     var preferredColorObj = _.findWhere(allTagInfo, {epc: readerEvent.ePC});
     var color = preferredColorObj ? preferredColorObj.color : 'white';
-    tag = { epc:readerEvent.ePC, color: color, rssis: [] }
+    tag = { epc:readerEvent.ePC, color: color, antennaRssis: [] }
     state.tagsData.push(tag);
   }
   
@@ -318,7 +318,7 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   
   var antId = 'r'+readerEvent.readerIP+'-a'+readerEvent.ant;
   var antNr = getAntennaNr(antId);
-  var oldAntennaRssi = getAntennaRssiForAntNr(antNr, tag.rssis);
+  var oldAntennaRssi = getAntennaRssiForAntNr(antNr, tag.antennaRssis);
   
   var newRssi = !useSmoother ? readerEvent.RSSI : filtered( readerEvent.ePC, readerEvent.ant, readerEvent.RSSI
                                                           , timestamp, oldAntennaRssi );
@@ -328,36 +328,36 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   //           trilateration.getRssiDistance(readerEvent.ePC, ''+readerEvent.ant, readerEvent.RSSI));
   //}
   
-  updateAntennaRssi(newAntennaRssi, tag.rssis);
+  updateAntennaRssi(newAntennaRssi, tag.antennaRssis);
   //trilateration.getRssiDistance(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI);
   //util.log(tagsState);
 }
 
-function getAntennaRssiForAntNr(antNr : number, rssis : Shared.RSSI[]) {
+function getAntennaRssiForAntNr(antNr : number, rssis : Shared.AntennaRSSI[]) {
   var ix = _(rssis).pluck('antNr').indexOf(antNr);
   return ix == -1 ? null : rssis[ix];
 }
 
-function updateAntennaRssi(newAntennaRssi : Shared.RSSI, rssis : Shared.RSSI[]) {
-  var ix = _(rssis).pluck('antNr').indexOf(newAntennaRssi.antNr);
+function updateAntennaRssi(newAntennaRssi : Shared.AntennaRSSI, antennaRssis : Shared.AntennaRSSI[]) {
+  var ix = _(antennaRssis).pluck('antNr').indexOf(newAntennaRssi.antNr);
   if (ix >= 0)
-    rssis[ix] = newAntennaRssi; // update
+    antennaRssis[ix] = newAntennaRssi; // update
   else
-    rssis.push(newAntennaRssi); // or add
+    antennaRssis.push(newAntennaRssi); // or add
 }
 
 var RC = 1/2;
 
 // epc : string, antNr : number just for logging
-function filtered(epc : string, ant : number, rssi : number, timestamp : Date, previousRssi : Shared.RSSI) {
-  var dT = (previousRssi ? timestamp.getTime() - previousRssi.timestamp.getTime() : 100)/1000;
-  var previousRssiValue = previousRssi ? previousRssi.value : -30;
+function filtered(epc : string, ant : number, rssi : number, timestamp : Date, previousAntennaRssi : Shared.AntennaRSSI) {
+  var dT = (previousAntennaRssi ? timestamp.getTime() - previousAntennaRssi.timestamp.getTime() : 100)/1000;
+  var previousRssi = previousAntennaRssi ? previousAntennaRssi.value : -30;
   
   var alpha = dT / (dT + RC);
   
-  var newRssi = rssi * alpha + previousRssiValue * (1.0 - alpha);
+  var newRssi = rssi * alpha + previousRssi * (1.0 - alpha);
   if (epc == '0000000000000000000000000503968' && ant == 1) {
-    util.log(new Date().getSeconds() + ' ' + epc + ' ant '+ant + ' prevRssi: '+previousRssiValue.toFixed(1) + ' rawRssi: '+rssi.toFixed(1) + ' newDist: '+
+    util.log(new Date().getSeconds() + ' ' + epc + ' ant '+ant + ' prevRssi: '+previousRssi.toFixed(1) + ' rawRssi: '+rssi.toFixed(1) + ' newDist: '+
              trilateration.getRssiDistance(epc, ''+ant, newRssi).toFixed(1) + ' newRssi: '+newRssi.toFixed(1));
   }
   
@@ -372,9 +372,9 @@ function filtered(epc : string, ant : number, rssi : number, timestamp : Date, p
 function trilaterateAllTags() {
   var now = new Date();
   _(state.tagsData).each((tag) => {
-    _(tag.rssis).each((rssi) => {
-      rssi.distance = trilateration.getRssiDistance(tag.epc, allAntennas[rssi.antNr].name, rssi.value);
-      rssi.age = now.getTime() - rssi.timestamp.getTime(); 
+    _(tag.antennaRssis).each((antennaRssi) => {
+      antennaRssi.distance = trilateration.getRssiDistance(tag.epc, allAntennas[antennaRssi.antNr].name, antennaRssi.value);
+      antennaRssi.age = now.getTime() - antennaRssi.timestamp.getTime(); 
 
       
       /*[{"ant":1,"value":-70.3080407663629,"timestamp":"2014-05-14T07:08:07.897Z","distance":4.465716581123385,"age":30}
@@ -404,9 +404,9 @@ function trilaterateAllTags() {
       }
       rssi.age = 10;
 */      
-      return rssi.distance;
+      return antennaRssi.distance;
     });
-    tag.coordinate = trilateration.trilaterateRssis(tag.epc, allAntennas, tag.rssis);
+    tag.coordinate = trilateration.trilaterateRssis(tag.epc, allAntennas, tag.antennaRssis);
   });
 }
 
@@ -418,8 +418,8 @@ function tweakAntenna(antennaNr : number, rssi : number) : number {
 
 // TODO: maybe store in config file
 var allAntennas : Shared.Antenna[] =
-   [{antid:'r10.0.0.30-a1',name:'1', coord:{x:1.2,y:1.2}},{antid:'r10.0.0.30-a2',name:'2', coord:{x:-1.2,y:1.2}},
-    {antid:'r10.0.0.30-a3',name:'3', coord:{x:-1.2,y:-1.2}},{antid:'r10.0.0.30-a4',name:'4', coord:{x:1.2,y:-1.2}}];
+   [{antId:'r10.0.0.30-a1',name:'1', coord:{x:1.2,y:1.2}},  {antId:'r10.0.0.30-a2',name:'2', coord:{x:-1.2,y:1.2}},
+    {antId:'r10.0.0.30-a3',name:'3', coord:{x:-1.2,y:-1.2}},{antId:'r10.0.0.30-a4',name:'4', coord:{x:1.2,y:-1.2}}];
 
 var allTagInfo : Shared.TagInfo[] =
   [ {epc:'0000000000000000000000000370869', color:'green',     coord:{x:1.2-0*0.35, y:1.2-0*0.35}}
@@ -438,7 +438,7 @@ var allTagInfo : Shared.TagInfo[] =
 
 // return the index in allAntennas for the antenna with id ant 
 function getAntennaNr(antid : string) {
-  var ix = _(allAntennas).pluck('antid').indexOf(antid);
+  var ix = _(allAntennas).pluck('antId').indexOf(antid);
   if (ix == -1) 
     console.error('Antenna with id %s not found in allAntennas', antid)
   return ix;

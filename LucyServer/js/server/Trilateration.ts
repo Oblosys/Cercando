@@ -64,19 +64,19 @@ export function convert3dTo2d(dist3d : number) : number {
   return dist;
 }
 
-function isRecentRSSI(rssi : Shared.RSSI) : boolean {
-  return rssi.age < 2000; // TODO: duplicated code from Locator.ts
+function isRecentAntennaRSSI(antennaRssi : Shared.AntennaRSSI) : boolean {
+  return antennaRssi.age < 2000; // TODO: duplicated code from Locator.ts
 }
 
-export function trilaterateRssis(epc : string, antennas : Shared.Antenna[], rssis : Shared.RSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
+export function trilaterateRssis(epc : string, antennas : Shared.Antenna[], antennaRssis : Shared.AntennaRSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
   //util.log('Trilaterate'+JSON.stringify(ranges));
-  var recentRssis = _.filter(rssis, isRecentRSSI);
-  var outdatedRssis = _.filter(rssis, (rssi:Shared.RSSI)=> {return !isRecentRSSI(rssi);});
-  var isRecent = recentRssis.length >= 3;
+  var recentAntennaRssis = _.filter(antennaRssis, isRecentAntennaRSSI);
+  var outdatedAntennaRssis = _.filter(antennaRssis, (rssi:Shared.AntennaRSSI)=> {return !isRecentAntennaRSSI(rssi);});
+  var isRecent = recentAntennaRssis.length >= 3;
   
   //util.log(recentRssis.length +' outdated:' +outdatedRssis.length);
-  var recentCircles = mkCircles(antennas, recentRssis);
-  var outdatedCircles = mkCircles(antennas, outdatedRssis);
+  var recentCircles = mkCircles(antennas, recentAntennaRssis);
+  var outdatedCircles = mkCircles(antennas, outdatedAntennaRssis);
   var sortedCircles = _.union(recentCircles, outdatedCircles).slice(0,3);
   var result : {coord: Shared.Coord; isRecent : boolean};
   if (sortedCircles.length == 3) {
@@ -100,7 +100,7 @@ export function trilaterateRssis(epc : string, antennas : Shared.Antenna[], rssi
 
 // Temporary
 function getAntennaNr(antid : string, antennas : Shared.Antenna[]) {
-  var ix = _(antennas).pluck('antid').indexOf(antid);
+  var ix = _(antennas).pluck('antId').indexOf(antid);
   if (ix == -1) 
     console.error('Antenna with id %s not found in antennas', antid)
   return ix;
@@ -109,12 +109,12 @@ function getAntennaNr(antid : string, antennas : Shared.Antenna[]) {
 
 interface Circle { x: number; y : number; r : number};
 
-function mkCircles (antennas : Shared.Antenna[], rssis : Shared.RSSI[]) : Circle[] {
+function mkCircles (antennas : Shared.Antenna[], antennaRssis : Shared.AntennaRSSI[]) : Circle[] {
   var circles : Circle[] = [];
-  for (var i=0; i<rssis.length; i++) {
-    if (rssis[i]) {
-      var antNr = rssis[i].antNr;
-      circles.push({x: antennas[antNr].coord.x, y: antennas[antNr].coord.y, r: rssis[i].distance});
+  for (var i=0; i<antennaRssis.length; i++) {
+    if (antennaRssis[i]) {
+      var antNr = antennaRssis[i].antNr;
+      circles.push({x: antennas[antNr].coord.x, y: antennas[antNr].coord.y, r: antennaRssis[i].distance});
     }
   }
   var sortedCircles = _.sortBy(circles, function(c:Circle) {return c.r;});

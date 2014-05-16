@@ -242,8 +242,8 @@ function updateTags() {
     $tagLabel.css('color',tagData.color);
     $tagLabel.text(tagNr + ' ' +tagData.epc.slice(-7));
     
-      for (var i=0; i < tagData.rssis.length; i++) {
-      var antRssi = tagData.rssis[i];
+      for (var i=0; i < tagData.antennaRssis.length; i++) {
+      var antRssi = tagData.antennaRssis[i];
       var antNr = antRssi.antNr;
       //util.log('epc:'+tagData.epc+'  '+tagNr);
       var rssi = antRssi.value;
