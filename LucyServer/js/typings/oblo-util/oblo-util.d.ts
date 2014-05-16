@@ -6,7 +6,7 @@
 interface ObloUtilStatic {
   debug : boolean;
   
-  log(msg : any) : void;
+  log(...args: any[]) : void;
   clip(min : number, max : number, x : number) : number;
   square(x : number) : number;
   replicate<X>(n : number, x : X) : X[];

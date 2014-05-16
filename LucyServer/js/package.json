@@ -8,7 +8,7 @@
   , "underscore": "1.x"
   , "backbone": "1.x"
   , "socket.io": "0.9"
-  , "oblo-util": ">=0.2.0"
+  , "oblo-util": ">=0.3.0"
   , "jquery": "2.x"
   , "d3": "3.x"
   }
