@@ -224,64 +224,123 @@ public class LLRPClient implements LLRPEndpoint {
     }
   }
 
-  private static Date lastTimestamp = new Date();
+  private static Date lastTimestamp = null;
 
   // This function gets called asynchronously from an anonymous thread when a tag report is available.
   public void messageReceived(LLRPMessage message) {
   	//System.out.println("Message received");
-    
-    Date newTimestamp = new Date();
-    long msDiff = newTimestamp.getTime() - lastTimestamp.getTime(); // time since last event in milliseconds
-    //System.out.println(msDiff);
-    if (msDiff > 1000)
-      System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Long delay between reader events: " + msDiff);
-    
-    int logInterval = 60*1000; // log active connections every 60 seconds
-    
-    if (newTimestamp.getTime() / logInterval != lastTimestamp.getTime() / logInterval) {
-      System.out.print(Util.getTimestamp() + ": socket connections: " + EventEmitter.getNrOfEmitters() + "   queue sizes: ");
-      for (int queueSize : EventEmitter.getQueueSizes())
-        System.out.print(queueSize + "  ");
-      System.out.println();
-    }
-    lastTimestamp = newTimestamp;
-    
-    if (message.getTypeNum() == RO_ACCESS_REPORT.TYPENUM) {
-      // The message received is an Access Report.
-      RO_ACCESS_REPORT report = (RO_ACCESS_REPORT) message;
-      
-      // Get a list of the tags read.
-      List<TagReportData>  tags = report.getTagReportDataList();
-      
-      for (TagReportData tag : tags) {
-      	String epcVerbose = tag.getEPCParameter().toString();
-        String firstSeenVerbose = tag.getFirstSeenTimestampUTC().toString();
-        String lastSeenVerbose = tag.getLastSeenTimestampUTC().toString();
-      	CharSequence epcStr = epcVerbose.subSequence(15, epcVerbose.length());
-        CharSequence firstSeenStr = firstSeenVerbose.subSequence(37, firstSeenVerbose.length());
-        CharSequence lastSeenStr = lastSeenVerbose.subSequence(36, lastSeenVerbose.length());
-      	String json =
-      	  "{\"firstSeen\":\"" + firstSeenStr + "\"" +
-          ",\"lastSeen\":\"" + lastSeenStr + "\"" +
-          ",\"ePC\":\"" + epcStr + "\"" +
-      	  ",\"ant\":" + tag.getAntennaID().getAntennaID().toString() +
-      	  ",\"RSSI\":" + tag.getPeakRSSI().getPeakRSSI().toString() +
-      	  "}";
-      	sendLine(json);
-          //System.out.println(tag.getEPCParameter());
-          //System.out.println(tag.getPeakRSSI());
-          //System.out.println(tag.getLastSeenTimestampUTC());
-      }
-    } else {
-      try {
-        System.out.println(Util.getTimestamp() + ": Unhandled reader message received: "+message.getTypeNum());
-        System.out.println(message.toXMLString());
+        
+    try {
+      if (message.getTypeNum() == RO_ACCESS_REPORT.TYPENUM) {
+        // The message received is an Access Report.
+        RO_ACCESS_REPORT report = (RO_ACCESS_REPORT) message;
+   
+        
+        Date newTimestamp = new Date();
+        if (lastTimestamp == null)
+          lastTimestamp = newTimestamp; // for first event, set last timestamp equal to new timestamp
+        
+        long msDiff = newTimestamp.getTime() - lastTimestamp.getTime(); // time since last read event in milliseconds
+        //System.out.println(msDiff);
+        if (msDiff > 1000)
+          System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Long delay between reader events: " + msDiff);
+        
+        int logInterval = 60*1000; // log active connections every 60 seconds
+        
+        if (newTimestamp.getTime() / logInterval != lastTimestamp.getTime() / logInterval) {
+          System.out.print(Util.getTimestamp() + ": Socket connections: " + EventEmitter.getNrOfEmitters() + "   queue sizes: ");
+          for (int queueSize : EventEmitter.getQueueSizes())
+            System.out.print(queueSize + "  ");
+          System.out.println();
         }
-        catch (Exception e) {
-          System.out.println("Error printing reader message");
-          e.printStackTrace();
-        }
+        lastTimestamp = newTimestamp;
 
+        
+        // Get a list of the tags read.
+        List<TagReportData>  tags = report.getTagReportDataList();
+        
+        for (TagReportData tag : tags) {
+        	String epcVerbose = tag.getEPCParameter().toString();
+          String firstSeenVerbose = tag.getFirstSeenTimestampUTC().toString();
+          String lastSeenVerbose = tag.getLastSeenTimestampUTC().toString();
+        	CharSequence epcStr = epcVerbose.subSequence(15, epcVerbose.length());
+          CharSequence firstSeenStr = firstSeenVerbose.subSequence(37, firstSeenVerbose.length());
+          CharSequence lastSeenStr = lastSeenVerbose.subSequence(36, lastSeenVerbose.length());
+        	String json =
+        	  "{\"firstSeen\":\"" + firstSeenStr + "\"" +
+            ",\"lastSeen\":\"" + lastSeenStr + "\"" +
+            ",\"ePC\":\"" + epcStr + "\"" +
+        	  ",\"ant\":" + tag.getAntennaID().getAntennaID().toString() +
+        	  ",\"RSSI\":" + tag.getPeakRSSI().getPeakRSSI().toString() +
+        	  "}";
+        	sendLine(json);
+            //System.out.println(tag.getEPCParameter());
+            //System.out.println(tag.getPeakRSSI());
+            //System.out.println(tag.getLastSeenTimestampUTC());
+        }
+      } else if (message.getTypeNum() == READER_EVENT_NOTIFICATION.TYPENUM) {
+        READER_EVENT_NOTIFICATION notification = (READER_EVENT_NOTIFICATION)message;
+        ReaderEventNotificationData notificationData = notification.getReaderEventNotificationData();
+        
+        if (notificationData.getConnectionAttemptEvent() != null) {
+          ConnectionAttemptEvent evt = notificationData.getConnectionAttemptEvent();
+          //Util.log("Reader: "+ evt.getStatus().intValue());
+          switch (evt.getStatus().intValue()) {
+          case ConnectionAttemptStatusType.Success:
+            Util.log("Reader: Connection attempt successful");
+            break;
+          case ConnectionAttemptStatusType.Another_Connection_Attempted:
+            Util.log("Reader: Retrying connection");
+            break;
+          case ConnectionAttemptStatusType.Failed_A_Client_Initiated_Connection_Already_Exists:
+            Util.log("Reader: Connection failed, client-initiated connection already exists.");
+            System.exit(1);
+            break;
+          case ConnectionAttemptStatusType.Failed_A_Reader_Initiated_Connection_Already_Exists:
+            Util.log("Reader: Connection failed, reader-initiated connection already exists.");
+            System.exit(1);
+            break;
+          case ConnectionAttemptStatusType.Failed_Reason_Other_Than_A_Connection_Already_Exists:
+            Util.log("Reader: Connection failed, reason unknown. Message:");
+            System.out.println(message.toXMLString());
+            System.exit(1);
+            break;          
+          }    
+        } else if (notificationData.getROSpecEvent() != null) {
+          ROSpecEvent evt = notificationData.getROSpecEvent();
+          switch (evt.getEventType().intValue()) {
+          case ROSpecEventType.Start_Of_ROSpec:
+            Util.log("Reader: ROSpec with id " + evt.getROSpecID() + " started.");
+            break;
+          case ROSpecEventType.End_Of_ROSpec:
+            Util.log("Reader: ROSpec with id " + evt.getROSpecID() + " ended.");
+            break;
+          default:
+            Util.log("Reader: Unhandled ROSpecEvent. Message:");
+            System.out.println(message.toXMLString());
+          }
+        } else if (notificationData.getAISpecEvent() != null) {
+          AISpecEvent evt = notificationData.getAISpecEvent();
+          switch (evt.getEventType().intValue()) {
+          case AISpecEventType.End_Of_AISpec:
+            Util.log("Reader: AISpec ended.");
+            break;
+          default:
+            Util.log("Reader: Unhandled AISpecEvent. Message:");
+            System.out.println(message.toXMLString());
+          }
+        } else {
+          Util.log("Unhandled reader event notification data in received message:");
+          System.out.println(message.toXMLString());
+        }
+      } else {
+        Util.log("Unhandled reader message received: "+message.getTypeNum());
+        System.out.println(message.toXMLString());
+      }
+    }
+    catch (Exception e) {
+      System.out.println("Error printing reader message");
+      e.printStackTrace();
     }
   }
    
@@ -300,11 +359,10 @@ public class LLRPClient implements LLRPEndpoint {
     {
       System.out.println("Connecting to the reader.");
       ((LLRPConnector) reader).connect();
-    } catch (LLRPConnectionAttemptFailedException e1) {
-      e1.printStackTrace();
-      System.exit(1);
+    } catch (LLRPConnectionAttemptFailedException e) { // handled by messageReceived()
+      //e.printStackTrace();
+      //System.exit(1);
     }
-    System.out.println("Connected.");
   }
    
   // Disconnect from the reader
@@ -352,7 +410,7 @@ public class LLRPClient implements LLRPEndpoint {
     enableROSpec();
     enableEventsAndReports();
     startROSpec();
-    System.out.println("Connection established, transmitting read events..");
+    System.out.println("Initialization for reader on " + hostname + " completed.");
   }
    
   // Cleanup. Delete all ROSpecs

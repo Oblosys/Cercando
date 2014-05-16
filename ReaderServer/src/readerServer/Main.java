@@ -22,7 +22,7 @@ public class Main {
   {
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
-        System.out.println(Util.getTimestamp() + ": Shutdown signal received, stopping reader.");
+        Util.log("Shutdown signal received, stopping reader.");
         if (llrpClient != null) {
           llrpClient.stop();
         }
@@ -37,7 +37,7 @@ public class Main {
   private static void startServer(int port) {
 	  ServerSocket serversocket = null;
 	  System.out.println("\n\n###########################################\n");
-	  System.out.println(Util.getTimestamp() + ": Starting Reader Server\n");
+	  Util.log("Starting Reader Server\n");
 	  
 	  try {
       System.out.println("Setting up server socket on port " + port);
@@ -52,19 +52,20 @@ public class Main {
 
     
     while (true) {
-      System.out.println("\n" + Util.getTimestamp() + ": Waiting for client connection on " + port);
+      Util.log("Waiting for client connection on " + port);
       
       try {
         Socket connectionsocket = serversocket.accept();
         InetAddress clientIP = connectionsocket.getInetAddress();
-        System.out.println("\n" + Util.getTimestamp() + ": Connected to " + clientIP);     
+        System.out.println();
+        Util.log("Connected to " + clientIP);     
         
         DataOutputStream output =
           new DataOutputStream(connectionsocket.getOutputStream());
 
         new EventEmitter(clientIP.toString(), output);
         // This creates a new event emitter which starts a new thread and adds itself to the EventEmitter.allEventEmitters list
-        System.out.println(Util.getTimestamp() + ": socket connections: " + EventEmitter.getNrOfEmitters());
+        Util.log("Socket connections: " + EventEmitter.getNrOfEmitters());
       }
       catch (Exception e) {
         System.out.println("\nError in main loop:\n" + e.getMessage());

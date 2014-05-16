@@ -18,6 +18,9 @@ public class Util {
   static String formatTimestamp(Date date) {
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     return dateFormat.format(date);
-
+  }
+  
+  static void log(String msg) {
+    System.out.println(Util.getTimestamp() + ": " + msg);
   }
 }

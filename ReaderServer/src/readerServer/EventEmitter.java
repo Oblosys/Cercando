@@ -94,15 +94,16 @@ public class EventEmitter implements Runnable {
       } catch (InterruptedException e) {
         System.out.println("EventEmitter for "+originatingIP+" received InterruptedException");
         allEventEmitters.remove(this);
-        System.out.println(Util.getTimestamp() + ": socket connections: " + EventEmitter.getNrOfEmitters());
+        Util.log("Socket connections: " + EventEmitter.getNrOfEmitters());
       } catch (Exception e) {
         if (e.getMessage().equals("Broken pipe")) { // Stopping the Lucy server breaks the socket, so this is the normal way to disconnect
-          System.out.println("\n" + Util.getTimestamp() + ": Disconnected from " + originatingIP);     
+          System.out.println();
+          Util.log("Disconnected from " + originatingIP);     
         } else { // Any other exceptions are worth logging.
-          System.out.println(Util.getTimestamp() + ": Error while writing to socket: "+e.getMessage());
+          Util.log("Error while writing to socket: "+e.getMessage());
         }
         allEventEmitters.remove(this);
-        System.out.println(Util.getTimestamp() + ": socket connections: " + EventEmitter.getNrOfEmitters());
+        Util.log("socket connections: " + EventEmitter.getNrOfEmitters());
         //e.printStackTrace();
       }   
     }
