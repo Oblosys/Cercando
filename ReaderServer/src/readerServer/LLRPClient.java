@@ -253,9 +253,6 @@ public class LLRPClient implements LLRPEndpoint {
         if (newTimestamp.getTime() / logInterval != lastTimestamp.getTime() / logInterval) {
           System.out.print(Util.getTimestamp() + ": Reader " + readerIP + ": Socket connections: " + EventEmitter.getNrOfEmitters() +
                           " queue sizes: " + Util.showList(EventEmitter.getQueueSizes()));
-          for (int queueSize : EventEmitter.getQueueSizes())
-            System.out.print(queueSize + "  ");
-          System.out.println();
         }
         lastTimestamp = newTimestamp;
 
