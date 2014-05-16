@@ -31,13 +31,16 @@ import trilateration = require('./Trilateration');
 
 var app = express();
 
+var state : Shared.ServerState
+var allAntennas : Shared.Antenna[];
+var allTagInfo : Shared.TagInfo[];
+
 var readerServerSocket : net.Socket;
 var outputFileStream : fs.WriteStream; // for saving reader events
 
 var readerServerHostName : string;
 var serverPortNr : number
 
-var state : Shared.ServerState
 
 interface ReaderEvent {readerIp : string; ant : number; epc : string; rssi : number; firstSeen : string; lastSeen : string}
 
@@ -51,8 +54,9 @@ function initialServerState() : Shared.ServerState {
 }
 
 
-
+var bla = 'bla';
 initServer();
+var blaa = 'bla';
 
 function initServer() {
   // usage: LucyServer [portNr] [remoteReader]
@@ -66,12 +70,17 @@ function initServer() {
     readerServerHostName = "localhost";
   }
   util.log('\n\n\nStarting Lucy server on port ' + serverPortNr + ', using reader server on ' + readerServerHostName + '\n\n');
-
   
   resetServerState();
   connectReaderServer();
   initExpress();
   var server = app.listen(serverPortNr, () => { util.log('Web server listening to port ' + serverPortNr);});
+}
+
+function resetServerState() {
+  state = initialServerState();
+  allAntennas = mkReaderAntennas(getReaderAntennaSpecs());
+  allTagInfo = getAllTagInfo();
 }
 
 function initExpress() {
@@ -258,10 +267,6 @@ function readerServerConnected(readerServerSocket : net.Socket) {
   });
 }
 
-function resetServerState() {
-  state = initialServerState();
-}
-
 function startSaving(filePath : string, cont : {success : () => void; error : (message : string) => void}) {
   if (!isSafeFilePath(filePath))
     cont.error('Invalid file path: "'+filePath+'"\nMay only contain letters, digits, spaces, and these characters: \'(\' \')\' \'-\' \'_\'');
@@ -416,24 +421,18 @@ function tweakAntenna(antennaNr : number, rssi : number) : number {
   return rssi * antennaTweaks[antennaNr-1];
 }
 
-// TODO: maybe store in config file
-var allAntennas : Shared.Antenna[] =
-   [{antId:'r10.0.0.30-a1',name:'1', coord:{x:1.2,y:1.2}},  {antId:'r10.0.0.30-a2',name:'2', coord:{x:-1.2,y:1.2}},
-    {antId:'r10.0.0.30-a3',name:'3', coord:{x:-1.2,y:-1.2}},{antId:'r10.0.0.30-a4',name:'4', coord:{x:1.2,y:-1.2}}];
+function mkAntennaId(readerIp : string, antennaPort : number){ // antennaPort starts at 1
+  return 'r'+readerIp+'-a'+antennaPort;
+}
 
-var allTagInfo : Shared.TagInfo[] =
-  [ {epc:'0000000000000000000000000370869', color:'green',     coord:{x:1.2-0*0.35, y:1.2-0*0.35}}
-  , {epc:'0000000000000000000000000503968', color:'yellow',    coord:{x:1.2-1*0.35, y:1.2-1*0.35}}
-  , {epc:'0000000000000000000000000370802', color:'black',     coord:{x:1.2-2*0.35-0.03, y:1.2-2*0.35}}
-  , {epc:'0000000000000000000000000103921', color:'purple',    coord:{x:1.2-2*0.35+0.03, y:1.2-2*0.35}}
-  , {epc:'0000000000000000000000000000795', color:'red',       coord:{x:1.2-3*0.35, y:1.2-3*0.35}}
-  , {epc:'0000000000000000000000000370870', color:'orange',    coord:{x:1.2-4*0.35, y:1.2-4*0.35}}
-  , {epc:'0000000000000000000000000370845', color:'white',     coord:{x:1.35, y:1.2-0.5-0*0.5}}
-  , {epc:'0000000000000000000000000100842', color:'brown',     coord:{x:1.35, y:1.2-0.5-1*0.5}} 
-  , {epc:'0000000000000000000000000503972', color:'gray',      coord:{x:1.35, y:1.2-0.5-2*0.5}}
-  , {epc:'0000000000000000000000000023040', color:'lightblue', coord:null}
-  , {epc:'0000000000000000000000000023140', color:'darkgray',  coord:null}
-  ];
+function mkReaderAntennas(readerAntennaSpecs : Shared.ReaderAntennaSpec[]) : Shared.Antenna[] {
+  var antenass = _.map(readerAntennaSpecs, (readerAntennaSpec) => {return mkAntennas(readerAntennaSpec.readerIp, readerAntennaSpec.antennaSpecs);});
+  return _.flatten(antenass);
+}
+
+function mkAntennas(readerIp : string, antennaLocations : Shared.AntennaSpec[] ) : Shared.Antenna[] {
+  return antennaLocations.map((antLoc, ix) => {return {antId: mkAntennaId(readerIp, ix+1), name: antLoc.name, coord: antLoc.coord}});
+}
 
 
 // return the index in allAntennas for the antenna with id ant 
@@ -448,3 +447,33 @@ function getAntennaNr(antid : string) {
 function isSafeFilePath(filePath : string) : boolean {
   return /^[a-zA-Z0-9" "\(\)\-\_]+$/.test(filePath);
 }
+
+
+
+// TODO: store in config file
+function getReaderAntennaSpecs() : Shared.ReaderAntennaSpec[] {
+  return [ { readerIp: '10.0.0.30' 
+           , antennaSpecs: [ {name:'1', coord:{x:1.2,  y:1.2}}
+                           , {name:'2', coord:{x:-1.2, y:1.2}}
+                           , {name:'3', coord:{x:-1.2, y:-1.2}}
+                           , {name:'4', coord:{x:1.2,  y:-1.2}}
+                           ]
+           }
+         ];
+}
+
+function getAllTagInfo() : Shared.TagInfo[] {
+  return [ {epc:'0000000000000000000000000370869', color:'green',     coord:{x:1.2-0*0.35, y:1.2-0*0.35}}
+         , {epc:'0000000000000000000000000503968', color:'yellow',    coord:{x:1.2-1*0.35, y:1.2-1*0.35}}
+         , {epc:'0000000000000000000000000370802', color:'black',     coord:{x:1.2-2*0.35-0.03, y:1.2-2*0.35}}
+         , {epc:'0000000000000000000000000103921', color:'purple',    coord:{x:1.2-2*0.35+0.03, y:1.2-2*0.35}}
+         , {epc:'0000000000000000000000000000795', color:'red',       coord:{x:1.2-3*0.35, y:1.2-3*0.35}}
+         , {epc:'0000000000000000000000000370870', color:'orange',    coord:{x:1.2-4*0.35, y:1.2-4*0.35}}
+         , {epc:'0000000000000000000000000370845', color:'white',     coord:{x:1.35, y:1.2-0.5-0*0.5}}
+         , {epc:'0000000000000000000000000100842', color:'brown',     coord:{x:1.35, y:1.2-0.5-1*0.5}} 
+         , {epc:'0000000000000000000000000503972', color:'gray',      coord:{x:1.35, y:1.2-0.5-2*0.5}}
+         , {epc:'0000000000000000000000000023040', color:'lightblue', coord:null}
+         , {epc:'0000000000000000000000000023140', color:'darkgray',  coord:null}
+         ];
+}
+
