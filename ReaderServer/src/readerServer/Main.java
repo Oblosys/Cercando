@@ -4,6 +4,7 @@ import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Vector;
 
 /**
  * Basic server that connects to RFID reader and redirects all read events to a socket. 
@@ -13,22 +14,25 @@ import java.net.Socket;
  */
 public class Main {
   
-  private static final String readerIP = "10.0.0.30";
+  private static final String readerIPs[] = {"10.0.0.30"};
   private static final int readerServerPort = 8193;
   
-  private static LLRPClient llrpClient = new LLRPClient();
+  private static Vector<LLRPClient> llrpClients = new Vector<LLRPClient>();
  
   public static void main(String[] args)
   {
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
-        Util.log("Shutdown signal received, stopping reader.");
-        if (llrpClient != null) {
-          llrpClient.stop();
+        Util.log("Shutdown signal received, stopping readers.");
+        for (LLRPClient llrpClient : llrpClients) {
+          if (llrpClient != null) {
+            llrpClient.stop();
+          }
         }
         System.out.println("Exiting reader server.");
       }
     });
+    
     startServer(readerServerPort);
     //test();
   }
@@ -46,10 +50,13 @@ public class Main {
 	    System.err.println("Error:" + e.getMessage());
 	    return;
 	  }
-	  
-    System.out.println("Starting reader at "+readerIP+".");
-    llrpClient.run(readerIP);
-
+	  Util.log("Initializing "+readerIPs.length + " reader" + (readerIPs.length>1 ? "s" : "") + ".");
+	  for (String readerIP : readerIPs) {
+	    LLRPClient llrpClient = new LLRPClient(readerIP);
+	    llrpClient.run();
+	    llrpClients.add(llrpClient);
+	  }
+    Util.log("All readers initialized");
     
     while (true) {
       Util.log("Waiting for client connection on " + port);
