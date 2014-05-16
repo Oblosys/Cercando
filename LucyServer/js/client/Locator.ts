@@ -190,7 +190,7 @@ function initTrails() {
       .append('path')
       .attr('id', 'trail-'+tagNr)
       .attr('class', 'tag-trail')
-      .attr('stroke-dasharray','')
+      .attr('stroke-dasharray','none')
       //.style('stroke', allTagInfo[tagNr].color)
       .attr('fill', 'none');
   }
@@ -210,7 +210,7 @@ function updateTrails() {
     
       d3.select('#trail-'+tagNr)
         .attr('d', lineFunction(tagTrail.slice(1)))
-        .attr('stroke-dasharray','')
+        .attr('stroke-dasharray','none')
         .style('stroke', tagData.color)
         .style('stroke-opacity', 0.5)
         .attr('fill', 'none');
