@@ -3,7 +3,6 @@
 /// <reference path="../typings/underscore/underscore.d.ts" />
 /// <reference path="../typings/node/node.d.ts" />
 /// <reference path="../typings/express/express.d.ts" />
-/// <reference path="../typings/socket.io/socket.io.d.ts" />
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 /// <reference path="../shared/Shared.ts" />
 /// <reference path="./Trilateration.ts" />
@@ -27,8 +26,6 @@ import Backbone = require('backbone');
 import _        = require('underscore');
 import path     = require('path');
 import trilateration = require('./Trilateration');
-
-var socketIO = require('socket.io');
 
 var app = express();
 
