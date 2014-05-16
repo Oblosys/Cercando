@@ -316,11 +316,26 @@ function processReaderEvent(readerEvent : ReaderEvent) {
   //TODO Reader time is not in sync with server. For now, just use server time.
   var timestamp = new Date(); // use current time as timestamp.
   
-  var newRssi = !useSmoother ? readerEvent.RSSI : filtered(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI, timestamp, tag.rssis[readerEvent.ant-1]);
-  var newAntennaRssi = {ant : readerEvent.ant, value: newRssi, timestamp: timestamp};
-  tag.rssis[readerEvent.ant-1] = newAntennaRssi;
+  var antNr = _(tag.rssis).pluck('antid').indexOf('r1-a'+readerEvent.ant);
+  var newRssi = !useSmoother ? readerEvent.RSSI : filtered( readerEvent.ePC, readerEvent.ant, readerEvent.RSSI
+                                                          , timestamp, tag.rssis[antNr] );
+  var newAntennaRssi = {antid : 'r1-a'+readerEvent.ant, value: newRssi, timestamp: timestamp};
+  //if (readerEvent.ePC == '0000000000000000000000000503968' && readerEvent.ant == 1) {
+  //  util.log(new Date().getSeconds() + ' ' + readerEvent.ePC + ' ant '+readerEvent.ant + ' rawRssi: '+readerEvent.RSSI.toFixed(1) + ' dist: '+
+  //           trilateration.getRssiDistance(readerEvent.ePC, ''+readerEvent.ant, readerEvent.RSSI));
+  //}
+  
+  updateAntennaRssi(newAntennaRssi, tag.rssis);
   //trilateration.getRssiDistance(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI);
   //util.log(tagsState);
+}
+
+function updateAntennaRssi(newAntennaRssi : Shared.RSSI, rssis : Shared.RSSI[]) {
+  var ix = _(rssis).pluck('antid').indexOf(newAntennaRssi.antid);
+  if (ix >= 0)
+    rssis[ix] = newAntennaRssi; // update
+  else
+    rssis.push(newAntennaRssi); // or add
 }
 
 var RC = 1/2;
@@ -333,15 +348,11 @@ function filtered(epc : string, ant : number, rssi : number, timestamp : Date, p
   var alpha = dT / (dT + RC);
   
   var newRssi = rssi * alpha + previousRssiValue * (1.0 - alpha);
-  //util.log(epc+' '+ant);
-  if (epc == '0000000000000000000000000370870' && ant == 3) {
-    var dist3d = trilateration.getDistance3d(newRssi);
-    var dist2d = trilateration.convert3dTo2d(dist3d);
-    util.log(new Date().getSeconds()+' rssi: '+newRssi.toFixed(1) + ' dist3d: '+dist3d.toFixed(2)+' dist2d: '+dist2d.toFixed(2) +
-             '   raw rssi: '+rssi);
-  
+  if (epc == '0000000000000000000000000503968' && ant == 1) {
+    util.log(new Date().getSeconds() + ' ' + epc + ' ant '+ant + ' prevRssi: '+previousRssiValue.toFixed(1) + ' rawRssi: '+rssi.toFixed(1) + ' newDist: '+
+             trilateration.getRssiDistance(epc, ''+ant, newRssi).toFixed(1) + ' newRssi: '+newRssi.toFixed(1));
   }
-
+  
   //util.log(util.padZero(3,dT) + JSON.stringify(previousRssi) );
   //util.log(util.padZero(3,dT) + JSON.stringify(previousRssi.value) );
   return newRssi;
@@ -352,9 +363,9 @@ function filtered(epc : string, ant : number, rssi : number, timestamp : Date, p
 // trilaterate all tags and age and distance for each rssi value
 function trilaterateAllTags() {
   var now = new Date();
-  _(state.tagsData).each((tag,i) => {
-    _(tag.rssis).each((rssi,antNr) => {
-      rssi.distance = trilateration.getRssiDistance(tag.epc, antNr, rssi.value);
+  _(state.tagsData).each((tag) => {
+    _(tag.rssis).each((rssi) => {
+      rssi.distance = trilateration.getRssiDistance(tag.epc, rssi.antid, rssi.value);
       rssi.age = now.getTime() - rssi.timestamp.getTime(); 
 
       
@@ -399,8 +410,8 @@ function tweakAntenna(antennaNr : number, rssi : number) : number {
 
 // TODO: maybe store in config file
 var allAntennas : Shared.Antenna[] =
-   [{id:'r1-a1',name:'1', coord:{x:1.2,y:1.2}},{id:'r1-a2',name:'2', coord:{x:-1.2,y:1.2}},
-    {id:'r1-a3',name:'3', coord:{x:-1.2,y:-1.2}},{id:'r1-a4',name:'4', coord:{x:1.2,y:-1.2}}];
+   [{antid:'r1-a1',name:'1', coord:{x:1.2,y:1.2}},{antid:'r1-a2',name:'2', coord:{x:-1.2,y:1.2}},
+    {antid:'r1-a3',name:'3', coord:{x:-1.2,y:-1.2}},{antid:'r1-a4',name:'4', coord:{x:1.2,y:-1.2}}];
 
 var allTagInfo : Shared.TagInfo[] =
   [ {epc:'0000000000000000000000000370869', color:'green',     coord:{x:1.2-0*0.35, y:1.2-0*0.35}}

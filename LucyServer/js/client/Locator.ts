@@ -244,7 +244,7 @@ function updateTags() {
     
       for (var i=0; i < tagData.rssis.length; i++) {
       var antRssi = tagData.rssis[i];
-      var antNr = getAntennaNr('r1-a'+antRssi.ant);
+      var antNr = getAntennaNr(antRssi.antid);
       if (antNr >= 0) {
         //util.log('epc:'+tagData.epc+'  '+tagNr);
         var rssi = antRssi.value;

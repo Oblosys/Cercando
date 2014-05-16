@@ -2,7 +2,7 @@ import _        = require('underscore');
 import util     = require('oblo-util');
 
 // epc : string, antNr : number just for logging
-export function getRssiDistance(epc : string, antNr : number, rssi : number) {
+export function getRssiDistance(epc : string, antid : string, rssi : number) {
   var dist3d = getDistance3d(rssi);
   //var dist2d = convert3dTo2d(dist3d);
   var dist2d = getDistance2dStaged(rssi);
@@ -98,6 +98,14 @@ export function trilaterateRssis(epc : string, antennas : Shared.Antenna[], rssi
   return result;  
 }
 
+// Temporary
+function getAntennaNr(antid : string, antennas : Shared.Antenna[]) {
+  var ix = _(antennas).pluck('antid').indexOf(antid);
+  if (ix == -1) 
+    console.error('Antenna with id %s not found in antennas', antid)
+  return ix;
+}
+
 
 interface Circle { x: number; y : number; r : number};
 
@@ -105,7 +113,7 @@ function mkCircles (antennas : Shared.Antenna[], rssis : Shared.RSSI[]) : Circle
   var circles : Circle[] = [];
   for (var i=0; i<rssis.length; i++) {
     if (rssis[i])
-      var antNr = rssis[i].ant-1;
+      var antNr = getAntennaNr(rssis[i].antid, antennas);
       circles.push({x: antennas[antNr].coord.x, y: antennas[antNr].coord.y, r: rssis[i].distance});
   }
   var sortedCircles = _.sortBy(circles, function(c:Circle) {return c.r;});
