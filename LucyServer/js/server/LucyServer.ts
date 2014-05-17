@@ -34,6 +34,8 @@ var shared = <typeof Shared>require('../shared/Shared.js');
 var app = express();
 
 var state : Shared.ServerState
+var allAntennaLayouts : Shared.AntennaLayout[];
+var selectedAntennaLayout = 0;
 var allAntennas : Shared.Antenna[];
 var allTagInfo : Shared.TagInfo[];
 
@@ -72,7 +74,8 @@ function initServer() {
 
 function resetServerState() {
   state = shared.initialServerState();
-  allAntennas = mkReaderAntennas(getReaderAntennaSpecs());
+  allAntennaLayouts = getAllAntennaLayouts();
+  setAntennaLayout(selectedAntennaLayout);
   allTagInfo = getAllTagInfo();
 }
 
@@ -127,8 +130,16 @@ function initExpress() {
     res.send(JSON.stringify(allTagInfo));
   });
 
-  app.get('/query/antennas', function(req, res) {  
-    util.log('Sending antenna data to client. (' + new Date() + ')');
+  app.get('/query/layout-names', function(req, res) {  
+    util.log('Sending layout names to client. (' + new Date() + ')');
+    res.setHeader('content-type', 'application/json');
+    res.send(JSON.stringify( _(allAntennaLayouts).pluck('name')) );
+  });
+  
+  app.get('/query/select-layout/:nr', function(req, res) {  
+    util.log('Selecting antenna layout '+req.params.nr+': '+allAntennaLayouts[req.params.nr].name +
+             ',  sending antenna data to client. (' + new Date() + ')');
+    setAntennaLayout(req.params.nr);
     res.setHeader('content-type', 'application/json');
     res.send(JSON.stringify(allAntennas));
   });
@@ -181,6 +192,11 @@ function initExpress() {
     res.writeHead(204);
     res.end();
   });
+}
+
+function setAntennaLayout(nr : number) {
+  selectedAntennaLayout = nr;
+  allAntennas = mkReaderAntennas(allAntennaLayouts[selectedAntennaLayout].readerAntennaSpecs);
 }
 
 function disconnectReader() {
@@ -436,15 +452,34 @@ function isSafeFilePath(filePath : string) : boolean {
 
 
 // TODO: store in config file
-function getReaderAntennaSpecs() : Shared.ReaderAntennaSpec[] {
-  return [ { readerIp: '10.0.0.30' 
-           , antennaSpecs: [ {name:'1', coord:{x:1.2,  y:1.2}}
-                           , {name:'2', coord:{x:-1.2, y:1.2}}
-                           , {name:'3', coord:{x:-1.2, y:-1.2}}
-                           , {name:'4', coord:{x:1.2,  y:-1.2}}
-                           ]
-           }
-         ];
+function getAllAntennaLayouts() : Shared.AntennaLayout[] {
+  var groningenHorizontaal =
+    { name: 'Groningen (horizontaal)'
+    , readerAntennaSpecs:
+        [ { readerIp: '10.0.0.30' 
+          , antennaSpecs: [ {name:'1', coord:{x:1.2,  y:1.2}}
+                          , {name:'2', coord:{x:-1.2, y:1.2}}
+                          , {name:'3', coord:{x:-1.2, y:-1.2}}
+                          , {name:'4', coord:{x:1.2,  y:-1.2}}
+                          ]
+          }
+        ]
+    };
+
+  var groningenSchuin =
+    { name: 'Groningen (schuin)'
+    , readerAntennaSpecs:
+        [ { readerIp: '10.0.0.30' 
+          , antennaSpecs: [ {name:'1', coord:{x:1.5,  y:0}}
+                          , {name:'2', coord:{x:0,    y:1.5}}
+                          , {name:'3', coord:{x:-1.5, y:0}}
+                          , {name:'4', coord:{x:0,    y:-1.5}}
+                          ]
+          }
+        ]
+    };
+  
+  return [groningenHorizontaal, groningenSchuin];
 }
 
 function getAllTagInfo() : Shared.TagInfo[] {

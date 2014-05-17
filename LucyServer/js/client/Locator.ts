@@ -46,7 +46,7 @@ module Locator {
   export function initialize() {
     $.ajaxSetup({ cache: false });
     serverState = Shared.initialServerState();
-    queryAntennas();
+    initLayoutSelector();
     queryTagInfo();
     var floorSVG = d3.select('#floor')
       .append('svg:svg')
@@ -71,15 +71,16 @@ module Locator {
     startRefreshInterval();
   }
   
-  function queryAntennas() {
-    $.getJSON( 'query/antennas', function( data ) {
-      allAntennas = data;
-      drawAntennas();
-    }) .fail(function(jqXHR : any, status : any, err : any) {
-      console.error( "Error:\n\n" + jqXHR.responseText );
+  function initLayoutSelector() {
+    $.getJSON( "query/layout-names", function(data) {
+      $.each(data, function( index, name ) {
+        $('#layout-selector').append('<option value="'+name+'">'+name+'</option>');
+      });
+
+      selectLayout((<HTMLSelectElement>$('#layout-selector').get(0)).selectedIndex);
     });
   }
-  
+
   function drawAntennas() {
     var antennaPlaneSVG = d3.select('#antenna-plane');
   
@@ -277,11 +278,17 @@ module Locator {
     updateTrails();
   }
   
-  // return the index in tagsData for the tag with this epc 
-  function getTagNr(epc : string) {
-    return _(serverState.tagsData).pluck('epc').indexOf(epc);
+  function selectLayout(layoutNr : number) {
+    util.log('Selecting layout '+layoutNr);
+    $.getJSON( 'query/select-layout/'+layoutNr, function( data ) {
+      allAntennas = data;
+      resetClientState();
+      drawAntennas();
+    }) .fail(function(jqXHR : any, status : any, err : any) {
+      console.error( "Error:\n\n" + jqXHR.responseText );
+    });
   }
-  
+    
   function startRefreshInterval() {
     refreshInterval = <any>setInterval(refresh, refreshRate); 
     // unfortunately Eclipse TypeScript is stupid and doesn't respect reference paths, so it includes all TypeScript
@@ -374,6 +381,15 @@ module Locator {
     }
   }
   
+  export function handleSelectLayout(selectElt : HTMLSelectElement) {
+    selectLayout(selectElt.selectedIndex);
+  }
+
+  // return the index in tagsData for the tag with this epc 
+  function getTagNr(epc : string) {
+    return _(serverState.tagsData).pluck('epc').indexOf(epc);
+  }
+
   // convert coordinate in meters to pixels
   function toScreen(coord : {x : number; y : number }) {
     return {x: toScreenX(coord.x), y: toScreenY(coord.y)};
