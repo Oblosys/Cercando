@@ -46,9 +46,6 @@ var outputFileStream : fs.WriteStream; // for saving reader events
 var readerServerHostName : string;
 var serverPortNr : number;
 
-
-interface ReaderEvent {readerIp : string; ant : number; epc : string; rssi : number; firstSeen : string; lastSeen : string}
-
 var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
 
 
@@ -273,7 +270,7 @@ function readerServerConnected(readerServerSocket : net.Socket) {
       }
       if (line != '') { // first line of strean will always be ''
         try {
-          var readerEvent : ReaderEvent = JSON.parse(line);
+          var readerEvent : Shared.ReaderEvent = JSON.parse(line);
         } catch (e) {
           console.error('JSON parse error in line:\n"'+line+'"', e); 
         }
@@ -311,7 +308,7 @@ function stopSaving() {
   state.status.isSaving = false;
 }
 
-function processReaderEvent(readerEvent : ReaderEvent) {
+function processReaderEvent(readerEvent : Shared.ReaderEvent) {
   var readerTimestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
   // take the time in between firstSeen and lastSeen.
 
