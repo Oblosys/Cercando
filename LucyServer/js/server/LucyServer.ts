@@ -5,6 +5,7 @@
 /// <reference path="../typings/express/express.d.ts" />
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 /// <reference path="./Trilateration.ts" />
+/// <reference path="./Config.ts" />
 /// <reference path="../shared/Shared.ts" />
 
 var defaultServerPortNr = 8080; // port for the Lucy web server
@@ -28,6 +29,7 @@ import Backbone = require('backbone');
 import _        = require('underscore');
 import path     = require('path');
 import trilateration = require('./Trilateration');
+import Config   = require('./Config');
 
 var shared = <typeof Shared>require('../shared/Shared.js');
 
@@ -73,7 +75,7 @@ function initServer() {
 
 function resetServerState() {
   state = shared.initialServerState();
-  allAntennaLayouts = getAllAntennaLayouts();
+  allAntennaLayouts = Config.getAllAntennaLayouts();
   setAntennaLayout(selectedAntennaLayout);
 }
 
@@ -444,63 +446,3 @@ function getAntennaNr(antid : string) {
 function isSafeFilePath(filePath : string) : boolean {
   return /^[a-zA-Z0-9" "\(\)\-\_]+$/.test(filePath);
 }
-
-
-
-// TODO: store in config file
-function getAllAntennaLayouts() : Shared.AntennaLayout[] {
-  var groningenHorizontaal =
-    { name: 'Groningen (horizontaal)'
-    , readerAntennaSpecs:
-        [ { readerIp: '10.0.0.30' 
-          , antennaSpecs: [ {name:'1', coord:{x:1.2,  y:1.2}}
-                          , {name:'2', coord:{x:-1.2, y:1.2}}
-                          , {name:'3', coord:{x:-1.2, y:-1.2}}
-                          , {name:'4', coord:{x:1.2,  y:-1.2}}
-                          ]
-          }
-        ]
-    , tagConfiguration: 
-         [ {epc:'0000000000000000000000000370869', color:'green',     coord:{x:1.2-0*0.35, y:1.2-0*0.35}}
-         , {epc:'0000000000000000000000000503968', color:'yellow',    coord:{x:1.2-1*0.35, y:1.2-1*0.35}}
-         , {epc:'0000000000000000000000000370802', color:'black',     coord:{x:1.2-2*0.35-0.03, y:1.2-2*0.35}}
-         , {epc:'0000000000000000000000000103921', color:'purple',    coord:{x:1.2-2*0.35+0.03, y:1.2-2*0.35}}
-         , {epc:'0000000000000000000000000000795', color:'red',       coord:{x:1.2-3*0.35, y:1.2-3*0.35}}
-         , {epc:'0000000000000000000000000370870', color:'orange',    coord:{x:1.2-4*0.35, y:1.2-4*0.35}}
-         , {epc:'0000000000000000000000000370845', color:'white',     coord:{x:1.35, y:1.2-0.5-0*0.5}}
-         , {epc:'0000000000000000000000000100842', color:'brown',     coord:{x:1.35, y:1.2-0.5-1*0.5}} 
-         , {epc:'0000000000000000000000000503972', color:'gray',      coord:{x:1.35, y:1.2-0.5-2*0.5}}
-         , {epc:'0000000000000000000000000023040', color:'lightblue', coord:null}
-         , {epc:'0000000000000000000000000023140', color:'darkgray',  coord:null}
-         ]
-    };
-
-  var groningenSchuin =
-    { name: 'Groningen (schuin)'
-    , readerAntennaSpecs:
-        [ { readerIp: '10.0.0.30' 
-          , antennaSpecs: [ {name:'1', coord:{x:1.5,  y:0}}
-                          , {name:'2', coord:{x:0,    y:1.5}}
-                          , {name:'3', coord:{x:-1.5, y:0}}
-                          , {name:'4', coord:{x:0,    y:-1.5}}
-                          ]
-          }
-        ]
-    , tagConfiguration: 
-         [ {epc:'0000000000000000000000000370869', color:'green',     coord:{x:1.2-0*0.35, y:1.2-0*0.35}}
-         , {epc:'0000000000000000000000000503968', color:'yellow',    coord:{x:1.2-1*0.35, y:1.2-1*0.35}}
-         , {epc:'0000000000000000000000000370802', color:'black',     coord:{x:1.2-2*0.35-0.03, y:1.2-2*0.35}}
-         , {epc:'0000000000000000000000000103921', color:'purple',    coord:{x:1.2-2*0.35+0.03, y:1.2-2*0.35}}
-         , {epc:'0000000000000000000000000000795', color:'red',       coord:{x:1.2-3*0.35, y:1.2-3*0.35}}
-         , {epc:'0000000000000000000000000370870', color:'orange',    coord:{x:1.2-4*0.35, y:1.2-4*0.35}}
-         , {epc:'0000000000000000000000000370845', color:'white',     coord:{x:1.35, y:1.2-0.5-0*0.5}}
-         , {epc:'0000000000000000000000000100842', color:'brown',     coord:{x:1.35, y:1.2-0.5-1*0.5}} 
-         , {epc:'0000000000000000000000000503972', color:'gray',      coord:{x:1.35, y:1.2-0.5-2*0.5}}
-         , {epc:'0000000000000000000000000023040', color:'lightblue', coord:null}
-         , {epc:'0000000000000000000000000023140', color:'darkgray',  coord:null}
-         ]
-    };
-  
-  return [groningenHorizontaal, groningenSchuin];
-}
-
