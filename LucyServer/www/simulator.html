@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simulator</title>
+    <link type="text/css" href="/css/simulator.css" rel="stylesheet"/> 
+    <!-- 
+    <script type="text/javascript" src="/js/client/lib/jquery-ui-1.10.3.custom.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/client/lib/jquery.ui.touch-punch-0.2.2.min.js" charset="utf-8"></script>
+    -->
+    <script type="text/javascript" src="/js/node_modules/underscore/underscore-min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/node_modules/jquery/dist/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/node_modules/d3/d3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/node_modules/backbone/backbone-min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/node_modules/oblo-util/oblo-util.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/shared/Shared.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/client/Simulator.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <div id="main">
+      <div id="control-panel">
+        Antenna layout: <select onchange="Simulator.handleSelectLayout(this);" id="layout-selector"></select><br/>
+        <input type="button" id="toggle-locations-button" onclick="Simulator.handleToggleTagLocationsButton()" value="Show tag locations"></input><br/>
+        <br/>
+        <input type="button" id="start-refresh-button" onclick="Simulator.handleStartRefreshButton()" value="Start refresh"></input>
+        <input type="button" id="stop-refresh-button" onclick="Simulator.handleStopRefreshButton()" value="Stop refresh"></input>
+        <input type="button" id="reset-button" onclick="Locator.handleResetButton()" value="Reset"></input><br/>
+        <input type="button" id="connect-button" onclick="Locator.handleConnectButton()" value="Connect to reader"></input>
+        <input type="button" id="disconnect-button" onclick="Locator.handleDisconnectButton()" value="Disconnect"></input><br/>
+      </div>
+      <div id="wrap">
+        <div id="floor"></div>
+
+        <div id="copyright">&copy; 2014 <a href="http://www.oblomov.com">Oblomov&nbsp;Systems</a></div>
+      </div><br/>
+      <div id="tags-data">
+		    <div>
+		      <div class="tag-label">&nbsp;</div>
+		      <div class="ant-rssi">Ant 1</div>
+		      <div class="ant-rssi">Ant 2</div>
+		      <div class="ant-rssi">Ant 3</div>
+		      <div class="ant-rssi">Ant 4</div>
+		    </div></br></br>
+		    <div class="tag-rssis">
+		      <div class="tag-label"></div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		    </div></br>
+		    <div class="tag-rssis">
+		      <div class="tag-label"></div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		    </div></br>
+		    <div class="tag-rssis">
+		      <div class="tag-label"></div>
+		      <div class="ant-rssi"></div><div class="ant-rssi"></div>
+		      <div class="ant-rssi"></div><div class="ant-rssi"></div>
+		    </div></br>
+		    <div class="tag-rssis">
+		      <div class="tag-label"></div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		    </div></br>
+		    <div class="tag-rssis">
+		      <div class="tag-label"></div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		    </div></br>
+		    <div class="tag-rssis">
+		      <div class="tag-label"></div>
+		      <div class="ant-rssi"></div><div class="ant-rssi"></div>
+		      <div class="ant-rssi"></div><div class="ant-rssi"></div>
+		    </div></br>
+		    <div class="tag-rssis">
+		      <div class="tag-label"></div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		    </div></br>
+		    <div class="tag-rssis">
+		      <div class="tag-label"></div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		    </div></br>
+		    <div class="tag-rssis">
+		      <div class="tag-label"></div>
+		      <div class="ant-rssi"></div><div class="ant-rssi"></div>
+		      <div class="ant-rssi"></div><div class="ant-rssi"></div>
+		    </div></br>
+		    <div class="tag-rssis">
+		      <div class="tag-label"></div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		    </div></br>
+		    <div class="tag-rssis">
+		      <div class="tag-label"></div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		    </div></br>
+		    <div class="tag-rssis">
+		      <div class="tag-label"></div>
+		      <div class="ant-rssi"></div><div class="ant-rssi"></div>
+		      <div class="ant-rssi"></div><div class="ant-rssi"></div>
+		    </div></br>
+		    <div class="tag-rssis">
+		      <div class="tag-label"></div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		    </div></br>
+		    <div class="tag-rssis">
+		      <div class="tag-label"></div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		      <div class="ant-rssi">&nbsp;</div><div class="ant-rssi">&nbsp;</div>
+		    </div></br>
+		    <div class="tag-rssis">
+		      <div class="tag-label"></div>
+		      <div class="ant-rssi"></div><div class="ant-rssi"></div>
+		      <div class="ant-rssi"></div><div class="ant-rssi"></div>
+		    </div></br>
+      </div>
+    </div>
+  </body>
+</html>

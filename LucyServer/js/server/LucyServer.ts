@@ -44,7 +44,7 @@ var readerServerSocket : net.Socket;
 var outputFileStream : fs.WriteStream; // for saving reader events
 
 var readerServerHostName : string;
-var serverPortNr : number
+var serverPortNr : number;
 
 
 interface ReaderEvent {readerIp : string; ant : number; epc : string; rssi : number; firstSeen : string; lastSeen : string}

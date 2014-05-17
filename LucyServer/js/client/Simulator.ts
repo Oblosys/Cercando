@@ -7,10 +7,10 @@
 
 
 $(document).ready(function(){
-  Locator.initialize();
+  Simulator.initialize();
 });
 
-module Locator {
+module Simulator {
   
   var debug = true;
   var floorHeight = 500;
@@ -347,43 +347,7 @@ module Locator {
   export function handleStopRefreshButton() {
     stopRefreshInterval();
   }
-  
-  export function handleConnectButton() {
-    connectReader();
-  }
-  
-  export function handleDisconnectButton() {
-    disconnectReader();
-  }
-  
-  export function handleResetButton() {
-    $.get('/query/reset', function() {
-      resetClientState();
-      util.log('Reset server.');
-    });
-  }
-  
-  export function handleSaveButton() {
-    if ($('#save-button').val() == 'Start saving') { // Not the prettiest way, but it saves us from keeping another state variable for isSaving
-      var filename = encodeURI($('#filename-field').val());
-      util.setAttr($('#save-button'), 'disabled', true);
-      $.get('/query/start-saving', {filename: filename}, function() {
-        util.log('Started saving events.');
-        $('#save-button').val('Stop saving');
-        util.setAttr($('#save-button'), 'disabled', false);
-      }).fail(function(data : JQueryXHR) {
-        console.log(data);
-        alert('Save failed:\n'+JSON.parse(data.responseText).error);
-        util.setAttr($('#save-button'), 'disabled', false);
-      });
-    } else {
-      $.get('/query/stop-saving', {filename: filename}, function() {
-        util.log('Stopped saving events.');
-        $('#save-button').val('Start saving');
-      }); // Assume that stop won't fail
-    }
-  }
-  
+    
   export function handleToggleTagLocationsButton() {
     if ($('#tag-info-plane').css('display')=='none') {
       $('#toggle-locations-button').attr('value','Show tag locations');
