@@ -20,7 +20,7 @@ module Locator {
   var scale = 80; // pixels per meter
   
   
-  var refreshRate = 500;
+  var refreshDelay = 500;
   var trailLength = 30;
   var tagTrails : Shared.Coord[][] = [];
   
@@ -266,7 +266,7 @@ module Locator {
         }
         //util.log('A'+ant+': tag'+tagNr+': '+dist);
         range.transition()
-             .duration(refreshRate)
+             .duration(refreshDelay)
              .style('stroke-dasharray', isRangeRecent ? 'none' : '5,2')
              .attr('r', dist*scale+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation          
       }
@@ -279,7 +279,7 @@ module Locator {
         markerD3.style('fill', color) // TODO: dynamically create markers
               .style('stroke', tagData.coordinate.isRecent ? 'white' : 'red');
         markerD3.transition()
-                .duration(refreshRate)
+                .duration(refreshDelay)
                 .attr('cx',pos.x)
                 .attr('cy',pos.y);
       } else {
@@ -303,7 +303,7 @@ module Locator {
   }
     
   function startRefreshInterval() {
-    refreshInterval = <any>setInterval(refresh, refreshRate); 
+    refreshInterval = <any>setInterval(refresh, refreshDelay); 
     // unfortunately Eclipse TypeScript is stupid and doesn't respect reference paths, so it includes all TypeScript
     // declarations in the source tree and assumes a different type for setInterval here
     // (returning NodeTimer instead of number, as declared in node.d.ts)
