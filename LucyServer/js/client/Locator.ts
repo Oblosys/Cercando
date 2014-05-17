@@ -6,11 +6,13 @@
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 /// <reference path="../shared/Shared.ts" />
 
-/* 
-TODO
-Fix stuttering server updates
-*/
-  
+
+$(document).ready(function(){
+  Locator.initialize();
+});
+
+module Locator {
+
 var debug = true;
 var floorHeight = 500;
 var floorWidth = 700;
@@ -38,10 +40,6 @@ function initRefreshSocket(floorSVG : D3.Selection) {
 
 /***** Initialization *****/
 
-$(document).ready(function(){
-  initialize();
-});
-
 function resetClientState() {
   serverState = Shared.initialServerState();
   tagTrails = [];
@@ -54,7 +52,7 @@ function resetClientState() {
   createMarkers();
 }
 
-function initialize() {
+export function initialize() {
   $.ajaxSetup({ cache: false });
   serverState = Shared.initialServerState();
   queryAntennas();
@@ -400,4 +398,5 @@ function toScreenY(y : number) {
 
 function showTime(date : Date) {
   return util.padZero(2, date.getHours()) + ":" + util.padZero(2, date.getMinutes()) + ":" + util.padZero(2, date.getSeconds()) 
+}
 }
