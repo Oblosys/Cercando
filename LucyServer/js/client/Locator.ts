@@ -2,7 +2,6 @@
 /// <reference path="../typings/jquery/jquery.d.ts" />
 /// <reference path="../typings/backbone/backbone.d.ts" />
 /// <reference path="../typings/underscore/underscore.d.ts" />
-/// <reference path="../typings/socket.io/socket.io-client.d.ts" />
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 /// <reference path="../shared/Shared.ts" />
 
@@ -29,15 +28,7 @@ module Locator {
   var serverState : Shared.ServerState;
   var allAntennas : Shared.Antenna[];
   var allTagInfo : Shared.TagInfo[];
-  
-  function initRefreshSocket(floorSVG : D3.Selection) {
-    //util.log(location.host);
-    var socket = io.connect('http://'+location.host);
-    socket.on('llrp', function (data) {   
-      //util.log('LLRP event'+data.RSSI);
-    });
-  }  
-  
+    
   /***** Initialization *****/
   
   function resetClientState() {
