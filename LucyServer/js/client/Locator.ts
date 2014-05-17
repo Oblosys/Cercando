@@ -42,17 +42,8 @@ $(document).ready(function(){
   initialize();
 });
 
-// Duplicated, until we find an elegant way to share both types and code between client and server TypeScript
-function initialServerState() : Shared.ServerState {
-  return {
-    visibleTags: [],
-    status: {isConnected: false, isSaving: false, webServerTime : null, readerServerTime : null},
-    tagsData: []
-  };
-}
-
 function resetClientState() {
-  serverState = initialServerState();
+  serverState = Shared.initialServerState();
   tagTrails = [];
   d3.selectAll('#annotation-plane *').remove();
   d3.selectAll('#trilateration-plane *').remove();
@@ -65,7 +56,7 @@ function resetClientState() {
 
 function initialize() {
   $.ajaxSetup({ cache: false });
-  serverState = initialServerState();
+  serverState = Shared.initialServerState();
   queryAntennas();
   queryTagInfo();
   var floorSVG = d3.select('#floor')

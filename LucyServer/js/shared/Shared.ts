@@ -15,4 +15,17 @@ module Shared {
     status : {isConnected : boolean; isSaving : boolean; webServerTime : string; readerServerTime : string }
     tagsData : {epc : string; color : string; antennaRssis : AntennaRSSI[]; coordinate? : { coord: {x : number; y : number}; isRecent : boolean } }[]
   }
+  
+  export function initialServerState() : Shared.ServerState {
+    return {
+      visibleTags: [],
+      status: {isConnected: false, isSaving: false, webServerTime : null, readerServerTime : null},
+      tagsData: []
+    };
+  }
 } 
+
+declare var exports: any;
+if (typeof exports != 'undefined') {
+  exports.initialServerState = Shared.initialServerState;
+}

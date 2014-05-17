@@ -1,5 +1,9 @@
+/// <reference path="../shared/Shared.ts" />
+
 import _        = require('underscore');
 import util     = require('oblo-util');
+
+var Shared = require('../shared/Shared.js');
 
 // epc : string, antNr : number just for logging
 export function getRssiDistance(epc : string, antName : string, rssi : number) {

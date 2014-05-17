@@ -4,8 +4,8 @@
 /// <reference path="../typings/node/node.d.ts" />
 /// <reference path="../typings/express/express.d.ts" />
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
-/// <reference path="../shared/Shared.ts" />
 /// <reference path="./Trilateration.ts" />
+/// <reference path="../shared/Shared.ts" />
 
 var defaultServerPortNr = 8080; // port for the Lucy web server
 
@@ -29,6 +29,8 @@ import _        = require('underscore');
 import path     = require('path');
 import trilateration = require('./Trilateration');
 
+var shared = <typeof Shared>require('../shared/Shared.js');
+
 var app = express();
 
 var state : Shared.ServerState
@@ -45,16 +47,6 @@ var serverPortNr : number
 interface ReaderEvent {readerIp : string; ant : number; epc : string; rssi : number; firstSeen : string; lastSeen : string}
 
 initServer();
-
-
-// Duplicated, until we find an elegant way to share both types and code between client and server TypeScript
-function initialServerState() : Shared.ServerState {
-  return {
-    visibleTags: [],
-    status: {isConnected: false, isSaving: false, webServerTime : null, readerServerTime : null},
-    tagsData: []
-  };
-}
 
 function initServer() {
   // usage: LucyServer [portNr] [remoteReader]
@@ -76,7 +68,7 @@ function initServer() {
 }
 
 function resetServerState() {
-  state = initialServerState();
+  state = shared.initialServerState();
   allAntennas = mkReaderAntennas(getReaderAntennaSpecs());
   allTagInfo = getAllTagInfo();
 }
