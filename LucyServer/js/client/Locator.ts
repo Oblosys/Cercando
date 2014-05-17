@@ -181,6 +181,7 @@ module Locator {
     // TODO: handle new tags and disappeared tags
     _.each(serverState.tagsData, (tagData) => {
       var tagNr = getTagNr(tagData.epc);
+      var color = getTagInfo(tagData.epc).color;
       var tagTrail = tagTrails[tagNr];
       
       if (tagTrail) {
@@ -192,7 +193,7 @@ module Locator {
         d3.select('#trail-'+tagNr)
           .attr('d', lineFunction(tagTrail.slice(1)))
           .attr('stroke-dasharray','none')
-          .style('stroke', tagData.color)
+          .style('stroke', color)
           .style('stroke-opacity', 0.5)
           .attr('fill', 'none');
       }
@@ -218,9 +219,10 @@ module Locator {
     _.map(serverState.tagsData, (tagData) => {
       //util.log(tagRssis.epc + '(' + tagNr + ':' + tagColors[tagNr] + ')' + tagRssis.rssis);
       var tagNr = getTagNr(tagData.epc);
+      var color = getTagInfo(tagData.epc).color;
       //$('.tag-rssis:eq('+tagNr+') .tag-label').text(tagData.epc);
       var $tagLabel = $('.tag-rssis:eq('+tagNr+') .tag-label');
-      $tagLabel.css('color',tagData.color);
+      $tagLabel.css('color', color);
       $tagLabel.text(tagNr + ' ' +tagData.epc.slice(-7));
       
         for (var i=0; i < tagData.antennaRssis.length; i++) {
@@ -247,7 +249,7 @@ module Locator {
           
           var pos = toScreen(allAntennas[antNr].coord);
           range = rssiPlaneSVG.append('circle').attr('class', rangeClass)
-                    .style('stroke', tagData.color)
+                    .style('stroke', color)
                     .style('fill', 'transparent')
                     .attr('cx', pos.x)
                     .attr('cy', pos.y);
@@ -264,7 +266,7 @@ module Locator {
         recordTrail(tagData.epc, tagData.coordinate.coord);  // TODO: no coordinate case?
         var pos = toScreen(tagData.coordinate.coord);
         markerD3.style('display', 'block');
-        markerD3.style('fill', tagData.color) // TODO: dynamically create markers
+        markerD3.style('fill', color) // TODO: dynamically create markers
               .style('stroke', tagData.coordinate.isRecent ? 'white' : 'red');
         markerD3.transition()
                 .duration(refreshRate)
@@ -390,6 +392,16 @@ module Locator {
     return _(serverState.tagsData).pluck('epc').indexOf(epc);
   }
 
+  function getTagInfo(epc : string) {
+    var ix = _(allTagInfo).pluck('epc').indexOf(epc);
+    if (ix == -1) {
+      console.error('Tag with epc %s not found in allTagInfo',epc)
+      return {epc:epc, color:'white', coord:null}
+    } else {
+      return allTagInfo[ix];
+    }
+  }
+  
   // convert coordinate in meters to pixels
   function toScreen(coord : {x : number; y : number }) {
     return {x: toScreenX(coord.x), y: toScreenY(coord.y)};

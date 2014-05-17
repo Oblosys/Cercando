@@ -15,7 +15,7 @@ module Shared {
    
   export interface ServerState {
     status : {isConnected : boolean; isSaving : boolean; webServerTime : string; readerServerTime : string }
-    tagsData : {epc : string; color : string; antennaRssis : AntennaRSSI[]; coordinate? : { coord: {x : number; y : number}; isRecent : boolean } }[]
+    tagsData : {epc : string; antennaRssis : AntennaRSSI[]; coordinate? : { coord: {x : number; y : number}; isRecent : boolean } }[]
   }
   
   export function initialServerState() : Shared.ServerState {

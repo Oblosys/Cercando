@@ -315,9 +315,7 @@ function processReaderEvent(readerEvent : ReaderEvent) {
 
   var tag = _.findWhere(state.tagsData, {epc: readerEvent.epc});
   if (!tag) {
-    var preferredColorObj = _.findWhere(allAntennaLayouts[selectedAntennaLayout].tagConfiguration, {epc: readerEvent.epc});
-    var color = preferredColorObj ? preferredColorObj.color : 'white';
-    tag = { epc:readerEvent.epc, color: color, antennaRssis: [] }
+    tag = { epc:readerEvent.epc, antennaRssis: [] }
     state.tagsData.push(tag);
   }
   
