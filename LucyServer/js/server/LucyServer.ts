@@ -46,6 +46,9 @@ var serverPortNr : number
 
 interface ReaderEvent {readerIp : string; ant : number; epc : string; rssi : number; firstSeen : string; lastSeen : string}
 
+var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+
+
 initServer();
 
 function initServer() {
@@ -283,8 +286,6 @@ function stopSaving() {
   state.status.isSaving = false;
 }
 
-var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
-
 function processReaderEvent(readerEvent : ReaderEvent) {
   var readerTimestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
   // take the time in between firstSeen and lastSeen.
@@ -341,10 +342,10 @@ function updateAntennaRssi(newAntennaRssi : Shared.AntennaRSSI, antennaRssis : S
     antennaRssis.push(newAntennaRssi); // or add
 }
 
-var RC = 1/2;
-
 // epc : string, antNr : number just for logging
 function filtered(epc : string, ant : number, rssi : number, timestamp : Date, previousAntennaRssi : Shared.AntennaRSSI) {
+  var RC = 1/2;
+
   var dT = (previousAntennaRssi ? timestamp.getTime() - previousAntennaRssi.timestamp.getTime() : 100)/1000;
   var previousRssi = previousAntennaRssi ? previousAntennaRssi.value : rssi;
   
@@ -403,12 +404,6 @@ function trilaterateAllTags() {
     });
     tag.coordinate = trilateration.trilaterateRssis(tag.epc, allAntennas, tag.antennaRssis);
   });
-}
-
-// TODO: not used yet
-var antennaTweaks = [1,0.97,1,0.97]; // poor man's calibration
-function tweakAntenna(antennaNr : number, rssi : number) : number {
-  return rssi * antennaTweaks[antennaNr-1];
 }
 
 function mkAntennaId(readerIp : string, antennaPort : number){ // antennaPort starts at 1
