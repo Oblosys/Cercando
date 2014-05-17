@@ -93,7 +93,7 @@ module Locator {
   function drawAntennas() {
     var antennaPlaneSVG = d3.select('#antenna-plane');
   
-    _.each(allAntennas, (ant, i) => drawAntenna(antennaPlaneSVG, ant, i+1));
+    _.each(allAntennas, (ant, i) => drawAntenna(antennaPlaneSVG, ant, i));
   
   }
   
@@ -105,13 +105,15 @@ module Locator {
       .attr('r', 8)
       .attr('cx', pos.x)
       .attr('cy', pos.y);
-    planeSVG.append('text').text(''+antenna.name)
-      .attr('x', pos.x-3)
-      .attr('y', pos.y+3.5)
+    var text = planeSVG.append('text').attr('class', 'l-'+antennaNr).text(antenna.name)
       .attr('font-family', 'verdana')
       .attr('font-size', '10px')
       .attr('fill', 'white');
-    
+    var labelSize = $('.l-'+antennaNr)[0].getBoundingClientRect();
+    util.log('label ' +antenna.name + ' ' , labelSize.width);
+    text.attr('x', pos.x-labelSize.width/2 + 1)
+        .attr('y', pos.y+labelSize.height/2 - 3.5)
+      
   }
   
   // TODO: Maybe combine with query antennas so we can easily handle actions that require both to have finished
