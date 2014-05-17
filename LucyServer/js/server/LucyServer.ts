@@ -37,7 +37,6 @@ var state : Shared.ServerState
 var allAntennaLayouts : Shared.AntennaLayout[];
 var selectedAntennaLayout = 0;
 var allAntennas : Shared.Antenna[];
-var allTagInfo : Shared.TagInfo[];
 
 var readerServerSocket : net.Socket;
 var outputFileStream : fs.WriteStream; // for saving reader events
@@ -76,7 +75,6 @@ function resetServerState() {
   state = shared.initialServerState();
   allAntennaLayouts = getAllAntennaLayouts();
   setAntennaLayout(selectedAntennaLayout);
-  allTagInfo = getAllTagInfo();
 }
 
 function initExpress() {
@@ -127,7 +125,7 @@ function initExpress() {
     util.log('Sending tag info to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
     
-    res.send(JSON.stringify(allTagInfo));
+    res.send(JSON.stringify(allAntennaLayouts[selectedAntennaLayout].tagConfiguration));
   });
 
   app.get('/query/layout-names', function(req, res) {  
@@ -317,7 +315,7 @@ function processReaderEvent(readerEvent : ReaderEvent) {
 
   var tag = _.findWhere(state.tagsData, {epc: readerEvent.epc});
   if (!tag) {
-    var preferredColorObj = _.findWhere(allTagInfo, {epc: readerEvent.epc});
+    var preferredColorObj = _.findWhere(allAntennaLayouts[selectedAntennaLayout].tagConfiguration, {epc: readerEvent.epc});
     var color = preferredColorObj ? preferredColorObj.color : 'white';
     tag = { epc:readerEvent.epc, color: color, antennaRssis: [] }
     state.tagsData.push(tag);
@@ -464,6 +462,19 @@ function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                           ]
           }
         ]
+    , tagConfiguration: 
+         [ {epc:'0000000000000000000000000370869', color:'green',     coord:{x:1.2-0*0.35, y:1.2-0*0.35}}
+         , {epc:'0000000000000000000000000503968', color:'yellow',    coord:{x:1.2-1*0.35, y:1.2-1*0.35}}
+         , {epc:'0000000000000000000000000370802', color:'black',     coord:{x:1.2-2*0.35-0.03, y:1.2-2*0.35}}
+         , {epc:'0000000000000000000000000103921', color:'purple',    coord:{x:1.2-2*0.35+0.03, y:1.2-2*0.35}}
+         , {epc:'0000000000000000000000000000795', color:'red',       coord:{x:1.2-3*0.35, y:1.2-3*0.35}}
+         , {epc:'0000000000000000000000000370870', color:'orange',    coord:{x:1.2-4*0.35, y:1.2-4*0.35}}
+         , {epc:'0000000000000000000000000370845', color:'white',     coord:{x:1.35, y:1.2-0.5-0*0.5}}
+         , {epc:'0000000000000000000000000100842', color:'brown',     coord:{x:1.35, y:1.2-0.5-1*0.5}} 
+         , {epc:'0000000000000000000000000503972', color:'gray',      coord:{x:1.35, y:1.2-0.5-2*0.5}}
+         , {epc:'0000000000000000000000000023040', color:'lightblue', coord:null}
+         , {epc:'0000000000000000000000000023140', color:'darkgray',  coord:null}
+         ]
     };
 
   var groningenSchuin =
@@ -477,13 +488,8 @@ function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                           ]
           }
         ]
-    };
-  
-  return [groningenHorizontaal, groningenSchuin];
-}
-
-function getAllTagInfo() : Shared.TagInfo[] {
-  return [ {epc:'0000000000000000000000000370869', color:'green',     coord:{x:1.2-0*0.35, y:1.2-0*0.35}}
+    , tagConfiguration: 
+         [ {epc:'0000000000000000000000000370869', color:'green',     coord:{x:1.2-0*0.35, y:1.2-0*0.35}}
          , {epc:'0000000000000000000000000503968', color:'yellow',    coord:{x:1.2-1*0.35, y:1.2-1*0.35}}
          , {epc:'0000000000000000000000000370802', color:'black',     coord:{x:1.2-2*0.35-0.03, y:1.2-2*0.35}}
          , {epc:'0000000000000000000000000103921', color:'purple',    coord:{x:1.2-2*0.35+0.03, y:1.2-2*0.35}}
@@ -494,6 +500,9 @@ function getAllTagInfo() : Shared.TagInfo[] {
          , {epc:'0000000000000000000000000503972', color:'gray',      coord:{x:1.35, y:1.2-0.5-2*0.5}}
          , {epc:'0000000000000000000000000023040', color:'lightblue', coord:null}
          , {epc:'0000000000000000000000000023140', color:'darkgray',  coord:null}
-         ];
+         ]
+    };
+  
+  return [groningenHorizontaal, groningenSchuin];
 }
 

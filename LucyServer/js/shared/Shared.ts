@@ -1,7 +1,7 @@
 module Shared {
   export interface Coord { x: number; y : number}
 
-  export interface AntennaLayout { name : string; readerAntennaSpecs : ReaderAntennaSpec[] }
+  export interface AntennaLayout { name : string; readerAntennaSpecs : ReaderAntennaSpec[]; tagConfiguration : TagInfo[] }
   
   export interface ReaderAntennaSpec { readerIp : string; antennaSpecs : AntennaSpec[] }
 
