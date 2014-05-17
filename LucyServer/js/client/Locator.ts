@@ -320,30 +320,30 @@ module Locator {
     });
   }
   
-  function handleStartRefreshButton() {
+  export function handleStartRefreshButton() {
     startRefreshInterval();
   }
   
-  function handleStopRefreshButton() {
+  export function handleStopRefreshButton() {
     stopRefreshInterval();
   }
   
-  function handleConnectButton() {
+  export function handleConnectButton() {
     connectReader();
   }
   
-  function handleDisconnectButton() {
+  export function handleDisconnectButton() {
     disconnectReader();
   }
   
-  function handleResetButton() {
+  export function handleResetButton() {
     $.get('/query/reset', function() {
       resetClientState();
       util.log('Reset server.');
     });
   }
   
-  function handleSaveButton() {
+  export function handleSaveButton() {
     if ($('#save-button').val() == 'Start saving') { // Not the prettiest way, but it saves us from keeping another state variable for isSaving
       var filename = encodeURI($('#filename-field').val());
       util.setAttr($('#save-button'), 'disabled', true);
@@ -364,7 +364,7 @@ module Locator {
     }
   }
   
-  function handleToggleTagLocationsButton() {
+  export function handleToggleTagLocationsButton() {
     if ($('#tag-info-plane').css('display')=='none') {
       $('#toggle-locations-button').attr('value','Show tag locations');
       $('#tag-info-plane').show();
