@@ -17,7 +17,7 @@ module Locator {
   var floorWidth = 700;
   
   var origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
-  var pixelsPerMeter = 80;
+  var scale = 80; // pixels per meter
   
   
   var refreshRate = 500;
@@ -35,15 +35,19 @@ module Locator {
     serverState = Shared.initialServerState();
     tagTrails = [];
     d3.selectAll('#annotation-plane *').remove();
-    d3.selectAll('#trilateration-plane *').remove();
+    d3.selectAll('#antenna-plane *').remove();
+    d3.selectAll('#tag-info-plane *').remove();
     d3.selectAll('#rssi-plane *').remove();
+    d3.selectAll('#trilateration-plane *').remove();
     $('.tag-rssis .tag-label').text('');
     $('.tag-rssis .ant-rssi').html('');
+    drawTagSetup();
+    drawAntennas();
     initTrails();
     createMarkers();
   }
   
-  export function initialize() {
+   export function initialize() {
     $.ajaxSetup({ cache: false });
     serverState = Shared.initialServerState();
     initLayoutSelector();
@@ -52,9 +56,7 @@ module Locator {
       .append('svg:svg')
       .attr('width', floorWidth)
       .attr('height', floorHeight);
-  
-    $('#floor').css('height',floorHeight+'px'); // for some reason height is rendered a bit too large, so we constrain it.
-  
+    
     floorSVG.append('g').attr('id', 'background-plane')
       .append('rect').attr('id', 'floor-background')
       .attr('width', floorWidth)
@@ -66,8 +68,6 @@ module Locator {
     floorSVG.append('g').attr('id', 'trilateration-plane');
     floorSVG.append('g').attr('id', 'visitor-plane');
   
-    drawAntennas();
-    drawTagSetup();
     startRefreshInterval();
   }
   
@@ -81,6 +81,15 @@ module Locator {
     });
   }
 
+  function resizeFloor(dim : {width : number; height : number}) {
+    floorWidth = scale*dim.width;
+    floorHeight = scale*dim.height;
+    origin = {x: floorWidth/2, y: floorHeight/2};
+  
+    d3.select('#floor > svg').attr('width', floorWidth).attr('height', floorHeight);
+    d3.select('#floor-background').attr('width', floorWidth).attr('height', floorHeight);
+    
+  }
   function drawAntennas() {
     var antennaPlaneSVG = d3.select('#antenna-plane');
   
@@ -258,7 +267,7 @@ module Locator {
         range.transition()
              .duration(refreshRate)
              .style('stroke-dasharray', isRangeRecent ? 'none' : '5,2')
-             .attr('r', dist*pixelsPerMeter+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation          
+             .attr('r', dist*scale+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation          
       }
       var markerD3 = d3.select('.m-'+tagNr);
       
@@ -282,10 +291,11 @@ module Locator {
   
   function selectLayout(layoutNr : number) {
     util.log('Selecting layout '+layoutNr);
-    $.getJSON( 'query/select-layout/'+layoutNr, function( data ) {
-      allAntennas = data;
+    $.getJSON( 'query/select-layout/'+layoutNr, function( antennaInfo : Shared.AntennaInfo ) {
+      allAntennas = antennaInfo.antennaSpecs;
+      scale = antennaInfo.scale;
+      resizeFloor(antennaInfo.dimensions);
       resetClientState();
-      drawAntennas();
     }) .fail(function(jqXHR : any, status : any, err : any) {
       console.error( "Error:\n\n" + jqXHR.responseText );
     });
@@ -408,11 +418,11 @@ module Locator {
   }
   
   function toScreenX(x : number) {
-    return x*pixelsPerMeter + origin.x;
+    return x*scale + origin.x;
   }
   
   function toScreenY(y : number) {
-    return y*pixelsPerMeter + origin.y
+    return y*scale + origin.y
   }
   
   function showTime(date : Date) {

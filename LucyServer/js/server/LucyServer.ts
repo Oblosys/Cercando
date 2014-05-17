@@ -130,18 +130,19 @@ function initExpress() {
     res.send(JSON.stringify(allAntennaLayouts[selectedAntennaLayout].tagConfiguration));
   });
 
+
   app.get('/query/layout-names', function(req, res) {  
     util.log('Sending layout names to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
     res.send(JSON.stringify( _(allAntennaLayouts).pluck('name')) );
   });
   
-  app.get('/query/select-layout/:nr', function(req, res) {  
+  app.get('/query/select-layout/:nr', function(req, res) { // return AntennaInfo object for new selection  
     util.log('Selecting antenna layout '+req.params.nr+': '+allAntennaLayouts[req.params.nr].name +
              ',  sending antenna data to client. (' + new Date() + ')');
     setAntennaLayout(req.params.nr);
     res.setHeader('content-type', 'application/json');
-    res.send(JSON.stringify(allAntennas));
+    res.send(JSON.stringify( getAntennaInfo(req.params.nr) ));
   });
   
   app.get('/query/connect', function(req, res) {  
@@ -198,6 +199,14 @@ function setAntennaLayout(nr : number) {
   selectedAntennaLayout = nr;
   allAntennas = mkReaderAntennas(allAntennaLayouts[selectedAntennaLayout].readerAntennaSpecs);
 }
+
+function getAntennaInfo(nr : number) : Shared.AntennaInfo {
+  var antennaLayout = allAntennaLayouts[nr];
+  var info  = { name: antennaLayout.name, dimensions: antennaLayout.dimensions, scale: antennaLayout.scale
+              , antennaSpecs: allAntennas }; // todo: global allAntennas ref is not elegant
+  return info;
+}
+    
 
 function disconnectReader() {
   readerServerSocket.destroy(); // TODO: destroy is probably not the best way to close the socket (end doesn't work reliably though)
