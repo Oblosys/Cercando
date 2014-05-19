@@ -12,6 +12,8 @@ module Shared {
   
   export interface AntennaRSSI {antNr : number; value : number; timestamp : Date; age? : number; distance? : number}
    
+  export interface LayoutInfo { selectedLayout : number; names : string[] }
+  
   export interface TagInfo { epc : string; color: string; coord: Coord}
   
   export interface AntennaInfo { name : string; dimensions: {width : number; height : number}
