@@ -67,13 +67,14 @@ function initServer() {
   util.log('\n\n\nStarting Lucy server on port ' + serverPortNr + ', using reader server on ' + readerServerHostName + '\n\n');
   
   resetServerState();
-  connectReaderServer();
   initExpress();
   var server = app.listen(serverPortNr, () => { util.log('Web server listening to port ' + serverPortNr);});
 }
 
 function resetServerState() {
   state = shared.initialServerState();
+  disconnectReader();
+  connectReaderServer();
   allAntennaLayouts = Config.getAllAntennaLayouts();
   setAntennaLayout(selectedAntennaLayout);
 }
@@ -210,8 +211,10 @@ function getAntennaInfo(nr : number) : Shared.AntennaInfo {
     
 
 function disconnectReader() {
-  readerServerSocket.destroy(); // TODO: destroy is probably not the best way to close the socket (end doesn't work reliably though)
-  readerServerSocket = null;
+  if (readerServerSocket) {
+    readerServerSocket.destroy(); // TODO: destroy is probably not the best way to close the socket (end doesn't work reliably though)
+    readerServerSocket = null;
+  }
   state.status.isConnected = false;
 }
 
