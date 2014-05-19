@@ -68,7 +68,7 @@ module Simulator {
     floorSVG.append('g').attr('id', 'trilateration-plane');
     floorSVG.append('g').attr('id', 'visitor-plane');
   
-    startRefreshInterval();
+    //startRefreshInterval();
   }
   
   function initLayoutSelector() {
