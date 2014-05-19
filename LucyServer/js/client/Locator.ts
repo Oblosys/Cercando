@@ -226,6 +226,11 @@ module Locator {
       
     var rssiPlaneSVG = d3.select('#rssi-plane');
     var now = new Date();
+    var unknownAntennasHtml = serverState.unknownAntennas.length == 0 ? 'None' :
+      _(serverState.unknownAntennas).map((unknownAntenna) => {
+        return '<div id="unknown-antenna">' + unknownAntenna.readerIp + '-' + unknownAntenna.antennaNr + '<div>';
+      }).join('');
+    $('#unknown-antennas').html(unknownAntennasHtml);
     _.map(serverState.tagsData, (tagData) => {
       //util.log(tagRssis.epc + '(' + tagNr + ':' + tagColors[tagNr] + ')' + tagRssis.rssis);
       var tagNr = getTagNr(tagData.epc);

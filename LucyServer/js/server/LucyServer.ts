@@ -338,19 +338,25 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   
   var antId = mkAntennaId(readerEvent.readerIp, readerEvent.ant);
   var antNr = getAntennaNr(antId);
-  var oldAntennaRssi = getAntennaRssiForAntNr(antNr, tag.antennaRssis);
-  
-  var newRssi = !useSmoother ? readerEvent.rssi 
-                             : filtered(readerEvent.epc, readerEvent.ant, readerEvent.rssi, timestamp, oldAntennaRssi);
-  var newAntennaRssi = {antNr: antNr, value: newRssi, timestamp: timestamp};
-  //if (readerEvent.epc == '0000000000000000000000000503968' && readerEvent.ant == 1) {
-  //  util.log(new Date().getSeconds() + ' ' + readerEvent.epc + ' ant '+readerEvent.ant + ' rawRssi: '+readerEvent.rssi.toFixed(1) + ' dist: '+
-  //          trilateration.getRssiDistance(readerEvent.epc, ''+readerEvent.ant, readerEvent.rssi));
-  //}
-  
-  updateAntennaRssi(newAntennaRssi, tag.antennaRssis);
-  //trilateration.getRssiDistance(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI);
-  //util.log(tagsState);
+  if (antNr == -1) {
+    var unknownAntenna = {readerIp: readerEvent.readerIp, antennaNr: readerEvent.ant };
+    if (!_(state.unknownAntennas).findWhere(unknownAntenna))
+      state.unknownAntennas.push(unknownAntenna);
+  } else {
+    var oldAntennaRssi = getAntennaRssiForAntNr(antNr, tag.antennaRssis);
+    
+    var newRssi = !useSmoother ? readerEvent.rssi 
+                               : filtered(readerEvent.epc, readerEvent.ant, readerEvent.rssi, timestamp, oldAntennaRssi);
+    var newAntennaRssi = {antNr: antNr, value: newRssi, timestamp: timestamp};
+    //if (readerEvent.epc == '0000000000000000000000000503968' && readerEvent.ant == 1) {
+    //  util.log(new Date().getSeconds() + ' ' + readerEvent.epc + ' ant '+readerEvent.ant + ' rawRssi: '+readerEvent.rssi.toFixed(1) + ' dist: '+
+    //          trilateration.getRssiDistance(readerEvent.epc, ''+readerEvent.ant, readerEvent.rssi));
+    //}
+    
+    updateAntennaRssi(newAntennaRssi, tag.antennaRssis);
+    //trilateration.getRssiDistance(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI);
+    //util.log(tagsState);
+  }
 }
 
 function getAntennaRssiForAntNr(antNr : number, antennaRssis : Shared.AntennaRSSI[]) {
@@ -447,8 +453,6 @@ function mkAntennas(readerIp : string, antennaLocations : Shared.AntennaSpec[] )
 // return the index in allAntennas for the antenna with id ant 
 function getAntennaNr(antid : string) {
   var ix = _(allAntennas).pluck('antId').indexOf(antid);
-  if (ix == -1) 
-    console.error('Antenna with id %s not found in allAntennas', antid)
   return ix;
 }
 
