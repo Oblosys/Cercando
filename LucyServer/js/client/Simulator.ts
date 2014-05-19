@@ -45,7 +45,8 @@ module Simulator {
     drawAntennas();
     initTrails();
     createMarkers();
-  }
+    createVisitor();
+   }
   
    export function initialize() {
     $.ajaxSetup({ cache: false });
@@ -208,6 +209,28 @@ module Simulator {
           .attr('fill', 'none');
       }
     });
+  }
+  
+  function createVisitor() {
+    d3.select('#trilateration-plane').append('circle').attr('class', 'visitor')
+      .style('stroke', 'red')
+      .style('fill', 'black')
+      .attr('r', 8)
+      .attr('cx', toScreenX(0))
+      .attr('cy', toScreenY(0));
+
+    var drag = d3.behavior.drag()
+      .on("drag", function(d,i) {
+         util.log('dragging '+$(this).attr('class')+d3.event.x);
+         
+        $(this).attr('cx', d3.event.x)
+               .attr('cy', d3.event.y);
+        var x = fromScreenX(d3.event.x);
+        var y = fromScreenY(d3.event.y);
+        
+        $.get('/query/move-tag/'+x+'/'+y, function() {}); // simply send all drag events to server (only meant for local connection)
+      });
+    d3.selectAll('.visitor').call(drag);
   }
   
   function updateLabels() {

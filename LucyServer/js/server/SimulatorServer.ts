@@ -218,5 +218,88 @@ function getAntennaNr(antid : string) {
 
 /// Simulator-specific code
 
+var clientSocket : net.Socket;
+var eventInterval : NodeTimer;
+var eventEmissionDelay = 1000; // 
+
 function startReaderServer() {
+  var server = net.createServer(function(c) { //'connection' listener
+    clientSocket = c;
+    util.log('server connected');
+    c.on('end', function() {
+      console.log('Client disconnected');
+      clientSocket = null;
+    });
+    
+    //c.pipe(c);
+  });
+  server.listen(readerServerPortNr, function() {
+    console.log('Simulated reader server listening to '+readerServerPortNr);
+    startEmittingEvents();
+  });
+}
+
+function startEmittingEvents() {
+    eventInterval = setInterval(emitEvents, eventEmissionDelay); 
+}
+  
+function stopRefreshInterval() {
+  clearInterval(eventInterval);
+}
+
+function emitEvents() {
+  var testEvents = 
+    [ '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000503968","rssi":-58,"firstSeen":"2014-05-17T22:55:27.800046+02:00","lastSeen":"2014-05-17T22:55:27.800046+02:00"}'
+    , '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000370845","rssi":-61,"firstSeen":"2014-05-17T22:55:27.800046+02:00","lastSeen":"2014-05-17T22:55:27.800046+02:00"}'
+    , '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000370845","rssi":-61,"firstSeen":"2014-05-17T22:55:27.805046+02:00","lastSeen":"2014-05-17T22:55:27.805046+02:00"}'
+    , '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000503968","rssi":-58,"firstSeen":"2014-05-17T22:55:27.809046+02:00","lastSeen":"2014-05-17T22:55:27.809046+02:00"}'
+    , '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000103921","rssi":-52,"firstSeen":"2014-05-17T22:55:27.814046+02:00","lastSeen":"2014-05-17T22:55:27.814046+02:00"}'
+    , '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000100842","rssi":-59,"firstSeen":"2014-05-17T22:55:27.819046+02:00","lastSeen":"2014-05-17T22:55:27.819046+02:00"}'
+    , '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000370870","rssi":-68,"firstSeen":"2014-05-17T22:55:27.824046+02:00","lastSeen":"2014-05-17T22:55:27.824046+02:00"}'
+    , '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000000795","rssi":-53,"firstSeen":"2014-05-17T22:55:27.828046+02:00","lastSeen":"2014-05-17T22:55:27.828046+02:00"}'
+    , '{"readerIp":"10.0.0.30","ant":4,"epc":"0000000000000000000000000103921","rssi":-60,"firstSeen":"2014-05-17T22:55:27.837046+02:00","lastSeen":"2014-05-17T22:55:27.837046+02:00"}'
+    , '{"readerIp":"10.0.0.30","ant":4,"epc":"0000000000000000000000000000795","rssi":-57,"firstSeen":"2014-05-17T22:55:27.842046+02:00","lastSeen":"2014-05-17T22:55:27.842046+02:00"}'
+    , '{"readerIp":"10.0.0.30","ant":4,"epc":"0000000000000000000000000503968","rssi":-62,"firstSeen":"2014-05-17T22:55:27.847046+02:00","lastSeen":"2014-05-17T22:55:27.847046+02:00"}'
+    , '{"readerIp":"10.0.0.30","ant":4,"epc":"0000000000000000000000000370869","rssi":-59,"firstSeen":"2014-05-17T22:55:27.852046+02:00","lastSeen":"2014-05-17T22:55:27.852046+02:00"}'
+    , '{"readerIp":"10.0.0.30","ant":4,"epc":"0000000000000000000000000370870","rssi":-62,"firstSeen":"2014-05-17T22:55:27.856046+02:00","lastSeen":"2014-05-17T22:55:27.856046+02:00"}'
+    ]
+  if (clientSocket) {
+    util.log('Client is connected, emitting event');
+    //var coord : Shared.Coord = {x:0.5, y:0.5};
+    
+    var readerEvents : ServerCommon.ReaderEvent[] = [];
+    for (var i=0; i<allAntennas.length; i++) {
+      var rssi = pointToRssi(i, tagCoord);
+      var readerEvent = createReaderEvent(allAntennas[i].antennaId.readerIp, '0000000000000000000000000503966', allAntennas[i].antennaId.antennaNr, rssi);
+      
+      if (rssi) {
+        //util.log(readerEvent);        
+        readerEvents.push(readerEvent);
+      }
+    }
+    sendReaderEvents(readerEvents);
+    //_(testEvents).forEach((e) => {clientSocket.write('\0\ufffd'+e)}); // is added by the Java reader server, so we do it as well
+  }
+}
+
+function sendReaderEvents(readerEvents : ServerCommon.ReaderEvent[]) {
+  if (clientSocket)
+    _(readerEvents).forEach((e) => {clientSocket.write('\0\ufffd'+JSON.stringify(e));});
+}
+
+function createReaderEvent(readerIp : string, epc : string, ant : number, rssi : number)  : ServerCommon.ReaderEvent {
+  var timestamp = new Date().toString();
+  return { readerIp : readerIp, ant: ant, epc: epc, rssi : rssi
+         , firstSeen: timestamp, lastSeen : timestamp };
+}
+
+// antennaIx is index in allAntennas, not the antenna number
+function pointToRssi(antennaIx : number, p : Shared.Coord) : number {
+  var antennaCoord = allAntennas[antennaIx].coord;
+  var dist = trilateration.distance(antennaCoord.x, antennaCoord.y, p.x, p.y);
+  util.log('ant '+JSON.stringify(antennaCoord)+' :'+dist.toFixed(2)+ ' '+p.x.toFixed(1)+' '+p.y.toFixed(1));
+  if (dist > 2)
+    return null;
+  
+  return trilateration.getRssiForDistance3d(dist);
 }
