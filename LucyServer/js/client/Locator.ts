@@ -12,8 +12,8 @@ $(document).ready(function(){
 });
 
 var debug = true;
-var floorHeight = 500;
-var floorWidth = 700;
+var floorHeight = 0;
+var floorWidth = 0;
 
 var origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
 var scale = 80; // pixels per meter
