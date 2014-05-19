@@ -34,12 +34,16 @@ var shared = <typeof Shared>require('../shared/Shared.js');
 
 var app = express();
 
+// Simulator-specific state
+var tagCoord : Shared.Coord = {x:0, y:0};
+var readerServerSocket : net.Socket;
+
+
 var state : Shared.ServerState
 var allAntennaLayouts : Shared.AntennaLayout[];
-var selectedAntennaLayout = 0;
+var selectedAntennaLayout = 2;
 var allAntennas : Shared.Antenna[];
 
-var readerServerSocket : net.Socket;
 
 var serverPortNr : number;
 
@@ -152,6 +156,16 @@ function initExpress() {
     res.writeHead(204);
     res.end();
   });
+
+  app.get('/query/move-tag/:x/:y', function(req, res) {  
+    var coord : Shared.Coord = {x: parseFloat(req.params.x), y: parseFloat(req.params.y)};
+    tagCoord = coord;
+    util.log('Moving tag to ' + JSON.stringify(coord) );
+    res.writeHead(204);
+    res.end();
+  });
+
+
 }
 
 function setAntennaLayout(nr : number) {
