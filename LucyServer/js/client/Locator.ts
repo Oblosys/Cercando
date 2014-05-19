@@ -411,7 +411,7 @@ module Locator {
   function getTagInfo(epc : string) {
     var ix = _(allTagInfo).pluck('epc').indexOf(epc);
     if (ix == -1) {
-      console.error('Tag with epc %s not found in allTagInfo',epc)
+      console.log('Tag with epc %s not found in allTagInfo',epc)
       return {epc:epc, color:'white', coord:null}
     } else {
       return allTagInfo[ix];
