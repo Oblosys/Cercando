@@ -195,7 +195,7 @@ function initExpress() {
 }
 
 function setAntennaLayout(nr : number) {
-  selectedAntennaLayout = nr;
+  selectedAntennaLayout = util.clip(0, allAntennaLayouts.length-1, nr);
   allAntennas = mkReaderAntennas(allAntennaLayouts[selectedAntennaLayout].readerAntennaSpecs);
 }
 
