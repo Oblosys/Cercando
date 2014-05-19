@@ -7,6 +7,7 @@
 /// <reference path="./Trilateration.ts" />
 /// <reference path="./Config.ts" />
 /// <reference path="../shared/Shared.ts" />
+/// <reference path="./ServerCommon.ts" />
 
 var defaultServerPortNr = 8081; // port for the Simulator web server
 
@@ -31,6 +32,7 @@ import trilateration = require('./Trilateration');
 import Config   = require('./Config');
 
 var shared = <typeof Shared>require('../shared/Shared.js');
+var common = <typeof Shared>require('./ServerCommon.js');
 
 var app = express();
 
@@ -46,9 +48,6 @@ var allAntennas : Shared.Antenna[];
 
 
 var serverPortNr : number;
-
-
-interface ReaderEvent {readerIp : string; ant : number; epc : string; rssi : number; firstSeen : string; lastSeen : string}
 
 var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
 

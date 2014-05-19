@@ -1,4 +1,5 @@
 module Shared {
+
   export interface Coord { x: number; y : number}
 
   export interface AntennaLayout { name : string; dimensions: {width : number; height : number}; scale: number
@@ -20,9 +21,6 @@ module Shared {
                                ; scale: number // pixels per meter
                                ; antennaSpecs : Antenna[] }
   
-  export interface ReaderEvent { readerIp : string; ant : number; epc : string; rssi : number
-                               ; firstSeen : string; lastSeen : string}
-
   export interface ServerState {
     status : {isConnected : boolean; isSaving : boolean; webServerTime : string; readerServerTime : string }
     tagsData : {epc : string; antennaRssis : AntennaRSSI[]; coordinate? : { coord: {x : number; y : number}; isRecent : boolean } }[]

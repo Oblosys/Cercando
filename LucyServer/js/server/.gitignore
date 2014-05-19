@@ -1,4 +1,5 @@
 LucyServer.js
 SimulatorServer.js
+ServerCommon.js
 Trilateration.js
 Config.js

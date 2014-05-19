@@ -7,6 +7,7 @@
 /// <reference path="./Trilateration.ts" />
 /// <reference path="./Config.ts" />
 /// <reference path="../shared/Shared.ts" />
+/// <reference path="./ServerCommon.ts" />
 
 var defaultServerPortNr = 8080; // port for the Lucy web server
 
@@ -32,6 +33,7 @@ import trilateration = require('./Trilateration');
 import Config   = require('./Config');
 
 var shared = <typeof Shared>require('../shared/Shared.js');
+var common = <typeof Shared>require('./ServerCommon.js');
 
 var app = express();
 
@@ -272,7 +274,7 @@ function readerServerConnected(readerServerSocket : net.Socket) {
       }
       if (line != '') { // first line of strean will always be ''
         try {
-          var readerEvent : Shared.ReaderEvent = JSON.parse(line);
+          var readerEvent : ServerCommon.ReaderEvent = JSON.parse(line);
         } catch (e) {
           console.error('JSON parse error in line:\n"'+line+'"', e); 
         }
@@ -310,10 +312,10 @@ function stopSaving() {
   state.status.isSaving = false;
 }
 
-function processReaderEvent(readerEvent : Shared.ReaderEvent) {
+function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   var readerTimestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
   // take the time in between firstSeen and lastSeen.
-
+  util.log('Reader event: ' + JSON.stringify(readerEvent));
   if (outputFileStream) {
     var date = months[readerTimestamp.getMonth()]+'-'+readerTimestamp.getDate()+'-'+readerTimestamp.getFullYear();
     var time = readerTimestamp.getHours()+':'+util.padZero(2,readerTimestamp.getMinutes())+':'+
