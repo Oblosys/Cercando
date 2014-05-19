@@ -9,7 +9,7 @@ var Shared = require('../shared/Shared.js');
 export function getRssiDistance(epc : string, antName : string, rssi : number) {
   var dist3d = getDistance3d(rssi);
   //var dist2d = convert3dTo2d(dist3d);
-  var dist2d = getDistance2dStaged(rssi);
+  var dist2d = dist3d;//getDistance2dStaged(rssi);
   
   // log specific tag
   //if (epc == '0000000000000000000000000370870' && antNr == 3) {
@@ -49,6 +49,10 @@ export function testGetDistance2dStaged() {
 }
 //testGetDistance2dStaged();
 
+var d0 = 1/6000;
+var prd0 = 32;
+var n = 1
+
 export function getDistance3d(rssi : number) {
   //var d0 = 1;
   //var prd0 = -52;
@@ -59,6 +63,17 @@ export function getDistance3d(rssi : number) {
   var n = 1
   return d0 * Math.exp((prd0-rssi)/(10*n));
 }
+
+export function getRssiForDistance3d(dist : number) {
+  // dist = d0 * Math.exp((prd0-rssi)/(10*n))
+  // dist/d0 = Math.exp((prd0-rssi)/(10*n))
+  // Math.log(dist/d0) = (prd0-rssi)/(10*n)
+  // Math.log(dist/d0)*(10*n) = prd0-rssi
+  // Math.log(dist/d0)*(10*n) = prd0-rssi
+  // rssi = prd0 - Math.log(dist/d0)*(10*n);
+  return prd0 - Math.log(dist/d0)*(10*n);
+  
+  }
 
 export function convert3dTo2d(dist3d : number) : number {
   var meanVisitorHeight = 1.5;
@@ -193,6 +208,6 @@ function square(x : number) : number {
   return x*x;
 }
 
-function distance(x1 : number, y1 : number, x2 : number, y2 : number) : number {
+export function distance(x1 : number, y1 : number, x2 : number, y2 : number) : number {
   return Math.sqrt(square(x1-x2) + square(y1-y2));
 } 
