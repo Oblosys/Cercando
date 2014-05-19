@@ -5,13 +5,12 @@
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 /// <reference path="../shared/Shared.ts" />
 
+export interface Dummy {}; // Dummy export causes Eclipse-TypeScript to not put this file's declarations in the global namespace (code generation is not affected)
 
 $(document).ready(function(){
-  Locator.initialize();
+  initialize();
 });
 
-module Locator {
-  
   var debug = true;
   var floorHeight = 500;
   var floorWidth = 700;
@@ -47,7 +46,7 @@ module Locator {
     createMarkers();
   }
   
-   export function initialize() {
+   function initialize() {
     $.ajaxSetup({ cache: false });
     serverState = Shared.initialServerState();
     initLayoutSelector();
@@ -345,30 +344,30 @@ module Locator {
     });
   }
   
-  export function handleStartRefreshButton() {
+  function handleStartRefreshButton() {
     startRefreshInterval();
   }
   
-  export function handleStopRefreshButton() {
+  function handleStopRefreshButton() {
     stopRefreshInterval();
   }
   
-  export function handleConnectButton() {
+  function handleConnectButton() {
     connectReader();
   }
   
-  export function handleDisconnectButton() {
+  function handleDisconnectButton() {
     disconnectReader();
   }
   
-  export function handleResetButton() {
+  function handleResetButton() {
     $.get('/query/reset', function() {
       resetClientState();
       util.log('Reset server.');
     });
   }
   
-  export function handleSaveButton() {
+  function handleSaveButton() {
     if ($('#save-button').val() == 'Start saving') { // Not the prettiest way, but it saves us from keeping another state variable for isSaving
       var filename = encodeURI($('#filename-field').val());
       util.setAttr($('#save-button'), 'disabled', true);
@@ -389,7 +388,7 @@ module Locator {
     }
   }
   
-  export function handleToggleTagLocationsButton() {
+  function handleToggleTagLocationsButton() {
     if ($('#tag-info-plane').css('display')=='none') {
       $('#toggle-locations-button').attr('value','Show tag locations');
       $('#tag-info-plane').show();
@@ -399,7 +398,7 @@ module Locator {
     }
   }
   
-  export function handleSelectLayout(selectElt : HTMLSelectElement) {
+  function handleSelectLayout(selectElt : HTMLSelectElement) {
     selectLayout(selectElt.selectedIndex);
   }
 
@@ -434,4 +433,3 @@ module Locator {
   function showTime(date : Date) {
     return util.padZero(2, date.getHours()) + ":" + util.padZero(2, date.getMinutes()) + ":" + util.padZero(2, date.getSeconds()) 
   }
-}
