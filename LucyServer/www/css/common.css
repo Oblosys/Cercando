@@ -1,0 +1,86 @@
+svg { /* IE compatibility */
+	overflow: hidden;
+}
+
+
+table {
+  font: inherit; color: inherit; /* for some weird reason tables don't inherit font and color by default */
+  border-spacing:0;
+  border-collapse: collapse;
+}
+table td, table th {
+  padding: 0;
+}
+
+
+body {
+  margin: 0px;
+  font-family: arial;
+  background: url('../img/background_linen.png') repeat scroll center top transparent;
+  color: white;
+}
+
+#main {
+  text-align: center;
+  margin-top: 15px;
+}
+
+#control-panel {
+	text-align: left;
+  display: inline-block;
+  vertical-align: top;
+}
+
+#wrap {
+  display: inline-block;
+  vertical-align: top;
+}
+
+#floor {
+}
+#floor-background-rect {
+  fill: #392b8c;
+  stroke: #000;
+}
+
+#tags-data {
+  display: inline-block;
+  margin-top: 20px;
+}
+
+.tag-rssis {
+  color: white;
+  float: left;
+}
+.tag-label {
+  text-align: right;
+  margin-right: 10px;
+  float: left;
+  width: 100px;
+}
+
+.ant-rssi {
+  float: left;
+  width: 100px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.dist-label {
+  float:left;
+}
+.rssi-label {
+  float:right;
+}
+
+#copyright {
+  float: right;
+  padding-top: 2px; 
+  padding-right: 2px;
+  font-size: 13px;
+  color: #eee;
+}
+#copyright * {
+  text-decoration: none;
+  color: #ddd;
+}
