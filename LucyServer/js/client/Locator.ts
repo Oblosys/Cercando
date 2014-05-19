@@ -116,9 +116,9 @@ function drawAntenna(planeSVG : D3.Selection, antenna : Shared.Antenna, antennaN
 
 // TODO: Maybe combine with query antennas so we can easily handle actions that require both to have finished
 function queryTagInfo() {
-  $.getJSON( 'query/tag-info', function( data ) {
-    util.log('Queried tag info:\n'+JSON.stringify(data));
-    allTagInfo = data;
+  $.getJSON( 'query/tag-info', function(newTagInfo : Shared.TagInfo[]) {
+    util.log('Queried tag info:\n'+JSON.stringify(newTagInfo));
+    allTagInfo = newTagInfo;
     drawTagSetup();
     initTrails();
     createMarkers();
@@ -296,7 +296,7 @@ function updateTags() {
 
 function selectLayout(layoutNr : number) {
   util.log('Selecting layout '+layoutNr);
-  $.getJSON( 'query/select-layout/'+layoutNr, function( antennaInfo : Shared.AntennaInfo ) {
+  $.getJSON( 'query/select-layout/'+layoutNr, function(antennaInfo : Shared.AntennaInfo) {
     allAntennas = antennaInfo.antennaSpecs;
     scale = antennaInfo.scale;
     resizeFloor(antennaInfo.dimensions);
@@ -318,8 +318,8 @@ function stopRefreshInterval() {
 }
 
 function refresh() {
-  $.getJSON( 'query/tags', function( data ) {
-    serverState = data;
+  $.getJSON( 'query/tags', function(newServerState : Shared.ServerState) {
+    serverState = newServerState;
     updateTags();
   }).fail(function(jqXHR : JQueryXHR, status : any, err : any) {
     resetClientState();
@@ -361,9 +361,11 @@ function handleDisconnectButton() {
 }
 
 function handleResetButton() {
+  stopRefreshInterval();
   $.get('/query/reset', function() {
     resetClientState();
-    util.log('Reset server.');
+    util.log('Server and client were reset.');
+    startRefreshInterval();
   });
 }
 
