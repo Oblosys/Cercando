@@ -423,7 +423,7 @@ module Locator {
   }
   
   function toScreenY(y : number) {
-    return y*scale + origin.y
+    return y*scale + origin.y;
   }
   
   function showTime(date : Date) {
