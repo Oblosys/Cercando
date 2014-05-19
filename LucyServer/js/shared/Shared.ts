@@ -9,7 +9,9 @@ module Shared {
 
   export interface AntennaSpec { name : string; coord : Coord }
 
-  export interface Antenna extends AntennaSpec { antId : string }
+  export interface AntennaId { readerIp : string; antennaNr : number }
+  
+  export interface Antenna extends AntennaSpec { antennaId : AntennaId }
   
   export interface AntennaRSSI {antNr : number; value : number; timestamp : Date; age? : number; distance? : number}
    
@@ -24,7 +26,7 @@ module Shared {
   export interface ServerState {
     status : {isConnected : boolean; isSaving : boolean; webServerTime : string; readerServerTime : string }
     tagsData : {epc : string; antennaRssis : AntennaRSSI[]; coordinate? : { coord: {x : number; y : number}; isRecent : boolean } }[]
-    unknownAntennas : {readerIp : string; antennaNr : number}[]
+    unknownAntennaIds : AntennaId[]
   }
   
   export function initialServerState() : Shared.ServerState {
@@ -32,7 +34,7 @@ module Shared {
       visibleTags: [],
       status: {isConnected: false, isSaving: false, webServerTime : null, readerServerTime : null},
       tagsData: [],
-      unknownAntennas: []
+      unknownAntennaIds: []
     };
   }
 } 

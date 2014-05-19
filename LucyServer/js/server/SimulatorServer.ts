@@ -202,7 +202,9 @@ function mkReaderAntennas(readerAntennaSpecs : Shared.ReaderAntennaSpec[]) : Sha
 }
 
 function mkAntennas(readerIp : string, antennaLocations : Shared.AntennaSpec[] ) : Shared.Antenna[] {
-  return antennaLocations.map((antLoc, ix) => {return {antId: mkAntennaId(readerIp, ix+1), name: antLoc.name, coord: antLoc.coord}});
+  return antennaLocations.map((antLoc, ix) => {
+    return {antennaId:{readerIp: readerIp, antennaNr: ix+1}, name: antLoc.name, coord: antLoc.coord, antennaNr: ix+1, }
+  });
 }
 
 

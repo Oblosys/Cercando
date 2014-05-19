@@ -315,7 +315,7 @@ function stopSaving() {
 function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   var readerTimestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
   // take the time in between firstSeen and lastSeen.
-  util.log('Reader event: ' + JSON.stringify(readerEvent));
+  //util.log('Reader event: ' + JSON.stringify(readerEvent));
   if (outputFileStream) {
     var date = months[readerTimestamp.getMonth()]+'-'+readerTimestamp.getDate()+'-'+readerTimestamp.getFullYear();
     var time = readerTimestamp.getHours()+':'+util.padZero(2,readerTimestamp.getMinutes())+':'+
@@ -336,12 +336,19 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   //TODO Reader time is not in sync with server. For now, just use server time.
   var timestamp = new Date(); // use current time as timestamp.
   
-  var antId = mkAntennaId(readerEvent.readerIp, readerEvent.ant);
-  var antNr = getAntennaNr(antId);
+  var antennaId : Shared.AntennaId = {readerIp: readerEvent.readerIp, antennaNr: readerEvent.ant };
+  var antNr = getAntennaNr(antennaId);
   if (antNr == -1) {
-    var unknownAntenna = {readerIp: readerEvent.readerIp, antennaNr: readerEvent.ant };
-    if (!_(state.unknownAntennas).findWhere(unknownAntenna))
-      state.unknownAntennas.push(unknownAntenna);
+    if (!_(state.unknownAntennaIds).find((unknownId) => { 
+         //util.log('hallo', unknownId, antennaId, _.isEqual(unknownId, antennaId));
+        return _.isEqual(unknownId, antennaId);})) {
+      state.unknownAntennaIds.push(antennaId);
+      util.log('adding '+JSON.stringify(antennaId));
+    }
+    //else
+      //util.log('not adding '+JSON.stringify(antennaId));
+
+    //state.unknownAntennaIds.push(antennaId);
   } else {
     var oldAntennaRssi = getAntennaRssiForAntNr(antNr, tag.antennaRssis);
     
@@ -436,24 +443,24 @@ function trilaterateAllTags() {
   });
 }
 
-function mkAntennaId(readerIp : string, antennaPort : number){ // antennaPort starts at 1
-  return 'r'+readerIp+'-a'+antennaPort;
-}
-
 function mkReaderAntennas(readerAntennaSpecs : Shared.ReaderAntennaSpec[]) : Shared.Antenna[] {
   var antenass = _.map(readerAntennaSpecs, (readerAntennaSpec) => {return mkAntennas(readerAntennaSpec.readerIp, readerAntennaSpec.antennaSpecs);});
   return _.flatten(antenass);
 }
 
 function mkAntennas(readerIp : string, antennaLocations : Shared.AntennaSpec[] ) : Shared.Antenna[] {
-  return antennaLocations.map((antLoc, ix) => {return {antId: mkAntennaId(readerIp, ix+1), name: antLoc.name, coord: antLoc.coord}});
+  return antennaLocations.map((antLoc, ix) => {
+    return {antennaId: {readerIp: readerIp, antennaNr: ix+1}, name: antLoc.name, coord: antLoc.coord, antennaNr: ix+1}
+  });
 }
 
-
 // return the index in allAntennas for the antenna with id ant 
-function getAntennaNr(antid : string) {
-  var ix = _(allAntennas).pluck('antId').indexOf(antid);
-  return ix;
+function getAntennaNr(antennaId : Shared.AntennaId) {
+  for (var i = 0; i < allAntennas.length; i++) {
+    if (allAntennas[i].antennaId.readerIp == antennaId.readerIp && allAntennas[i].antennaId.antennaNr == antennaId.antennaNr)
+      return i;
+  }
+  return -1;
 }
 
 // Only allow letters, digits, and slashes

@@ -13,25 +13,39 @@ body {
   background: url('../img/background_linen.png') repeat scroll center top transparent;
   color: white;
 }
+
 #main {
   text-align: center;
   margin-top: 15px;
 }
+
 #control-panel {
 	text-align: left;
   display: inline-block;
   vertical-align: top;
 }
+
+#unknown-antennas {
+	padding-left: 10px;
+	font-size: 80%;
+}
+
+#unknown-antenna {
+  color: red;
+}
+
 #wrap {
   display: inline-block;
   vertical-align: top;
 }
+
 #floor {
 }
 #floor-background {
   fill: #392b8c;
   stroke: #000;
 }
+
 #tags-data {
 	display: inline-block;
 	margin-top: 20px;
@@ -47,12 +61,14 @@ body {
 	float: left;
 	width: 100px;
 }
+
 .ant-rssi {
   float: left;
   width: 100px;
   margin-left: 20px;
   margin-right: 20px;
 }
+
 .dist-label {
   float:left;
 }

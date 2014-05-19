@@ -110,7 +110,7 @@ module Locator {
       .attr('font-size', '10px')
       .attr('fill', 'white');
     var labelSize = $('.l-'+antennaNr)[0].getBoundingClientRect();
-    util.log('label ' +antenna.name + ' ' , labelSize.width);
+    //util.log('label ' +antenna.name + ' ' , labelSize.width);
     text.attr('x', pos.x-labelSize.width/2 + 1)
         .attr('y', pos.y+labelSize.height/2 - 3.5)
   }
@@ -226,9 +226,9 @@ module Locator {
       
     var rssiPlaneSVG = d3.select('#rssi-plane');
     var now = new Date();
-    var unknownAntennasHtml = serverState.unknownAntennas.length == 0 ? 'None' :
-      _(serverState.unknownAntennas).map((unknownAntenna) => {
-        return '<div id="unknown-antenna">' + unknownAntenna.readerIp + '-' + unknownAntenna.antennaNr + '<div>';
+    var unknownAntennasHtml = serverState.unknownAntennaIds.length == 0 ? 'None' :
+      _(serverState.unknownAntennaIds).map((unknownAntenna) => {
+        return '<div id="unknown-antenna">' + unknownAntenna.readerIp + '-' + unknownAntenna.antennaNr + '</div>';
       }).join('');
     $('#unknown-antennas').html(unknownAntennasHtml);
     _.map(serverState.tagsData, (tagData) => {
