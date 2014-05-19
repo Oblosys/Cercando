@@ -389,6 +389,15 @@ module Simulator {
   function toScreenY(y : number) {
     return y*scale + origin.y
   }
+
+  function fromScreenX(x : number) {
+    return (x - origin.x)/scale;
+  }
+  
+  function fromScreenY(y : number) {
+    return (y - origin.y)/scale;
+  }
+
   
   function showTime(date : Date) {
     return util.padZero(2, date.getHours()) + ":" + util.padZero(2, date.getMinutes()) + ":" + util.padZero(2, date.getSeconds()) 
