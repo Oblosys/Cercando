@@ -72,11 +72,11 @@ module Locator {
   }
   
   function initLayoutSelector() {
-    $.getJSON( "query/layout-names", function(data) {
-      $.each(data, function( index, name ) {
+    $.getJSON( "query/layout-info", function(layoutInfo : Shared.LayoutInfo) {
+      $.each(layoutInfo.names, function( index, name ) {
         $('#layout-selector').append('<option value="'+name+'">'+name+'</option>');
       });
-
+      (<HTMLSelectElement>$('#layout-selector').get(0)).selectedIndex = layoutInfo.selectedLayout;
       selectLayout((<HTMLSelectElement>$('#layout-selector').get(0)).selectedIndex);
     });
   }

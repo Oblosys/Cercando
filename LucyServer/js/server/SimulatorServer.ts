@@ -112,12 +112,14 @@ function initExpress() {
   });
 
 
-  app.get('/query/layout-names', function(req, res) {  
-    util.log('Sending layout names to client. (' + new Date() + ')');
+  app.get('/query/layout-info', function(req, res) {  
+    util.log('Sending layout info to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
-    res.send(JSON.stringify( _(allAntennaLayouts).pluck('name')) );
+    var layoutInfo : Shared.LayoutInfo =
+      {selectedLayout: selectedAntennaLayout, names: _(allAntennaLayouts).pluck('name')}
+    res.send(JSON.stringify(layoutInfo));
   });
-  
+    
   app.get('/query/select-layout/:nr', function(req, res) { // return AntennaInfo object for new selection  
     util.log('Selecting antenna layout '+req.params.nr+': '+allAntennaLayouts[req.params.nr].name +
              ',  sending antenna data to client. (' + new Date() + ')');
