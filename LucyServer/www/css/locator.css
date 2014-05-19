@@ -41,7 +41,7 @@ body {
 
 #floor {
 }
-#floor-background {
+#floor-background-rect {
   fill: #392b8c;
   stroke: #000;
 }

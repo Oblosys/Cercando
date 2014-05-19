@@ -3,6 +3,7 @@ module Shared {
   export interface Coord { x: number; y : number}
 
   export interface AntennaLayout { name : string; dimensions: {width : number; height : number}; scale: number
+                                 ; backgroundImage? : string
                                  ; readerAntennaSpecs : ReaderAntennaSpec[]; tagConfiguration : TagInfo[] }
   
   export interface ReaderAntennaSpec { readerIp : string; antennaSpecs : AntennaSpec[] }
@@ -21,6 +22,7 @@ module Shared {
   
   export interface AntennaInfo { name : string; dimensions: {width : number; height : number}
                                ; scale: number // pixels per meter
+                               ; backgroundImage? : string
                                ; antennaSpecs : Antenna[] }
   
   export interface ServerState {

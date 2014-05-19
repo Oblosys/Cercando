@@ -58,8 +58,9 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
     
   var rotterdam =
     { name: 'Rotterdam'
-    , dimensions: {width: 14, height: 9}
+    , dimensions: {width: 14, height: 14/3183*1686}
     , scale: 50
+    , backgroundImage: 'Rotterdam floor plan - grid.png' // width="3183" height="1686"
 
     , readerAntennaSpecs:
         [ { readerIp: '10.0.0.30' 

@@ -175,6 +175,7 @@ function setAntennaLayout(nr : number) {
 function getAntennaInfo(nr : number) : Shared.AntennaInfo {
   var antennaLayout = allAntennaLayouts[nr];
   var info  = { name: antennaLayout.name, dimensions: antennaLayout.dimensions, scale: antennaLayout.scale
+              , backgroundImage: antennaLayout.backgroundImage
               , antennaSpecs: allAntennas }; // todo: global allAntennas ref is not elegant
   return info;
 }

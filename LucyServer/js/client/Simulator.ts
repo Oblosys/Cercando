@@ -58,10 +58,15 @@ module Simulator {
       .attr('width', floorWidth)
       .attr('height', floorHeight);
     
-    floorSVG.append('g').attr('id', 'background-plane')
-      .append('rect').attr('id', 'floor-background')
-      .attr('width', floorWidth)
-      .attr('height', floorHeight);
+  var backgroundPlane = floorSVG.append('g').attr('id', 'background-plane');
+  
+  backgroundPlane.append('rect').attr('id', 'floor-background-rect')
+    .attr('width', floorWidth)
+    .attr('height', floorHeight);
+  backgroundPlane.append('image').attr('id', 'floor-background-image')
+    .attr('width', floorWidth)
+    .attr('height', floorHeight);
+    
     floorSVG.append('g').attr('id', 'annotation-plane');
     floorSVG.append('g').attr('id', 'antenna-plane');
     floorSVG.append('g').attr('id', 'tag-info-plane');
@@ -88,9 +93,19 @@ module Simulator {
     origin = {x: floorWidth/2, y: floorHeight/2};
   
     d3.select('#floor > svg').attr('width', floorWidth).attr('height', floorHeight);
-    d3.select('#floor-background').attr('width', floorWidth).attr('height', floorHeight);
-    
+    d3.select('#floor-background-rect').attr('width', floorWidth).attr('height', floorHeight);
+    d3.select('#floor-background-image').attr('width', floorWidth).attr('height', floorHeight);  
+}
+
+function setBackgroundImage(backgroundImage : string) {
+  if (backgroundImage) {
+    util.log(backgroundImage);
+    d3.select('#floor-background-image').attr('xlink:href', '/img/'+backgroundImage).attr('visibility', 'visible');
+  } else {
+    d3.select('#floor-background-image').attr('visibility', 'hidden');
   }
+}
+
   function drawAntennas() {
     var antennaPlaneSVG = d3.select('#antenna-plane');
   
@@ -319,6 +334,7 @@ module Simulator {
       allAntennas = antennaInfo.antennaSpecs;
       scale = antennaInfo.scale;
       resizeFloor(antennaInfo.dimensions);
+      setBackgroundImage(antennaInfo.backgroundImage);
       resetClientState();
     }) .fail(function(jqXHR : any, status : any, err : any) {
       console.error( "Error:\n\n" + jqXHR.responseText );
