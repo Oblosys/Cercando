@@ -5,10 +5,10 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
     , scale: 60
     , readerAntennaSpecs:
         [ { readerIp: '10.0.0.30' 
-          , antennaSpecs: [ {name:'1', coord:{x:1.2,  y:1.2}}
-                          , {name:'2', coord:{x:-1.2, y:1.2}}
-                          , {name:'3', coord:{x:-1.2, y:-1.2}}
-                          , {name:'4', coord:{x:1.2,  y:-1.2}}
+          , antennaSpecs: [ {name:'1', coord:{x:1.5,  y:0}}
+                          , {name:'2', coord:{x:0,    y:1.5}}
+                          , {name:'3', coord:{x:-1.5, y:0}}
+                          , {name:'4', coord:{x:0,    y:-1.5}}
                           ]
           }
         ]
@@ -34,10 +34,10 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
 
     , readerAntennaSpecs:
         [ { readerIp: '10.0.0.30' 
-          , antennaSpecs: [ {name:'1', coord:{x:1.5,  y:0}}
-                          , {name:'2', coord:{x:0,    y:1.5}}
-                          , {name:'3', coord:{x:-1.5, y:0}}
-                          , {name:'4', coord:{x:0,    y:-1.5}}
+          , antennaSpecs: [ {name:'1', coord:{x:1.2,  y:1.2}}
+                          , {name:'2', coord:{x:-1.2, y:1.2}}
+                          , {name:'3', coord:{x:-1.2, y:-1.2}}
+                          , {name:'4', coord:{x:1.2,  y:-1.2}}
                           ]
           }
         ]
