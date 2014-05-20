@@ -285,7 +285,7 @@ function readerServerConnected(readerServerSocket : net.Socket) {
         line = lineBuffer + line;
         lineBuffer = '';
       }
-      if (line != '') { // first line of strean will always be ''
+      if (line != '') { // first line of stream will always be ''
         try {
           var readerEvent : ServerCommon.ReaderEvent = JSON.parse(line);
         } catch (e) {
@@ -311,8 +311,8 @@ function startSaving(filePath : string, cont : {success : () => void; error : (m
     });
     outputFileStream.once('open', function(fd :  number) {
       state.status.isSaving = true;
-      // use the same csv format as the SessionOne app
-      outputFileStream.write('EPC, Time, Date, Antenna, RSSI, Channel index, Memory bank, PC, CRC\n')
+      // Mimic the save format created by Motorola SessionOne app, but add the reader ip in an extra column (ip is not saved by SessionOne) 
+      outputFileStream.write('EPC, Time, Date, Antenna, RSSI, Channel index, Memory bank, PC, CRC, ReaderIp\n')
       util.log('Started saving events to "'+fullFilename+'"');
       cont.success();
     });
@@ -328,14 +328,14 @@ function stopSaving() {
 function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   var readerTimestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
   // take the time in between firstSeen and lastSeen.
-  //util.log('Reader event: ' + JSON.stringify(readerEvent));
+  util.log('Reader event: ' + JSON.stringify(readerEvent));
   if (outputFileStream) {
     var date = months[readerTimestamp.getMonth()]+'-'+readerTimestamp.getDate()+'-'+readerTimestamp.getFullYear();
     var time = readerTimestamp.getHours()+':'+util.padZero(2,readerTimestamp.getMinutes())+':'+
       util.padZero(2,readerTimestamp.getSeconds())+':'+util.padZero(4,readerTimestamp.getMilliseconds()*10);
 
-    // Mimic the save format created by Motorola SessionOne app
-    outputFileStream.write('\'0'+readerEvent.epc+', '+time+', '+date+', '+readerEvent.ant+', '+readerEvent.rssi+', , , , \n');
+    // Mimic the save format created by Motorola SessionOne app, but add the reader ip in an extra column (ip is not saved by SessionOne) 
+    outputFileStream.write('\'0'+readerEvent.epc+', '+time+', '+date+', '+readerEvent.ant+', '+readerEvent.rssi+', , , , , '+readerEvent.readerIp+'\n');
   }
 
   var tag = _.findWhere(state.tagsData, {epc: readerEvent.epc});
