@@ -43,6 +43,10 @@ body {
   stroke: #000;
 }
 
+#antenna-plane text {
+	 user-select: none;
+}
+
 #tags-data {
   display: inline-block;
   margin-top: 20px;
