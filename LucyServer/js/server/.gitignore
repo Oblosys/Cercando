@@ -1,5 +1,6 @@
-LucyServer.js
-SimulatorServer.js
-ServerCommon.js
-Trilateration.js
 Config.js
+DummyPresentationServer.js
+LucyServer.js
+ServerCommon.js
+SimulatorServer.js
+Trilateration.js
