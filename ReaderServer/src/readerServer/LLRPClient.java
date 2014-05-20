@@ -372,24 +372,43 @@ public class LLRPClient implements LLRPEndpoint {
     ((LLRPConnector) reader).disconnect();
   }
    
-  public void getReaderCapabilities() {
+  public GET_READER_CAPABILITIES_RESPONSE getReaderCapabilities() {
     GET_READER_CAPABILITIES_RESPONSE response;
      
-    //Util.log("Deleting all ROSpecs.");
     GET_READER_CAPABILITIES cmd = new GET_READER_CAPABILITIES();
-    // Use zero as the ROSpec ID.
-    // This means delete all ROSpecs.
+
     cmd.setRequestedData(new GetReaderCapabilitiesRequestedData(GetReaderCapabilitiesRequestedData.All));
     try {
       response = (GET_READER_CAPABILITIES_RESPONSE)reader.transact(cmd, TIMEOUT_MS);
-      System.out.println(response.toXMLString());
+      Util.log("Reader " + readerIP + ": Country code:   " + response.getRegulatoryCapabilities().getCountryCode());
+      Util.log("Reader " + readerIP + ": Comm. standard: " + response.getRegulatoryCapabilities().getCommunicationsStandard());
+      //System.out.println(response.toXMLString());
+      return response;
     }
     catch (Exception e) {
     	Util.log("Reader " + readerIP + ": Error getting reader capabilities.");
       e.printStackTrace();
+      return null;
     }
   }
 
+  public GET_READER_CONFIG_RESPONSE getReaderConfig() {
+    GET_READER_CONFIG_RESPONSE response;
+     
+    GET_READER_CONFIG cmd = new GET_READER_CONFIG();
+    cmd.setRequestedData(new GetReaderConfigRequestedData(GetReaderConfigRequestedData.All));
+    try {
+      response = (GET_READER_CONFIG_RESPONSE)reader.transact(cmd, TIMEOUT_MS); // TODO: fails with a timeout exception for some reason
+      System.out.println(response.toXMLString());
+      return response;
+    }
+    catch (Exception e) {
+      Util.log("Reader " + readerIP + ": Error getting reader configuration.");
+      e.printStackTrace();
+      return null;
+    }
+  }
+  
   // Not in any of the code samples, but essential for the reader to start transmitting
   public void enableEventsAndReports() { 
   	ENABLE_EVENTS_AND_REPORTS cmd = new ENABLE_EVENTS_AND_REPORTS();
@@ -407,7 +426,8 @@ public class LLRPClient implements LLRPEndpoint {
   public void run() {
     Util.log("Initializing reader at " + readerIP + ".");
     connect(readerIP);
-    //getReaderCapabilities();
+    getReaderCapabilities();
+    //getReaderConfig(); // fails with timeout exception
     deleteROSpecs();
     addROSpec();
     enableROSpec();
