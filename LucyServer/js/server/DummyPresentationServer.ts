@@ -40,5 +40,5 @@ function initServer() {
     console.log('Listening to ' + serverPortNr);
     
   });
-
+  setInterval(() => {util.log(new Date() + ' Listening')},50)
 }
