@@ -17,7 +17,7 @@ var useSmoother = true;
 var lucyDataDirectoryPath = process.env['HOME'] + '/lucyData';
 var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
 
-import http     = require("http");
+import http     = require('http');
 import express  = require('express');
 import net      = require('net');
 import child_pr = require('child_process'); // for svn revision
@@ -30,9 +30,9 @@ import _        = require('underscore');
 import path     = require('path');
 import trilateration = require('./Trilateration');
 import Config   = require('./Config');
+import ServerCommon   = require('./ServerCommon');
 
 var shared = <typeof Shared>require('../shared/Shared.js');
-var common = <typeof Shared>require('./ServerCommon.js');
 
 var app = express();
 
@@ -169,7 +169,7 @@ function initExpress() {
 
 function setAntennaLayout(nr : number) {
   selectedAntennaLayout = util.clip(0, allAntennaLayouts.length-1, nr);
-  allAntennas = mkReaderAntennas(allAntennaLayouts[selectedAntennaLayout].readerAntennaSpecs);
+  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[selectedAntennaLayout].readerAntennaSpecs);
 }
 
 function getAntennaInfo(nr : number) : Shared.AntennaInfo {
@@ -197,31 +197,21 @@ function mkAntennaId(readerIp : string, antennaPort : number){ // antennaPort st
   return 'r'+readerIp+'-a'+antennaPort;
 }
 
-function mkReaderAntennas(readerAntennaSpecs : Shared.ReaderAntennaSpec[]) : Shared.Antenna[] {
-  var antenass = _.map(readerAntennaSpecs, (readerAntennaSpec) => {return mkAntennas(readerAntennaSpec.readerIp, readerAntennaSpec.antennaSpecs);});
-  return _.flatten(antenass);
-}
-
-function mkAntennas(readerIp : string, antennaLocations : Shared.AntennaSpec[] ) : Shared.Antenna[] {
-  return antennaLocations.map((antLoc, ix) => {
-    return {antennaId:{readerIp: readerIp, antennaNr: ix+1}, name: antLoc.name, coord: antLoc.coord, antennaNr: ix+1, }
-  });
-}
-
-
 // return the index in allAntennas for the antenna with id ant 
-function getAntennaNr(antid : string) {
-  var ix = _(allAntennas).pluck('antId').indexOf(antid);
-  if (ix == -1) 
-    console.error('Antenna with id %s not found in allAntennas', antid)
-  return ix;
+function getAntennaNr(antennaId : Shared.AntennaId) {
+  for (var i = 0; i < allAntennas.length; i++) {
+    if (allAntennas[i].antennaId.readerIp == antennaId.readerIp && allAntennas[i].antennaId.antennaNr == antennaId.antennaNr)
+      return i;
+  }
+  return -1;
 }
+
 
 /// Simulator-specific code
 
 var clientSocket : net.Socket;
 var eventInterval : NodeTimer;
-var eventEmissionDelay = 1000; // 
+var eventEmissionDelay = 200; // 
 
 function startReaderServer() {
   var server = net.createServer(function(c) { //'connection' listener

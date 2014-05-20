@@ -1,5 +1,6 @@
 module Shared {
-
+  // TODO: find a way to import other libs (e.g. underscore) in a type-safe way. Adding import hides Shared namespace.
+  
   export interface Coord { x: number; y : number}
 
   export interface AntennaLayout { name : string; dimensions: {width : number; height : number}; scale: number
@@ -8,7 +9,9 @@ module Shared {
   
   export interface ReaderAntennaSpec { readerIp : string; antennaSpecs : AntennaSpec[] }
 
-  export interface AntennaSpec { name : string; coord : Coord }
+  export interface ShortMidRangeTarget { isShortRange : boolean; serverIp : string; antennaIndex : number }
+  
+  export interface AntennaSpec { name? : string; coord : Coord; shortMidRangeTarget? : ShortMidRangeTarget }
 
   export interface AntennaId { readerIp : string; antennaNr : number }
   

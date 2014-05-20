@@ -12,13 +12,14 @@
 var defaultServerPortNr = 8080; // port for the Lucy web server
 
 var remoteHostName = "lucy.oblomov.com";
-var readerServerPortNr = 8193;
+var readerServerPortNr       = 8193;
+var presentationServerPortNr = 8199;
 var reconnectInterval = 2000; // time in ms to wait before trying to reconnect to the reader server
 var useSmoother = true;
 var lucyDataDirectoryPath = process.env['HOME'] + '/lucyData';
 var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
 
-import http     = require("http");
+import http     = require('http');
 import express  = require('express');
 import net      = require('net');
 import child_pr = require('child_process'); // for svn revision
@@ -31,15 +32,15 @@ import _        = require('underscore');
 import path     = require('path');
 import trilateration = require('./Trilateration');
 import Config   = require('./Config');
+import ServerCommon   = require('./ServerCommon');
 
 var shared = <typeof Shared>require('../shared/Shared.js');
-var common = <typeof Shared>require('./ServerCommon.js');
 
 var app = express();
 
 var state : Shared.ServerState
 var allAntennaLayouts : Shared.AntennaLayout[];
-var selectedAntennaLayout = 1;
+var selectedAntennaLayout = 0;
 var allAntennas : Shared.Antenna[];
 
 var readerServerSocket : net.Socket;
@@ -77,6 +78,7 @@ function resetServerState() {
   connectReaderServer();
   allAntennaLayouts = Config.getAllAntennaLayouts();
   setAntennaLayout(selectedAntennaLayout);
+  util.log(allAntennas);
 }
 
 function initExpress() {
@@ -151,7 +153,7 @@ function initExpress() {
     util.log('connect');
     connectReaderServer();
     res.setHeader('content-type', 'application/text'); 
-    // otherwise jQuery infers JSON, and produces an error that is sometimes incorrectly located in other libraries
+    // set content-type, otherwise jQuery infers JSON, and produces an error that is sometimes incorrectly located in other libraries
     res.writeHead(204);
     res.end();
   });
@@ -206,7 +208,7 @@ function initExpress() {
 
 function setAntennaLayout(nr : number) {
   selectedAntennaLayout = util.clip(0, allAntennaLayouts.length-1, nr);
-  allAntennas = mkReaderAntennas(allAntennaLayouts[selectedAntennaLayout].readerAntennaSpecs);
+  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[selectedAntennaLayout].readerAntennaSpecs);
 }
 
 function getAntennaInfo(nr : number) : Shared.AntennaInfo {
@@ -351,29 +353,29 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   var antNr = getAntennaNr(antennaId);
   if (antNr == -1) {
     if (!_(state.unknownAntennaIds).find((unknownId) => { 
-         //util.log('hallo', unknownId, antennaId, _.isEqual(unknownId, antennaId));
         return _.isEqual(unknownId, antennaId);})) {
       state.unknownAntennaIds.push(antennaId);
       util.log('adding '+JSON.stringify(antennaId));
     }
-    //else
-      //util.log('not adding '+JSON.stringify(antennaId));
-
-    //state.unknownAntennaIds.push(antennaId);
   } else {
-    var oldAntennaRssi = getAntennaRssiForAntNr(antNr, tag.antennaRssis);
-    
-    var newRssi = !useSmoother ? readerEvent.rssi 
-                               : filtered(readerEvent.epc, readerEvent.ant, readerEvent.rssi, timestamp, oldAntennaRssi);
-    var newAntennaRssi = {antNr: antNr, value: newRssi, timestamp: timestamp};
-    //if (readerEvent.epc == '0000000000000000000000000503968' && readerEvent.ant == 1) {
-    //  util.log(new Date().getSeconds() + ' ' + readerEvent.epc + ' ant '+readerEvent.ant + ' rawRssi: '+readerEvent.rssi.toFixed(1) + ' dist: '+
-    //          trilateration.getRssiDistance(readerEvent.epc, ''+readerEvent.ant, readerEvent.rssi));
-    //}
-    
-    updateAntennaRssi(newAntennaRssi, tag.antennaRssis);
-    //trilateration.getRssiDistance(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI);
-    //util.log(tagsState);
+    if (allAntennas[antNr].shortMidRangeTarget) {
+      var shortMidRangeTarget = allAntennas[antNr].shortMidRangeTarget;
+      signalPresentationServer(shortMidRangeTarget.serverIp, shortMidRangeTarget.antennaIndex, readerEvent.epc);
+    } else {
+      var oldAntennaRssi = getAntennaRssiForAntNr(antNr, tag.antennaRssis);
+      
+      var newRssi = !useSmoother ? readerEvent.rssi 
+                                 : filtered(readerEvent.epc, readerEvent.ant, readerEvent.rssi, timestamp, oldAntennaRssi);
+      var newAntennaRssi = {antNr: antNr, value: newRssi, timestamp: timestamp};
+      //if (readerEvent.epc == '0000000000000000000000000503968' && readerEvent.ant == 1) {
+      //  util.log(new Date().getSeconds() + ' ' + readerEvent.epc + ' ant '+readerEvent.ant + ' rawRssi: '+readerEvent.rssi.toFixed(1) + ' dist: '+
+      //          trilateration.getRssiDistance(readerEvent.epc, ''+readerEvent.ant, readerEvent.rssi));
+      //}
+      
+      updateAntennaRssi(newAntennaRssi, tag.antennaRssis);
+      //trilateration.getRssiDistance(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI);
+      //util.log(tagsState);
+    }
   }
 }
 
@@ -454,15 +456,28 @@ function trilaterateAllTags() {
   });
 }
 
-function mkReaderAntennas(readerAntennaSpecs : Shared.ReaderAntennaSpec[]) : Shared.Antenna[] {
-  var antenass = _.map(readerAntennaSpecs, (readerAntennaSpec) => {return mkAntennas(readerAntennaSpec.readerIp, readerAntennaSpec.antennaSpecs);});
-  return _.flatten(antenass);
-}
-
-function mkAntennas(readerIp : string, antennaLocations : Shared.AntennaSpec[] ) : Shared.Antenna[] {
-  return antennaLocations.map((antLoc, ix) => {
-    return {antennaId: {readerIp: readerIp, antennaNr: ix+1}, name: antLoc.name, coord: antLoc.coord, antennaNr: ix+1}
+function signalPresentationServer(serverIp : string, antennaIndex : number, epc : string) {
+  //util.log(new Date() + ' Signaling presentation server %s on antenna %d for tag %s', serverIp, antennaIndex, epc);
+  var presentationServerSocket = new net.Socket();
+  
+  presentationServerSocket.on('data', function(buffer : NodeBuffer) {
+    var response = buffer.toString('utf8');
+    util.log('Presentation server on '+serverIp+': ' +  (response == 'ok\n' ? 'Presentation server was signaled on antenna '+antennaIndex : 'Error from presentation server: ' + response));
+    presentationServerSocket.end();
   });
+  presentationServerSocket.on('connect', function() {
+    presentationServerSocket.write('epc=' + epc + '&antennaIndex=' + antennaIndex);
+  });
+  presentationServerSocket.on('error', function(err : any) { // TODO: not typed
+    util.log('Connection to presentation server at ' + serverIp + ' failed (error code: ' + err.code + ')');
+    if (presentationServerSocket) 
+      presentationServerSocket.destroy();
+  });
+  presentationServerSocket.on('close', function() {
+    //util.log('Connection closed');
+  });
+
+  presentationServerSocket.connect(presentationServerPortNr, serverIp);
 }
 
 // return the index in allAntennas for the antenna with id ant 

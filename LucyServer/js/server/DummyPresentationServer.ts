@@ -29,8 +29,9 @@ function initServer() {
         if (vars.epc && vars.antennaIndex)
           util.log(new Date() + ' Saw tag ' + vars.epc + ' on antenna ' + vars.antennaIndex);
       }); 
+      clientSocket.write('ok\n');
       clientSocket.on('end', function() {
-        //console.log('Client disconnected');
+        console.log('Client disconnected');
         clientSocket = null;
       });
       
