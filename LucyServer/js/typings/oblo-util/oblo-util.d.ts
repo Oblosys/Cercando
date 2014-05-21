@@ -11,7 +11,8 @@ interface ObloUtilStatic {
   square(x : number) : number;
   replicate<X>(n : number, x : X) : X[];
   padZero(l : number, n : number) : string;
-  showJSON(json : string, indent : number, depth : number) : string;
+  addslashes(str : string) : string;
+  showJSON(json : any, depth? : number, indent? : string) : string;
   showTime(date : Date) : string;
   showDate(date : Date) : string;
   readDate(dateStr : string) : Date;
