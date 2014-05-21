@@ -17,7 +17,7 @@ module Shared {
   
   export interface Antenna extends AntennaSpec { antennaId : AntennaId }
   
-  export interface AntennaRSSI {antNr : number; value : number; timestamp : Date; age? : number; distance? : number}
+  export interface AntennaRSSI {antNr : number; value : number; timestamp : Date; age? : number; /* milliseconds */ distance? : number}
    
   export interface LayoutInfo { selectedLayout : number; names : string[] }
   
