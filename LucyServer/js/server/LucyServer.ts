@@ -265,6 +265,11 @@ function destroySocketAndRetryConnection() {
   }, reconnectInterval);
 }
 
+// Helper function to show \0 and \ufffd characters.
+function showInvisibles(str : string) {
+  return str.replace('\0','\\0').replace('\ufffd','\\ufffd');
+}
+
 function readerServerConnected(readerServerSocket : net.Socket) {
   state.status.isConnected = true;
   util.log('Connected to reader server at: ' + readerServerHostName + ':' + readerServerPortNr);
@@ -273,12 +278,22 @@ function readerServerConnected(readerServerSocket : net.Socket) {
   var lineBuffer = '';
   readerServerSocket.on('data', function(buffer : NodeBuffer) {
     var chunk : string = buffer.toString('utf8');
-    //util.log('CHUNK:\n'+data);
-    var lines = chunk.split('\0\ufffd'); // \0\fffd precedes every string received from the socket 
+    //util.log('CHUNK:\n'+showInvisibles(chunk));
+  
+    // Lines from the socket are separated by '\0\ufffd'. Because sometimes the chuncks are split in the middle of \0\ufffd:
+    // e.g.: Chunk i : '.....\0', Chunk i+1 : '\ufffd.......', we remove a possible trailing '\0' and replace a possible initial
+    // '\ufffd' with '\0\ufffd'.
+    chunk = chunk.replace(/\0$/,'').replace(/^\ufffd/, '\0\ufffd');    
+  
+    // After this, we can split on '\0\ufffd'
+    var lines = chunk.split('\0\ufffd'); 
+    // lines.length will be at least 1
     
-    // util.log('LINES:'+lines);
-    var firstLines = _.initial(lines); // lines.length will be at least 1
     var lastLine = _.last(lines);
+    //util.log('Line buffer '+showInvisibles(lineBuffer)) 
+    //_(lines).each((l,i)=>{util.log('Line '+i+':'+showInvisibles(l))});
+    var firstLines = _.initial(lines);
+    
     for (var i=0; i<firstLines.length; i++) {
       var line = firstLines[i];
       if (i==0) {
@@ -289,7 +304,7 @@ function readerServerConnected(readerServerSocket : net.Socket) {
         try {
           var readerEvent : ServerCommon.ReaderEvent = JSON.parse(line);
         } catch (e) {
-          console.error('JSON parse error in line:\n"'+line+'"', e); 
+          console.error('JSON parse error in line:\n"'+showInvisibles(line)+'"', e);
         }
         if (readerEvent)
           processReaderEvent(readerEvent);
