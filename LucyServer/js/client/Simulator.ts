@@ -4,6 +4,7 @@
 /// <reference path="../typings/underscore/underscore.d.ts" />
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 /// <reference path="../shared/Shared.ts" />
+/// <reference path="./ClientCommon.ts" />
 
 export interface Dummy {}; // Dummy export causes Eclipse-TypeScript to not put this file's declarations in the global namespace (code generation is not affected)
 
@@ -246,10 +247,10 @@ function createVisitor() {
 }
 
 function updateLabels() {
-  $('#client-time-label').text(showTime(new Date()));
-  $('#server-time-label').text(showTime(new Date(serverState.status.webServerTime)));
+  $('#client-time-label').text(ClientCommon.showTime(new Date()));
+  $('#server-time-label').text(ClientCommon.showTime(new Date(serverState.status.webServerTime)));
   if (serverState.status.readerServerTime)
-    $('#reader-time-label').text(showTime(new Date(serverState.status.readerServerTime)));
+    $('#reader-time-label').text(ClientCommon.showTime(new Date(serverState.status.readerServerTime)));
   $('#reader-time-label').css('color', serverState.status.isConnected ? 'white' : 'grey');
 
   $('#connection-label').text(serverState.status.isConnected ? 'Connected' : 'Not connected');
@@ -446,9 +447,4 @@ function fromScreenX(x : number) {
 
 function fromScreenY(y : number) {
   return (y - origin.y)/scale;
-}
-
-
-function showTime(date : Date) {
-  return util.padZero(2, date.getHours()) + ":" + util.padZero(2, date.getMinutes()) + ":" + util.padZero(2, date.getSeconds()) 
 }
