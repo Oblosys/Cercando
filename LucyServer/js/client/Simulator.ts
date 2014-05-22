@@ -387,7 +387,17 @@ function handleStartRefreshButton() {
 function handleStopRefreshButton() {
   stopRefreshInterval();
 }
-  
+
+function handleResetButton() {
+  stopRefreshInterval();
+  $.get('/query/reset', function() {
+    resetClientState();
+    serverState = Shared.initialServerState();
+    util.log('Server and client were reset.');
+    startRefreshInterval();
+  });
+}
+
 function handleToggleTagLocationsButton() {
   if ($('#tag-info-plane').css('display')=='none') {
     $('#toggle-locations-button').attr('value','Show tag locations');
