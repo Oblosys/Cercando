@@ -44,13 +44,15 @@ module ClientCommon {
   
   export function drawAntenna(planeSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
     var pos = ClientCommon.toScreen(antenna.coord);
-    planeSVG.append('circle').attr('class', 'a-'+antennaNr)
+    var antennaSVG = planeSVG.append('svg').attr('id', 'a-'+antennaNr).attr('class', 'antenna-marker'); 
+    // don't use a group, a nested svg is easier and we don't need transformations on antennas
+    antennaSVG.append('circle')
       .style('stroke', 'white')
       .style('fill', 'blue')
       .attr('r', 8)
       .attr('cx', pos.x)
       .attr('cy', pos.y);
-    var text = planeSVG.append('text').attr('class', 'l-'+antennaNr).text(antenna.name)
+    var text = antennaSVG.append('text').attr('class', 'l-'+antennaNr).text(antenna.name)
       .attr('font-family', 'verdana')
       .attr('font-size', '10px')
       .attr('fill', 'white');
