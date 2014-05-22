@@ -57,14 +57,14 @@ function resetClientState() {
     .attr('width', floorWidth)
     .attr('height', floorHeight);
   
-var backgroundPlane = floorSVG.append('g').attr('id', 'background-plane');
+  var backgroundPlane = floorSVG.append('g').attr('id', 'background-plane');
 
-backgroundPlane.append('rect').attr('id', 'floor-background-rect')
-  .attr('width', floorWidth)
-  .attr('height', floorHeight);
-backgroundPlane.append('image').attr('id', 'floor-background-image')
-  .attr('width', floorWidth)
-  .attr('height', floorHeight);
+  backgroundPlane.append('rect').attr('id', 'floor-background-rect')
+    .attr('width', floorWidth)
+    .attr('height', floorHeight);
+  backgroundPlane.append('image').attr('id', 'floor-background-image')
+    .attr('width', floorWidth)
+    .attr('height', floorHeight);
   
   floorSVG.append('g').attr('id', 'annotation-plane');
   floorSVG.append('g').attr('id', 'antenna-plane');
@@ -112,7 +112,7 @@ function drawAntennas() {
 }
 
 function drawAntenna(planeSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
-  var pos = toScreen(antenna.coord);
+  var pos = ClientCommon.toScreen(antenna.coord);
   planeSVG.append('circle').attr('class', 'a-'+antennaNr)
     .style('stroke', 'white')
     .style('fill', 'blue')
@@ -146,7 +146,7 @@ function drawTagSetup() {
   var tagInfoPlaneSVG = d3.select('#tag-info-plane');
   _(allTagInfo).each((tag, tagNr)=>{
     if (tag.coord) {
-      var tagCoord = toScreen(tag.coord);
+      var tagCoord = ClientCommon.toScreen(tag.coord);
       drawSquare(tagInfoPlaneSVG, tagCoord.x, tagCoord.y, 10, tag.color);
     }
   });
@@ -173,8 +173,8 @@ function createMarker(markerNr : number) {
     .style('stroke', 'white')
     .style('fill', 'yellow')
     .attr('r', 6)
-    .attr('cx', toScreenX(0))
-    .attr('cy', toScreenY(0))
+    .attr('cx', ClientCommon.toScreenX(0))
+    .attr('cy', ClientCommon.toScreenY(0))
     .style('display', 'none');
 }
 
@@ -210,8 +210,8 @@ function updateTrails() {
     
     if (tagTrail) {
       var lineFunction = d3.svg.line()
-        .x(function(d) { return toScreenX(d.x); })
-        .y(function(d) { return toScreenY(d.y); })
+        .x(function(d) { return ClientCommon.toScreenX(d.x); })
+        .y(function(d) { return ClientCommon.toScreenY(d.y); })
         .interpolate('linear');
     
       d3.select('#trail-'+tagNr)
@@ -229,8 +229,8 @@ function createVisitor() {
     .style('stroke', 'red')
     .style('fill', 'black')
     .attr('r', 8)
-    .attr('cx', toScreenX(0))
-    .attr('cy', toScreenY(0));
+    .attr('cx', ClientCommon.toScreenX(0))
+    .attr('cy', ClientCommon.toScreenY(0));
 
   var drag = d3.behavior.drag()
     .on("drag", function(d,i) {
@@ -238,8 +238,8 @@ function createVisitor() {
        
       $(this).attr('cx', d3.event.x)
              .attr('cy', d3.event.y);
-      var x = fromScreenX(d3.event.x);
-      var y = fromScreenY(d3.event.y);
+      var x = ClientCommon.fromScreenX(d3.event.x);
+      var y = ClientCommon.fromScreenY(d3.event.y);
       
       $.get('/query/move-tag/'+x+'/'+y, function() {}); // simply send all drag events to server (only meant for local connection)
     });
@@ -293,7 +293,7 @@ function updateTags() {
       if (range.empty() && tagNr <=11) { // use <= to filter tags
         util.log('Creating range for antenna '+antNr + ': '+rangeClass);
         
-        var pos = toScreen(allAntennas[antNr].coord);
+        var pos = ClientCommon.toScreen(allAntennas[antNr].coord);
         range = rssiPlaneSVG.append('circle').attr('class', rangeClass)
                   .style('stroke', color)
                   .style('fill', 'transparent')
@@ -310,7 +310,7 @@ function updateTags() {
     
     if (tagData.coordinate && tagData.coordinate.coord) {
       recordTrail(tagData.epc, tagData.coordinate.coord);  // TODO: no coordinate case?
-      var pos = toScreen(tagData.coordinate.coord);
+      var pos = ClientCommon.toScreen(tagData.coordinate.coord);
       markerD3.style('display', 'block');
       markerD3.style('fill', color) // TODO: dynamically create markers
             .style('stroke', tagData.coordinate.isRecent ? 'white' : 'red');
@@ -426,25 +426,4 @@ function getTagInfo(epc : string) {
   } else {
     return allTagInfo[ix];
   }
-}
-
-// convert coordinate in meters to pixels
-function toScreen(coord : {x : number; y : number }) {
-  return {x: toScreenX(coord.x), y: toScreenY(coord.y)};
-}
-
-function toScreenX(x : number) {
-  return x*scale + origin.x;
-}
-
-function toScreenY(y : number) {
-  return y*scale + origin.y
-}
-
-function fromScreenX(x : number) {
-  return (x - origin.x)/scale;
-}
-
-function fromScreenY(y : number) {
-  return (y - origin.y)/scale;
 }
