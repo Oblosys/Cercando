@@ -200,6 +200,10 @@ function handleToggleTagLocationsButton() {
   }
 }
 
+function handleShowAntennaSpecButton() {
+  window.location.href = 'query/reader-antenna-spec';
+}
+
 function handleSelectLayout(selectElt : HTMLSelectElement) {
   selectLayout(selectElt.selectedIndex);
 }
