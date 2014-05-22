@@ -43,7 +43,6 @@ var readerServerSocket : net.Socket;
 
 var state : Shared.ServerState
 var allAntennaLayouts : Shared.AntennaLayout[];
-var selectedAntennaLayout = 2;
 var allAntennas : Shared.Antenna[];
 
 
@@ -70,7 +69,7 @@ function initServer() {
 function resetServerState() {
   state = shared.initialServerState();
   allAntennaLayouts = Config.getAllAntennaLayouts();
-  setAntennaLayout(selectedAntennaLayout);
+  setAntennaLayout(state.selectedAntennaLayout);
 }
 
 function initExpress() {
@@ -111,7 +110,7 @@ function initExpress() {
     util.log('Sending tag info to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
     
-    res.send(JSON.stringify(allAntennaLayouts[selectedAntennaLayout].tagConfiguration));
+    res.send(JSON.stringify(allAntennaLayouts[state.selectedAntennaLayout].tagConfiguration));
   });
 
 
@@ -119,7 +118,7 @@ function initExpress() {
     util.log('Sending layout info to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
     var layoutInfo : Shared.LayoutInfo =
-      {selectedLayout: selectedAntennaLayout, names: _(allAntennaLayouts).pluck('name')}
+      {selectedLayout: state.selectedAntennaLayout, names: _(allAntennaLayouts).pluck('name')}
     res.send(JSON.stringify(layoutInfo));
   });
     
@@ -168,8 +167,8 @@ function initExpress() {
 }
 
 function setAntennaLayout(nr : number) {
-  selectedAntennaLayout = util.clip(0, allAntennaLayouts.length-1, nr);
-  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[selectedAntennaLayout].readerAntennaSpecs);
+  state.selectedAntennaLayout = util.clip(0, allAntennaLayouts.length-1, nr);
+  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayout].readerAntennaSpecs);
 }
 
 function getAntennaInfo(nr : number) : Shared.AntennaInfo {
