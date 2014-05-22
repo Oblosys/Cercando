@@ -127,9 +127,9 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
     { name: 'Rotterdam'
     //, dimensions: {width: 14, height: 14 * 1686/3183}
     , dimensions: {width: 14, height: 14 * 734/1365}
-    , scale: 100
-    //, backgroundImage: 'floorPlans/Rotterdam floor plan - grid.png' // width="3183" height="1686"
-    , backgroundImage: 'floorPlans/Antenne layout 3 - RFID Blueprint versie 3.jpg' // width="1365" height="734"
+    , scale: 50
+    , backgroundImage: 'floorPlans/Rotterdam floor plan - grid.png' // width="3183" height="1686"
+    //, backgroundImage: 'floorPlans/Antenne layout 3 - RFID Blueprint versie 3.jpg' // width="1365" height="734"
     , readerAntennaSpecs: // copied from Antenne layout 3 - RFID Blueprint versie 3.jpg
         [ { readerIp: '10.0.0.30'
           , antennaSpecs:
