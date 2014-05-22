@@ -1,6 +1,10 @@
 module Shared {
   // TODO: find a way to import other libs (e.g. underscore) in a type-safe way. Adding import hides Shared namespace.
+
+  // NOTE: When adding constants or functions, also add them to exports declaration below
   
+  export var maxAntennaRange = 1.5;
+
   export interface Coord { x: number; y : number}
 
   export interface AntennaLayout { name : string; dimensions: {width : number; height : number}; scale: number
@@ -35,10 +39,12 @@ module Shared {
     unknownAntennaIds : AntennaId[]
   }
   
+  // NOTE: When adding constants or functions, also add them to exports declaration below
+  
   export function initialServerState() : Shared.ServerState {
     return {
       status: {isConnected: false, isSaving: false, webServerTime : null, readerServerTime : null},
-      selectedAntennaLayout: 0,
+      selectedAntennaLayout: 2,
       tagsData: [],
       unknownAntennaIds: []
     };
@@ -47,5 +53,6 @@ module Shared {
 
 declare var exports: any;
 if (typeof exports != 'undefined') {
+  exports.maxAntennaRange = Shared.maxAntennaRange;
   exports.initialServerState = Shared.initialServerState;
 }
