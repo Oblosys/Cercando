@@ -132,14 +132,14 @@ function initExpress() {
   app.get('/query/reset', function(req, res) {  
     util.log('reset');
     resetServerState();
-    res.setHeader('content-type', 'application/text');
+    res.setHeader('content-type', 'text/plain');
     res.writeHead(204);
     res.end();
   });
 
   app.get('/query/test', function(req, res) {  
     util.log('test');
-    res.setHeader('content-type', 'application/text');
+    res.setHeader('content-type', 'text/plain');
     res.writeHead(204);
     res.end();
   });
@@ -148,7 +148,7 @@ function initExpress() {
     var newCoord : Shared.Coord = {x: parseFloat(req.params.x), y: parseFloat(req.params.y)};
     tagCoord = newCoord;
     util.log('Moving tag to ' + JSON.stringify(newCoord) );
-    res.setHeader('content-type', 'application/text');
+    res.setHeader('content-type', 'text/plain');
     res.writeHead(204);
     res.end();
   });
@@ -167,7 +167,7 @@ function initExpress() {
     else
       console.error('Move: no readerAntennaSpec found for reader ' + readerIp);
     
-    res.setHeader('content-type', 'application/text');
+    res.setHeader('content-type', 'text/plain');
     res.writeHead(204);
     res.end();
   });

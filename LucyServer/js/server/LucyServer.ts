@@ -154,7 +154,7 @@ function initExpress() {
   app.get('/query/connect', function(req, res) {  
     util.log('connect');
     connectReaderServer();
-    res.setHeader('content-type', 'application/text'); 
+    res.setHeader('content-type', 'text/plain'); 
     // set content-type, otherwise jQuery infers JSON, and produces an error that is sometimes incorrectly located in other libraries
     res.writeHead(204);
     res.end();
@@ -163,7 +163,7 @@ function initExpress() {
   app.get('/query/disconnect', function(req, res) {  
     util.log('disconnect');
     disconnectReader();
-    res.setHeader('content-type', 'application/text');
+    res.setHeader('content-type', 'text/plain');
     res.writeHead(204);
     res.end();
   });
@@ -171,7 +171,7 @@ function initExpress() {
   app.get('/query/reset', function(req, res) {  
     util.log('reset');
     resetServerState();
-    res.setHeader('content-type', 'application/text');
+    res.setHeader('content-type', 'text/plain');
     res.writeHead(204);
     res.end();
   });
@@ -181,7 +181,7 @@ function initExpress() {
     
     var cont = { 
       success: function () {
-        res.setHeader('content-type', 'application/text');
+        res.setHeader('content-type', 'text/plain');
         res.writeHead(204);
         res.end();
       },
@@ -195,14 +195,14 @@ function initExpress() {
   app.get('/query/stop-saving', function(req, res) {
     util.log('Stop-saving request');
     stopSaving();
-    res.setHeader('content-type', 'application/text');
+    res.setHeader('content-type', 'text/plain');
     res.writeHead(204);
     res.end();
   });
 
   app.get('/query/test', function(req, res) {  
     util.log('test');
-    res.setHeader('content-type', 'application/text');
+    res.setHeader('content-type', 'text/plain');
     res.writeHead(204);
     res.end();
   });
