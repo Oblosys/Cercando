@@ -96,17 +96,6 @@ function queryTagInfo() {
   });
 }
 
-// Store coord at the head of the corresponding trail, moving up the rest, and clipping at trailLength.
-function recordTrail(epc : string, coord : Shared.Coord) {
-  var tagNr = getTagNr(epc);
-  var tagTrail = tagTrails[tagNr];
-  if (!tagTrail) { // create new trail if non-existent
-    tagTrail = [];
-    tagTrails[tagNr] = tagTrail;
-  }
-  tagTrails[tagNr] = _.union([coord], tagTrail).slice(0,trailLength);
-}
-
 function createVisitor() {
   d3.select('#trilateration-plane').append('circle').attr('class', 'visitor')
     .style('stroke', 'red')
@@ -140,74 +129,6 @@ function updateLabels() {
   $('#connection-label').css('color', serverState.status.isConnected ? 'lime' : 'red');
 }
 
-function updateTags() {
-  updateLabels();
-    
-  var rssiPlaneSVG = d3.select('#rssi-plane');
-  var now = new Date();
-  _.map(serverState.tagsData, (tagData) => {
-    //util.log(tagRssis.epc + '(' + tagNr + ':' + tagColors[tagNr] + ')' + tagRssis.rssis);
-    var tagNr = getTagNr(tagData.epc);
-    var color = getTagInfo(tagData.epc).color;
-    //$('.tag-rssis:eq('+tagNr+') .tag-label').text(tagData.epc);
-    var $tagLabel = $('.tag-rssis:eq('+tagNr+') .tag-label');
-    $tagLabel.css('color', color);
-    $tagLabel.text(tagNr + ' ' +tagData.epc.slice(-7));
-    
-      for (var i=0; i < tagData.antennaRssis.length; i++) {
-      var antRssi = tagData.antennaRssis[i];
-      var antNr = antRssi.antNr;
-      //util.log('epc:'+tagData.epc+'  '+tagNr);
-      var rssi = antRssi.value;
-      var signalAge = antRssi.age;
-      var dist =  antRssi.distance;
-      var isRangeRecent = signalAge<2000; // todo: do this server side
-      // show in table
-      if (rssi) {
-        $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+antNr+')').html('<span class="dist-label">' + dist.toFixed(1) + 'm</span>' +
-                                                                 '<span class="rssi-label">(' + rssi.toFixed(1) + ')</span>');
-        $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+antNr+') .dist-label').css('color', isRangeRecent ? 'white' : 'red');
-        $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+antNr+') .rssi-label').css('color', isRangeRecent ? '#bbb' : 'red');
-      }
-      //util.log(tagNr + '-' + ant +' '+ rssi);
-
-      var rangeClass = 'r-'+(antNr+1)+'-'+tagNr; 
-      var range = d3.select('.'+rangeClass)
-      if (range.empty() && tagNr <=11) { // use <= to filter tags
-        util.log('Creating range for antenna '+antNr + ': '+rangeClass);
-        
-        var pos = ClientCommon.toScreen(allAntennas[antNr].coord);
-        range = rssiPlaneSVG.append('circle').attr('class', rangeClass)
-                  .style('stroke', color)
-                  .style('fill', 'transparent')
-                  .attr('cx', pos.x)
-                  .attr('cy', pos.y);
-      }
-      //util.log('A'+ant+': tag'+tagNr+': '+dist);
-      range.transition()
-           .duration(refreshRate)
-           .style('stroke-dasharray', isRangeRecent ? 'none' : '5,2')
-           .attr('r', dist*scale+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation          
-    }
-    var markerD3 = d3.select('.m-'+tagNr);
-    
-    if (tagData.coordinate && tagData.coordinate.coord) {
-      recordTrail(tagData.epc, tagData.coordinate.coord);  // TODO: no coordinate case?
-      var pos = ClientCommon.toScreen(tagData.coordinate.coord);
-      markerD3.style('display', 'block');
-      markerD3.style('fill', color) // TODO: dynamically create markers
-            .style('stroke', tagData.coordinate.isRecent ? 'white' : 'red');
-      markerD3.transition()
-              .duration(refreshRate)
-              .attr('cx',pos.x)
-              .attr('cy',pos.y);
-    } else {
-      markerD3.style('display', 'none'); 
-    }
-
-  });
-}
-
 function selectLayout(layoutNr : number) {
   util.log('Selecting layout '+layoutNr);
   (<HTMLSelectElement>$('#layout-selector').get(0)).selectedIndex = layoutNr;
@@ -234,33 +155,7 @@ function stopRefreshInterval() {
 }
 
 function refresh() {
-  $.getJSON( 'query/tags', function(newServerState : Shared.ServerState) {
-    var oldSelectedAntennaLayout = serverState.selectedAntennaLayout;
-    serverState = newServerState;
-    if (serverState.selectedAntennaLayout != oldSelectedAntennaLayout)
-      selectLayout(serverState.selectedAntennaLayout);
-    updateTags();
-  }).fail(function(jqXHR : JQueryXHR, status : any, err : any) {
-    resetClientState();
-    console.error( "Error:\n\n" + jqXHR.responseText );
-  });
-}
-
-
-function connectReader() {
-  $.get('/query/connect', function() {
-    util.log('Connected to reader.');
-    startRefreshInterval();
-  });
-}
-
-function disconnectReader() {
-  $.get('/query/disconnect', function() {
-    util.log('Disconnected from reader.');
-    stopRefreshInterval();
-    serverState.status.isConnected = false;
-    updateLabels();  
-  });
+  console.error('refresh() not implemented');
 }
 
 function handleStartRefreshButton() {
