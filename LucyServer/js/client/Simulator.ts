@@ -42,7 +42,6 @@ function resetClientState() {
   $('.tag-rssis .ant-rssi').html('');
   ClientCommon.drawTagSetup();
   ClientCommon.drawAntennas();
-  initTrails();
   ClientCommon.createMarkers();
   createVisitor();
  }
@@ -91,7 +90,6 @@ function queryTagInfo() {
     util.log('Queried tag info:\n'+JSON.stringify(newTagInfo));
     allTagInfo = newTagInfo;
     ClientCommon.drawTagSetup();
-    initTrails();
     ClientCommon.createMarkers();
   }) .fail(function(jqXHR : any, status : any, err : any) {
     console.error( "Error:\n\n" + jqXHR.responseText );
@@ -107,41 +105,6 @@ function recordTrail(epc : string, coord : Shared.Coord) {
     tagTrails[tagNr] = tagTrail;
   }
   tagTrails[tagNr] = _.union([coord], tagTrail).slice(0,trailLength);
-}
-
-function initTrails() {
-  for (var tagNr=0; tagNr<allTagInfo.length; tagNr++) {
-    var visitorTrail = d3.select('#annotation-plane')
-      .append('path')
-      .attr('id', 'trail-'+tagNr)
-      .attr('class', 'tag-trail')
-      .attr('stroke-dasharray','none')
-      //.style('stroke', allTagInfo[tagNr].color)
-      .attr('fill', 'none');
-  }
-}
-
-function updateTrails() {
-  // TODO: handle new tags and disappeared tags
-  _.each(serverState.tagsData, (tagData) => {
-    var tagNr = getTagNr(tagData.epc);
-    var color = getTagInfo(tagData.epc).color;
-    var tagTrail = tagTrails[tagNr];
-    
-    if (tagTrail) {
-      var lineFunction = d3.svg.line()
-        .x(function(d) { return ClientCommon.toScreenX(d.x); })
-        .y(function(d) { return ClientCommon.toScreenY(d.y); })
-        .interpolate('linear');
-    
-      d3.select('#trail-'+tagNr)
-        .attr('d', lineFunction(tagTrail.slice(1)))
-        .attr('stroke-dasharray','none')
-        .style('stroke', color)
-        .style('stroke-opacity', 0.5)
-        .attr('fill', 'none');
-    }
-  });
 }
 
 function createVisitor() {
@@ -243,7 +206,6 @@ function updateTags() {
     }
 
   });
-  updateTrails();
 }
 
 function selectLayout(layoutNr : number) {
