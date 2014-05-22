@@ -40,10 +40,10 @@ function resetClientState() {
   d3.selectAll('#trilateration-plane *').remove();
   $('.tag-rssis .tag-label').text('');
   $('.tag-rssis .ant-rssi').html('');
-  drawTagSetup();
-  drawAntennas();
+  ClientCommon.drawTagSetup();
+  ClientCommon.drawAntennas();
   initTrails();
-  createMarkers();
+  ClientCommon.createMarkers();
   createVisitor();
  }
 
@@ -85,97 +85,17 @@ function initLayoutSelector() {
   });
 }
 
-function resizeFloor(dim : {width : number; height : number}) {
-  floorWidth = scale*dim.width;
-  floorHeight = scale*dim.height;
-  origin = {x: floorWidth/2, y: floorHeight/2};
-
-  d3.select('#floor > svg').attr('width', floorWidth).attr('height', floorHeight);
-  d3.select('#floor-background-rect').attr('width', floorWidth).attr('height', floorHeight);
-  d3.select('#floor-background-image').attr('width', floorWidth).attr('height', floorHeight);  
-}
-
-function setBackgroundImage(backgroundImage : string) {
-  if (backgroundImage) {
-    util.log(backgroundImage);
-    d3.select('#floor-background-image').attr('xlink:href', '/img/'+backgroundImage).attr('visibility', 'visible');
-  } else {
-    d3.select('#floor-background-image').attr('visibility', 'hidden');
-  }
-}
-
-function drawAntennas() {
-  var antennaPlaneSVG = d3.select('#antenna-plane');
-
-  _.each(allAntennas, (ant, i) => drawAntenna(antennaPlaneSVG, ant, i));
-
-}
-
-function drawAntenna(planeSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
-  var pos = ClientCommon.toScreen(antenna.coord);
-  planeSVG.append('circle').attr('class', 'a-'+antennaNr)
-    .style('stroke', 'white')
-    .style('fill', 'blue')
-    .attr('r', 8)
-    .attr('cx', pos.x)
-    .attr('cy', pos.y);
-  var text = planeSVG.append('text').attr('class', 'l-'+antennaNr).text(antenna.name)
-    .attr('font-family', 'verdana')
-    .attr('font-size', '10px')
-    .attr('fill', 'white');
-  var labelSize = $('.l-'+antennaNr)[0].getBoundingClientRect();
-  util.log('label ' +antenna.name + ' ' , labelSize.width);
-  text.attr('x', pos.x-labelSize.width/2 + 1)
-      .attr('y', pos.y+labelSize.height/2 - 3.5)
-}
-
 // TODO: Maybe combine with query antennas so we can easily handle actions that require both to have finished
 function queryTagInfo() {
-  $.getJSON( 'query/tag-info', function( data ) {
-    util.log('Queried tag info:\n'+JSON.stringify(data));
-    allTagInfo = data;
-    drawTagSetup();
+  $.getJSON( 'query/tag-info', function(newTagInfo : Shared.TagInfo[]) {
+    util.log('Queried tag info:\n'+JSON.stringify(newTagInfo));
+    allTagInfo = newTagInfo;
+    ClientCommon.drawTagSetup();
     initTrails();
-    createMarkers();
+    ClientCommon.createMarkers();
   }) .fail(function(jqXHR : any, status : any, err : any) {
     console.error( "Error:\n\n" + jqXHR.responseText );
   });
-}
-
-function drawTagSetup() {
-  var tagInfoPlaneSVG = d3.select('#tag-info-plane');
-  _(allTagInfo).each((tag, tagNr)=>{
-    if (tag.coord) {
-      var tagCoord = ClientCommon.toScreen(tag.coord);
-      drawSquare(tagInfoPlaneSVG, tagCoord.x, tagCoord.y, 10, tag.color);
-    }
-  });
-}
-
-function drawSquare(planeSVG : D3.Selection, x : number, y : number, size : number, color : string) {
-  planeSVG.append('rect')
-    .style('stroke', 'white')
-    .style('fill', color)
-    .attr('x', x-size/2)
-    .attr('y', y-size/2)
-    .attr('width', size)
-    .attr('height', size);
-}
-
-function createMarkers() {
-  _.map(_.range(0, allTagInfo.length), (i : number) => createMarker(i));
-}
-
-function createMarker(markerNr : number) {
-  var trilaterationPlaneSVG = d3.select('#trilateration-plane');
- 
-  trilaterationPlaneSVG.append('circle').attr('class', 'm-'+markerNr)
-    .style('stroke', 'white')
-    .style('fill', 'yellow')
-    .attr('r', 6)
-    .attr('cx', ClientCommon.toScreenX(0))
-    .attr('cy', ClientCommon.toScreenY(0))
-    .style('display', 'none');
 }
 
 // Store coord at the head of the corresponding trail, moving up the rest, and clipping at trailLength.
@@ -332,8 +252,8 @@ function selectLayout(layoutNr : number) {
   $.getJSON( 'query/select-layout/'+layoutNr, function( antennaInfo : Shared.AntennaInfo ) {
     allAntennas = antennaInfo.antennaSpecs;
     scale = antennaInfo.scale;
-    resizeFloor(antennaInfo.dimensions);
-    setBackgroundImage(antennaInfo.backgroundImage);
+    ClientCommon.resizeFloor(antennaInfo.dimensions);
+    ClientCommon.setBackgroundImage(antennaInfo.backgroundImage);
     resetClientState();
   }) .fail(function(jqXHR : any, status : any, err : any) {
     console.error( "Error:\n\n" + jqXHR.responseText );

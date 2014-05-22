@@ -7,8 +7,95 @@
 // Global variables. TODO: put these in some kind of state object
 declare var scale : number;
 declare var origin : Shared.Coord;
+declare var floorWidth : number;
+declare var floorHeight : number;
+declare var allAntennas : Shared.Antenna[];
+declare var allTagInfo : Shared.TagInfo[];
 
 module ClientCommon {
+
+  // d3 common code
+  
+  export function resizeFloor(dim : {width : number; height : number}) {
+    floorWidth = scale*dim.width;
+    floorHeight = scale*dim.height;
+    origin = {x: floorWidth/2, y: floorHeight/2};
+  
+    d3.select('#floor > svg').attr('width', floorWidth).attr('height', floorHeight);
+    d3.select('#floor-background-rect').attr('width', floorWidth).attr('height', floorHeight);
+    d3.select('#floor-background-image').attr('width', floorWidth).attr('height', floorHeight);  
+  }
+  
+  export function setBackgroundImage(backgroundImage : string) {
+    if (backgroundImage) {
+      util.log(backgroundImage);
+      d3.select('#floor-background-image').attr('xlink:href', '/img/'+backgroundImage).attr('visibility', 'visible');
+    } else {
+      d3.select('#floor-background-image').attr('visibility', 'hidden');
+    }
+  }
+  
+  export function drawAntennas() {
+    var antennaPlaneSVG = d3.select('#antenna-plane');
+  
+    _.each(allAntennas, (ant, i) => drawAntenna(antennaPlaneSVG, ant, i));
+  
+  }
+  
+  export function drawAntenna(planeSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
+    var pos = ClientCommon.toScreen(antenna.coord);
+    planeSVG.append('circle').attr('class', 'a-'+antennaNr)
+      .style('stroke', 'white')
+      .style('fill', 'blue')
+      .attr('r', 8)
+      .attr('cx', pos.x)
+      .attr('cy', pos.y);
+    var text = planeSVG.append('text').attr('class', 'l-'+antennaNr).text(antenna.name)
+      .attr('font-family', 'verdana')
+      .attr('font-size', '10px')
+      .attr('fill', 'white');
+    var labelSize = $('.l-'+antennaNr)[0].getBoundingClientRect();
+    //util.log('label ' +antenna.name + ' ' , labelSize.width);
+    text.attr('x', pos.x-labelSize.width/2 + 1)
+        .attr('y', pos.y+labelSize.height/2 - 3.5)
+  }
+
+  export function drawTagSetup() {
+    var tagInfoPlaneSVG = d3.select('#tag-info-plane');
+    _(allTagInfo).each((tag, tagNr)=>{
+      if (tag.coord) {
+        var tagCoord = ClientCommon.toScreen(tag.coord);
+        drawSquare(tagInfoPlaneSVG, tagCoord.x, tagCoord.y, 10, tag.color);
+      }
+    });
+  }
+  
+  export function drawSquare(planeSVG : D3.Selection, x : number, y : number, size : number, color : string) {
+    planeSVG.append('rect')
+      .style('stroke', 'white')
+      .style('fill', color)
+      .attr('x', x-size/2)
+      .attr('y', y-size/2)
+      .attr('width', size)
+      .attr('height', size);
+  }
+  
+  export function createMarkers() {
+    _.map(_.range(0, allTagInfo.length), (i : number) => createMarker(i));
+  }
+  
+  export function createMarker(markerNr : number) {
+    var trilaterationPlaneSVG = d3.select('#trilateration-plane');
+   
+    trilaterationPlaneSVG.append('circle').attr('class', 'm-'+markerNr)
+      .style('stroke', 'white')
+      .style('fill', 'yellow')
+      .attr('r', 6)
+      .attr('cx', ClientCommon.toScreenX(0))
+      .attr('cy', ClientCommon.toScreenY(0))
+      .style('display', 'none');
+  }
+
   
   // utility functions
   
