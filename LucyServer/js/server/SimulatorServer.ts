@@ -288,9 +288,9 @@ function createReaderEvent(readerIp : string, epc : string, ant : number, rssi :
 function pointToRssi(antennaIx : number, p : Shared.Coord) : number {
   var antennaCoord = allAntennas[antennaIx].coord;
   var dist = trilateration.distance(antennaCoord.x, antennaCoord.y, p.x, p.y);
-  util.log('ant '+JSON.stringify(antennaCoord)+' :'+dist.toFixed(2)+ ' '+p.x.toFixed(1)+' '+p.y.toFixed(1));
-  if (dist > 2)
-    return null;
+  //util.log('ant '+JSON.stringify(antennaCoord)+' :'+dist.toFixed(2)+ ' '+p.x.toFixed(1)+' '+p.y.toFixed(1));
+  //if (dist > 2)
+  //  return null;
   
   return trilateration.getRssiForDistance3d(dist);
 }
