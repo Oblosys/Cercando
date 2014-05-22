@@ -177,7 +177,8 @@ function initExpress() {
     res.setHeader('content-type', 'text/plain; charset=utf-8');
     
     var indent = '        ';
-    var spec = indent + util.showJSON(allAntennaLayouts[state.selectedAntennaLayout].readerAntennaSpecs, 20, indent) + '\n';
+    var spec = '    , readerAntennaSpecs:\n' +
+               indent + util.showJSON(allAntennaLayouts[state.selectedAntennaLayout].readerAntennaSpecs, 20, indent) + '\n';
     
     res.send(spec);
   });
