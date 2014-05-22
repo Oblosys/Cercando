@@ -35,7 +35,7 @@ import trilateration = require('./Trilateration');
 import Config   = require('./Config');
 import ServerCommon   = require('./ServerCommon');
 
-var shared = <typeof Shared>require('../shared/Shared.js');
+var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 
 var app = express();
 
