@@ -13,8 +13,8 @@ $(document).ready(function(){
 });
   
 var debug = true;
-var floorHeight = 500;
-var floorWidth = 700;
+var floorHeight = 0;
+var floorWidth = 0;
 
 var origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
 var scale = 80; // pixels per meter
@@ -42,6 +42,7 @@ function resetClientState() {
   $('.tag-rssis .ant-rssi').html('');
   ClientCommon.drawTagSetup();
   ClientCommon.drawAntennas();
+  setAntennasDragHandler();
   ClientCommon.createMarkers();
   createVisitor();
  }
@@ -96,6 +97,22 @@ function queryTagInfo() {
   });
 }
 
+function setAntennasDragHandler() {
+  var drag = d3.behavior.drag()
+    .on("drag", function(d,i) {
+      $(this).attr('transform', 'translate('+d3.event.x+','+d3.event.y+')');
+      var x = ClientCommon.fromScreenX(d3.event.x);
+      var y = ClientCommon.fromScreenY(d3.event.y);
+      var splitId = $(this).attr('id').split('-');
+      var antennaNr : number = 0; 
+      if (splitId.length > 0)
+        antennaNr = parseInt(splitId[1]);
+      else
+        util.log('Incorrect antenna id: \'' + $(this).attr('id') + '\'');
+      $.get('/query/move-antenna/'+antennaNr+'/'+x+'/'+y, function() {}); // simply send all drag events to server (only meant for local connection)
+    });
+  d3.selectAll('.antenna-marker').call(drag);
+}
 function createVisitor() {
   d3.select('#trilateration-plane').append('circle').attr('class', 'visitor')
     .style('stroke', 'red')
@@ -106,13 +123,10 @@ function createVisitor() {
 
   var drag = d3.behavior.drag()
     .on("drag", function(d,i) {
-       util.log('dragging '+$(this).attr('class')+d3.event.x);
-       
       $(this).attr('cx', d3.event.x)
              .attr('cy', d3.event.y);
       var x = ClientCommon.fromScreenX(d3.event.x);
       var y = ClientCommon.fromScreenY(d3.event.y);
-      
       $.get('/query/move-tag/'+x+'/'+y, function() {}); // simply send all drag events to server (only meant for local connection)
     });
   d3.selectAll('.visitor').call(drag);
@@ -188,19 +202,4 @@ function handleToggleTagLocationsButton() {
 
 function handleSelectLayout(selectElt : HTMLSelectElement) {
   selectLayout(selectElt.selectedIndex);
-}
-
-// return the index in tagsData for the tag with this epc 
-function getTagNr(epc : string) {
-  return _(serverState.tagsData).pluck('epc').indexOf(epc);
-}
-
-function getTagInfo(epc : string) {
-  var ix = _(allTagInfo).pluck('epc').indexOf(epc);
-  if (ix == -1) {
-    console.error('Tag with epc %s not found in allTagInfo',epc)
-    return {epc:epc, color:'white', coord:null}
-  } else {
-    return allTagInfo[ix];
-  }
 }

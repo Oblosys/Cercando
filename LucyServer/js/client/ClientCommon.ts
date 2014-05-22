@@ -44,22 +44,22 @@ module ClientCommon {
   
   export function drawAntenna(planeSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
     var pos = ClientCommon.toScreen(antenna.coord);
-    var antennaSVG = planeSVG.append('svg').attr('id', 'a-'+antennaNr).attr('class', 'antenna-marker'); 
-    // don't use a group, a nested svg is easier and we don't need transformations on antennas
+    var antennaSVG = planeSVG.append('g').attr('id', 'a-'+antennaNr).attr('class', 'antenna-marker')
+                       .attr('transform', 'translate('+pos.x+','+pos.y+')');
+    // 'g' element with translate is annoying, but nested svg creates clipping problems
+    
     antennaSVG.append('circle')
       .style('stroke', 'white')
       .style('fill', 'blue')
       .attr('r', 8)
-      .attr('cx', pos.x)
-      .attr('cy', pos.y);
     var text = antennaSVG.append('text').attr('class', 'l-'+antennaNr).text(antenna.name)
       .attr('font-family', 'verdana')
       .attr('font-size', '10px')
       .attr('fill', 'white');
     var labelSize = $('.l-'+antennaNr)[0].getBoundingClientRect();
     //util.log('label ' +antenna.name + ' ' , labelSize.width);
-    text.attr('x', pos.x-labelSize.width/2 + 1)
-        .attr('y', pos.y+labelSize.height/2 - 3.5)
+    text.attr('x', -labelSize.width/2 + 1)
+        .attr('y', labelSize.height/2 - 3.5)
   }
 
   export function drawTagSetup() {

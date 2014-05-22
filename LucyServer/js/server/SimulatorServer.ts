@@ -113,7 +113,6 @@ function initExpress() {
     res.send(JSON.stringify(allAntennaLayouts[state.selectedAntennaLayout].tagConfiguration));
   });
 
-
   app.get('/query/layout-info', function(req, res) {  
     util.log('Sending layout info to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
@@ -130,40 +129,48 @@ function initExpress() {
     res.send(JSON.stringify( getAntennaInfo(req.params.nr) ));
   });
   
-  app.get('/query/connect', function(req, res) {  
-    util.log('connect');
-    res.writeHead(204);
-    res.end();
-  });
-
-  app.get('/query/disconnect', function(req, res) {  
-    util.log('disconnect');
-    res.writeHead(204);
-    res.end();
-  });
-
   app.get('/query/reset', function(req, res) {  
     util.log('reset');
     resetServerState();
+    res.setHeader('content-type', 'application/text');
     res.writeHead(204);
     res.end();
   });
 
   app.get('/query/test', function(req, res) {  
     util.log('test');
+    res.setHeader('content-type', 'application/text');
     res.writeHead(204);
     res.end();
   });
 
   app.get('/query/move-tag/:x/:y', function(req, res) {  
-    var coord : Shared.Coord = {x: parseFloat(req.params.x), y: parseFloat(req.params.y)};
-    tagCoord = coord;
-    util.log('Moving tag to ' + JSON.stringify(coord) );
+    var newCoord : Shared.Coord = {x: parseFloat(req.params.x), y: parseFloat(req.params.y)};
+    tagCoord = newCoord;
+    util.log('Moving tag to ' + JSON.stringify(newCoord) );
+    res.setHeader('content-type', 'application/text');
     res.writeHead(204);
     res.end();
   });
 
-
+  app.get('/query/move-antenna/:nr/:x/:y', function(req, res) {  
+    var antennaNr = parseInt(req.params.nr);
+    var readerIp = allAntennas[antennaNr].antennaId.readerIp;
+    var readerAntennaNr = allAntennas[antennaNr].antennaId.antennaNr; // 1-based
+    var newCoord : Shared.Coord = {x: parseFloat(req.params.x), y: parseFloat(req.params.y)};
+    util.log('Moving antenna '+allAntennas[antennaNr].antennaId+' to ' + JSON.stringify(newCoord) );
+    allAntennas[antennaNr].coord = newCoord;
+    var readerAntennaSpec = _(allAntennaLayouts[state.selectedAntennaLayout].readerAntennaSpecs).findWhere({readerIp: readerIp});
+    
+    if (readerAntennaSpec)
+      readerAntennaSpec.antennaSpecs[ readerAntennaNr - 1 ].coord = newCoord;
+    else
+      console.error('Move: no readerAntennaSpec found for reader ' + readerIp);
+    
+    res.setHeader('content-type', 'application/text');
+    res.writeHead(204);
+    res.end();
+  });
 }
 
 function setAntennaLayout(nr : number) {

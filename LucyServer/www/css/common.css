@@ -43,12 +43,13 @@ body {
   stroke: #000;
 }
 
-#antenna-plane text {
+.antenna-marker text {
 	-webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
   user-select: none;
+  cursor: default;
 }
 
 #tags-data {
