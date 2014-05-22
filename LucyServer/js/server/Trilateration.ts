@@ -2,7 +2,7 @@
 
 var useIncrementalTrilateration = true;
 
-import underscore        = require('underscore');
+import _        = require('underscore');
 import util     = require('oblo-util');
 
 var Shared = require('../shared/Shared.js');
@@ -100,7 +100,7 @@ function isRecentAntennaRSSI(antennaRssi : Shared.AntennaRSSI) : boolean {
 
 export function incrementalTrilateration(epc : string, antennas : Shared.Antenna[], oldCoord : Shared.Coord, dt : number, antennaRssis : Shared.AntennaRSSI[]): {coord: Shared.Coord; isRecent : boolean} {
   var antennaCoords : {x:number; y:number; dist:number}[] = []; // get positions of antennas that have a signal
-  underscore(antennaRssis).each((antennaRssi) => {
+  _(antennaRssis).each((antennaRssi) => {
     if (antennaRssi.value > -100 && antennaRssi.age < 2000) {
       var antNr = antennaRssi.antNr;
       antennaCoords.push({x: antennas[antNr].coord.x, y: antennas[antNr].coord.y, dist: antennaRssi.distance});
@@ -112,7 +112,7 @@ export function incrementalTrilateration(epc : string, antennas : Shared.Antenna
 
   var walkingSpeed = 0.2;
   
-  var movementVectors : PositionVector[] = underscore(antennaCoords).map((antennaCoord) => {
+  var movementVectors : PositionVector[] = _(antennaCoords).map((antennaCoord) => {
     //return getPositionVector(oldCoord, antennaCoord) // Ernst: simply return vector itself
     
     // multiply vector with |v_a| - (distance(RSSI_a))
@@ -143,14 +143,14 @@ export function incrementalTrilateration(epc : string, antennas : Shared.Antenna
 
 export function trilateration(epc : string, antennas : Shared.Antenna[], antennaRssis : Shared.AntennaRSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
   //util.log('Trilaterate'+JSON.stringify(ranges));
-  var recentAntennaRssis = underscore.filter(antennaRssis, isRecentAntennaRSSI);
-  var outdatedAntennaRssis = underscore.filter(antennaRssis, (rssi:Shared.AntennaRSSI)=> {return !isRecentAntennaRSSI(rssi);});
+  var recentAntennaRssis = _.filter(antennaRssis, isRecentAntennaRSSI);
+  var outdatedAntennaRssis = _.filter(antennaRssis, (rssi:Shared.AntennaRSSI)=> {return !isRecentAntennaRSSI(rssi);});
   var isRecent = recentAntennaRssis.length >= 3;
   
   //util.log(recentRssis.length +' outdated:' +outdatedRssis.length);
   var recentCircles = mkCircles(antennas, recentAntennaRssis);
   var outdatedCircles = mkCircles(antennas, outdatedAntennaRssis);
-  var sortedCircles = underscore.union(recentCircles, outdatedCircles).slice(0,3);
+  var sortedCircles = _.union(recentCircles, outdatedCircles).slice(0,3);
   var result : {coord: Shared.Coord; isRecent : boolean};
   if (sortedCircles.length == 3) {
     //var triangle = [sortedCircles[0],sortedCircles[1],sortedCircles[2]];
@@ -182,7 +182,7 @@ function mkCircles (antennas : Shared.Antenna[], antennaRssis : Shared.AntennaRS
       circles.push({x: antennas[antNr].coord.x, y: antennas[antNr].coord.y, r: antennaRssis[i].distance});
     }
   }
-  var sortedCircles = underscore.sortBy(circles, function(c:Circle) {return c.r;});
+  var sortedCircles = _.sortBy(circles, function(c:Circle) {return c.r;});
     
   return sortedCircles;
 }
@@ -275,7 +275,7 @@ function getPositionVector(origin : Shared.Coord, coord : Shared.Coord) : Positi
 
 function getVectorSum(vectors : PositionVector[]) {
   var sumVectorX = 0, sumVectorY = 0;
-  underscore(vectors).each((vector) => { sumVectorX += vector.x; sumVectorY += vector.y });
+  _(vectors).each((vector) => { sumVectorX += vector.x; sumVectorY += vector.y });
   return {x: sumVectorX, y:sumVectorY};
 }
 
