@@ -32,7 +32,7 @@ import trilateration = require('./Trilateration');
 import Config   = require('./Config');
 import ServerCommon   = require('./ServerCommon');
 
-var shared = <typeof Shared>require('../shared/Shared.js');
+var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 
 var app = express();
 
@@ -258,25 +258,8 @@ function stopRefreshInterval() {
 }
 
 function emitEvents() {
-  var testEvents = 
-    [ '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000503968","rssi":-58,"firstSeen":"2014-05-17T22:55:27.800046+02:00","lastSeen":"2014-05-17T22:55:27.800046+02:00"}'
-    , '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000370845","rssi":-61,"firstSeen":"2014-05-17T22:55:27.800046+02:00","lastSeen":"2014-05-17T22:55:27.800046+02:00"}'
-    , '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000370845","rssi":-61,"firstSeen":"2014-05-17T22:55:27.805046+02:00","lastSeen":"2014-05-17T22:55:27.805046+02:00"}'
-    , '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000503968","rssi":-58,"firstSeen":"2014-05-17T22:55:27.809046+02:00","lastSeen":"2014-05-17T22:55:27.809046+02:00"}'
-    , '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000103921","rssi":-52,"firstSeen":"2014-05-17T22:55:27.814046+02:00","lastSeen":"2014-05-17T22:55:27.814046+02:00"}'
-    , '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000100842","rssi":-59,"firstSeen":"2014-05-17T22:55:27.819046+02:00","lastSeen":"2014-05-17T22:55:27.819046+02:00"}'
-    , '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000370870","rssi":-68,"firstSeen":"2014-05-17T22:55:27.824046+02:00","lastSeen":"2014-05-17T22:55:27.824046+02:00"}'
-    , '{"readerIp":"10.0.0.30","ant":3,"epc":"0000000000000000000000000000795","rssi":-53,"firstSeen":"2014-05-17T22:55:27.828046+02:00","lastSeen":"2014-05-17T22:55:27.828046+02:00"}'
-    , '{"readerIp":"10.0.0.30","ant":4,"epc":"0000000000000000000000000103921","rssi":-60,"firstSeen":"2014-05-17T22:55:27.837046+02:00","lastSeen":"2014-05-17T22:55:27.837046+02:00"}'
-    , '{"readerIp":"10.0.0.30","ant":4,"epc":"0000000000000000000000000000795","rssi":-57,"firstSeen":"2014-05-17T22:55:27.842046+02:00","lastSeen":"2014-05-17T22:55:27.842046+02:00"}'
-    , '{"readerIp":"10.0.0.30","ant":4,"epc":"0000000000000000000000000503968","rssi":-62,"firstSeen":"2014-05-17T22:55:27.847046+02:00","lastSeen":"2014-05-17T22:55:27.847046+02:00"}'
-    , '{"readerIp":"10.0.0.30","ant":4,"epc":"0000000000000000000000000370869","rssi":-59,"firstSeen":"2014-05-17T22:55:27.852046+02:00","lastSeen":"2014-05-17T22:55:27.852046+02:00"}'
-    , '{"readerIp":"10.0.0.30","ant":4,"epc":"0000000000000000000000000370870","rssi":-62,"firstSeen":"2014-05-17T22:55:27.856046+02:00","lastSeen":"2014-05-17T22:55:27.856046+02:00"}'
-    ]
   if (clientSocket) {
-    util.log('Client is connected, emitting event');
-    //var coord : Shared.Coord = {x:0.5, y:0.5};
-    
+    //util.log('Client is connected, emitting event');
     var readerEvents : ServerCommon.ReaderEvent[] = [];
     for (var i=0; i<allAntennas.length; i++) {
       var rssi = pointToRssi(i, tagCoord);
@@ -288,7 +271,6 @@ function emitEvents() {
       }
     }
     sendReaderEvents(readerEvents);
-    //_(testEvents).forEach((e) => {clientSocket.write('\0\ufffd'+e)}); // is added by the Java reader server, so we do it as well
   }
 }
 
@@ -308,8 +290,9 @@ function pointToRssi(antennaIx : number, p : Shared.Coord) : number {
   var antennaCoord = allAntennas[antennaIx].coord;
   var dist = trilateration.distance(antennaCoord.x, antennaCoord.y, p.x, p.y);
   //util.log('ant '+JSON.stringify(antennaCoord)+' :'+dist.toFixed(2)+ ' '+p.x.toFixed(1)+' '+p.y.toFixed(1));
-  //if (dist > 2)
-  //  return null;
   
-  return trilateration.getRssiForDistance3d(dist);
+  if (dist > shared.maxAntennaRange)
+    return null;
+  else
+    return trilateration.getRssiForDistance3d(dist);
 }
