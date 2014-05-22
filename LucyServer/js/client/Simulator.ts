@@ -32,7 +32,6 @@ module Simulator {
   /***** Initialization *****/
   
   function resetClientState() {
-    serverState = Shared.initialServerState();
     tagTrails = [];
     d3.selectAll('#annotation-plane *').remove();
     d3.selectAll('#antenna-plane *').remove();
@@ -82,8 +81,7 @@ module Simulator {
       $.each(layoutInfo.names, function( index, name ) {
         $('#layout-selector').append('<option value="'+name+'">'+name+'</option>');
       });
-      (<HTMLSelectElement>$('#layout-selector').get(0)).selectedIndex = layoutInfo.selectedLayout;
-      selectLayout((<HTMLSelectElement>$('#layout-selector').get(0)).selectedIndex);
+      selectLayout(layoutInfo.selectedLayout);
     });
   }
 
@@ -330,6 +328,7 @@ function setBackgroundImage(backgroundImage : string) {
   
   function selectLayout(layoutNr : number) {
     util.log('Selecting layout '+layoutNr);
+    (<HTMLSelectElement>$('#layout-selector').get(0)).selectedIndex = layoutNr;
     $.getJSON( 'query/select-layout/'+layoutNr, function( antennaInfo : Shared.AntennaInfo ) {
       allAntennas = antennaInfo.antennaSpecs;
       scale = antennaInfo.scale;
@@ -353,8 +352,11 @@ function setBackgroundImage(backgroundImage : string) {
   }
   
   function refresh() {
-    $.getJSON( 'query/tags', function( data ) {
-      serverState = data;
+    $.getJSON( 'query/tags', function(newServerState : Shared.ServerState) {
+      var oldSelectedAntennaLayout = serverState.selectedAntennaLayout;
+      serverState = newServerState;
+      if (serverState.selectedAntennaLayout != oldSelectedAntennaLayout)
+        selectLayout(serverState.selectedAntennaLayout);
       updateTags();
     }).fail(function(jqXHR : JQueryXHR, status : any, err : any) {
       resetClientState();
