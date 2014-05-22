@@ -9,8 +9,9 @@
 /// <reference path="../shared/Shared.ts" />
 /// <reference path="./ServerCommon.ts" />
 
-var defaultServerPortNr = 8080; // port for the Lucy web server
+// configuration constants
 
+var defaultServerPortNr = 8080; // port for the Lucy web server
 var remoteHostName = "lucy.oblomov.com";
 var readerServerPortNr       = 8193;
 var presentationServerPortNr = 8199;
@@ -38,7 +39,10 @@ var shared = <typeof Shared>require('../shared/Shared.js');
 
 var app = express();
 
+// global state variables
+
 var state : Shared.ServerState
+var previousPositioningTimestamp : number; // timestamp in milleseconds for the last time all tag positions were computed
 var allAntennaLayouts : Shared.AntennaLayout[];
 var selectedAntennaLayout = 0;
 var allAntennas : Shared.Antenna[];
@@ -49,7 +53,6 @@ var outputFileStream : fs.WriteStream; // for saving reader events
 var readerServerHostName : string;
 var serverPortNr : number;
 
-var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
 
 
 initServer();
@@ -341,6 +344,8 @@ function stopSaving() {
 }
 
 function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
+  var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+
   var readerTimestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
   // take the time in between firstSeen and lastSeen.
   util.log('Reader event: ' + JSON.stringify(readerEvent));
@@ -429,13 +434,17 @@ function filtered(epc : string, ant : number, rssi : number, timestamp : Date, p
 
 
 
+
 // trilaterate all tags and age and distance for each rssi value
 function trilaterateAllTags() {
-  var now = new Date();
+  var nowTimestamp = new Date().getTime();
+  var dt = previousPositioningTimestamp ? (nowTimestamp - previousPositioningTimestamp) / 1000 :  0
+  previousPositioningTimestamp = nowTimestamp; 
+
   _(state.tagsData).each((tag) => {
     _(tag.antennaRssis).each((antennaRssi) => {
       antennaRssi.distance = trilateration.getRssiDistance(tag.epc, allAntennas[antennaRssi.antNr].name, antennaRssi.value);
-      antennaRssi.age = now.getTime() - antennaRssi.timestamp.getTime(); 
+      antennaRssi.age = nowTimestamp - antennaRssi.timestamp.getTime(); 
 
       
       /*[{"ant":1,"value":-70.3080407663629,"timestamp":"2014-05-14T07:08:07.897Z","distance":4.465716581123385,"age":30}
@@ -467,7 +476,8 @@ function trilaterateAllTags() {
 */      
       return antennaRssi.distance;
     });
-    tag.coordinate = trilateration.trilaterateRssis(tag.epc, allAntennas, tag.antennaRssis);
+    var oldCoord = tag.coordinate ? tag.coordinate.coord : null;
+    tag.coordinate = trilateration.getPosition(tag.epc, allAntennas, oldCoord, dt, tag.antennaRssis);
   });
 }
 

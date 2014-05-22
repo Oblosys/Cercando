@@ -1,11 +1,23 @@
 /// <reference path="../shared/Shared.ts" />
 
-import _        = require('underscore');
+var useIncrementalTrilateration = true;
+
+import underscore        = require('underscore');
 import util     = require('oblo-util');
 
 var Shared = require('../shared/Shared.js');
 
-// epc : string, antNr : number just for logging
+export function getPosition(epc : string, antennas : Shared.Antenna[], oldCoord : Shared.Coord, dt : number, antennaRssis : Shared.AntennaRSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
+  return useIncrementalTrilateration ?
+         incrementalTrilateration(epc, antennas, oldCoord, dt, antennaRssis) : trilateration(epc, antennas, antennaRssis);
+}
+
+
+// Distance functions
+
+
+
+// epc & antNr just for logging
 export function getRssiDistance(epc : string, antName : string, rssi : number) {
   var dist3d = getDistance3d(rssi);
   //var dist2d = convert3dTo2d(dist3d);
@@ -42,25 +54,21 @@ export function getDistance2dStaged(rssi : number) {
   return intervals[intervals.length-1].d;
 }
 
-export function testGetDistance2dStaged() {
+function testGetDistance2dStaged() {
   for (var i=-49; i>-70; i--) {
     util.log('dist2d(' + i + ') = ' + getDistance2dStaged(i) );
   }
 }
 //testGetDistance2dStaged();
 
-var d0 = 1/6000;
+//var d0 = 1;
+//var prd0 = -52;
+//var n = 0.5
+var d0 = 1/6000 * 0.7;
 var prd0 = 32;
 var n = 1
 
 export function getDistance3d(rssi : number) {
-  //var d0 = 1;
-  //var prd0 = -52;
-  //var n = 0.5
-
-  var d0 = 1/6000;
-  var prd0 = 32;
-  var n = 1
   return d0 * Math.exp((prd0-rssi)/(10*n));
 }
 
@@ -72,8 +80,7 @@ export function getRssiForDistance3d(dist : number) {
   // Math.log(dist/d0)*(10*n) = prd0-rssi
   // rssi = prd0 - Math.log(dist/d0)*(10*n);
   return prd0 - Math.log(dist/d0)*(10*n);
-  
-  }
+}
 
 export function convert3dTo2d(dist3d : number) : number {
   var meanVisitorHeight = 1.5;
@@ -87,16 +94,63 @@ function isRecentAntennaRSSI(antennaRssi : Shared.AntennaRSSI) : boolean {
   return antennaRssi.age < 2000; // TODO: duplicated code from Locator.ts
 }
 
-export function trilaterateRssis(epc : string, antennas : Shared.Antenna[], antennaRssis : Shared.AntennaRSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
+
+// Incremental trilateration 
+
+
+export function incrementalTrilateration(epc : string, antennas : Shared.Antenna[], oldCoord : Shared.Coord, dt : number, antennaRssis : Shared.AntennaRSSI[]): {coord: Shared.Coord; isRecent : boolean} {
+  var antennaCoords : {x:number; y:number; dist:number}[] = []; // get positions of antennas that have a signal
+  underscore(antennaRssis).each((antennaRssi) => {
+    if (antennaRssi.value > -100 && antennaRssi.age < 2000) {
+      var antNr = antennaRssi.antNr;
+      antennaCoords.push({x: antennas[antNr].coord.x, y: antennas[antNr].coord.y, dist: antennaRssi.distance});
+    }
+  });
+  //var oldCoord :;
+  if (!oldCoord) // TODO: is this right?
+    oldCoord = {x:0, y:0};
+
+  var walkingSpeed = 0.2;
+  
+  var movementVectors : PositionVector[] = underscore(antennaCoords).map((antennaCoord) => {
+    //return getPositionVector(oldCoord, antennaCoord) // Ernst: simply return vector itself
+    
+    // multiply vector with |v_a| - (distance(RSSI_a))
+    util.log(oldCoord);
+    var positionVector = getPositionVector(oldCoord, antennaCoord);
+    var pvLength = getVectorLength(positionVector);
+    var vLength = pvLength - antennaCoord.dist;
+    var movementVector = pvLength > 0.0000001 ? scaleVector( vLength/pvLength, positionVector) : positionVector;
+    return movementVector;
+  });
+
+
+  var movementVector = getVectorSum(movementVectors);
+  var movementSpeed = getVectorLength(movementVector);
+  if (movementSpeed > walkingSpeed) {
+    scaleVector(walkingSpeed / movementSpeed, movementVector);
+  }
+  
+  var deltaVector = scaleVector (dt, movementVector); 
+  
+  var newCoord = {x: oldCoord.x + deltaVector.x, y: oldCoord.y + deltaVector.y};
+  return {coord: newCoord, isRecent: true};
+}
+
+
+// Normal Trilateration
+
+
+export function trilateration(epc : string, antennas : Shared.Antenna[], antennaRssis : Shared.AntennaRSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
   //util.log('Trilaterate'+JSON.stringify(ranges));
-  var recentAntennaRssis = _.filter(antennaRssis, isRecentAntennaRSSI);
-  var outdatedAntennaRssis = _.filter(antennaRssis, (rssi:Shared.AntennaRSSI)=> {return !isRecentAntennaRSSI(rssi);});
+  var recentAntennaRssis = underscore.filter(antennaRssis, isRecentAntennaRSSI);
+  var outdatedAntennaRssis = underscore.filter(antennaRssis, (rssi:Shared.AntennaRSSI)=> {return !isRecentAntennaRSSI(rssi);});
   var isRecent = recentAntennaRssis.length >= 3;
   
   //util.log(recentRssis.length +' outdated:' +outdatedRssis.length);
   var recentCircles = mkCircles(antennas, recentAntennaRssis);
   var outdatedCircles = mkCircles(antennas, outdatedAntennaRssis);
-  var sortedCircles = _.union(recentCircles, outdatedCircles).slice(0,3);
+  var sortedCircles = underscore.union(recentCircles, outdatedCircles).slice(0,3);
   var result : {coord: Shared.Coord; isRecent : boolean};
   if (sortedCircles.length == 3) {
     //var triangle = [sortedCircles[0],sortedCircles[1],sortedCircles[2]];
@@ -128,7 +182,7 @@ function mkCircles (antennas : Shared.Antenna[], antennaRssis : Shared.AntennaRS
       circles.push({x: antennas[antNr].coord.x, y: antennas[antNr].coord.y, r: antennaRssis[i].distance});
     }
   }
-  var sortedCircles = _.sortBy(circles, function(c:Circle) {return c.r;});
+  var sortedCircles = underscore.sortBy(circles, function(c:Circle) {return c.r;});
     
   return sortedCircles;
 }
@@ -163,9 +217,9 @@ function trilaterate(c1 : Circle, c2 : Circle, c3 : Circle) : Shared.Coord {
   util.log('j=  '+j);
   */
   // d and j are never 0: two antennas won't have the same coordinate (-> d>0) and are not on a straight line (-> j>0)
-  var x = (square(r1)-square(r2)+square(d)) / (2*d);
+  var x = (util.square(r1)-util.square(r2)+util.square(d)) / (2*d);
 
-  var y = (square(r1)-square(r3)+square(i)+square(j)) / (2*j) - i/j*x;
+  var y = (util.square(r1)-util.square(r3)+util.square(i)+util.square(j)) / (2*j) - i/j*x;
   //util.log('(x,y): '+x+','+y);
   
   var p = untransform(c1.x,c1.y,c2.x,c2.y, x, y);
@@ -204,10 +258,32 @@ function untransform(x1 : number, sy1 : number, x2 : number, sy2 : number, x : n
 
   return {x:x, y: -y};
 }
-function square(x : number) : number {
-  return x*x;
-}
+
+// Utility functions
 
 export function distance(x1 : number, y1 : number, x2 : number, y2 : number) : number {
-  return Math.sqrt(square(x1-x2) + square(y1-y2));
+  return Math.sqrt(util.square(x1-x2) + util.square(y1-y2));
 } 
+
+// PositionVector functions
+
+interface PositionVector extends Shared.Coord {} // Vector starts in (0,0)
+
+function getPositionVector(origin : Shared.Coord, coord : Shared.Coord) : PositionVector {
+  return {x: coord.x-origin.x, y: coord.y-origin.y};
+}
+
+function getVectorSum(vectors : PositionVector[]) {
+  var sumVectorX = 0, sumVectorY = 0;
+  underscore(vectors).each((vector) => { sumVectorX += vector.x; sumVectorY += vector.y });
+  return {x: sumVectorX, y:sumVectorY};
+}
+
+function getVectorLength(v : PositionVector) {
+  return distance(0, 0, v.x, v.y);
+}
+
+function scaleVector(scale : number, v : PositionVector) {
+  return {x: scale*v.x, y: scale*v.y};
+}
+
