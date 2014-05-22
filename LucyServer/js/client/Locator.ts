@@ -353,7 +353,7 @@ function getTagInfo(epc : string) {
   var ix = _(allTagInfo).pluck('epc').indexOf(epc);
   if (ix == -1) {
     console.log('Tag with epc %s not found in allTagInfo',epc)
-    return {epc:epc, color:'white', coord:null}
+    return {epc:epc, color:'red', coord:null}
   } else {
     return allTagInfo[ix];
   }
