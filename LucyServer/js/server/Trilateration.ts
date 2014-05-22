@@ -116,7 +116,7 @@ export function incrementalTrilateration(epc : string, antennas : Shared.Antenna
     //return getPositionVector(oldCoord, antennaCoord) // Ernst: simply return vector itself
     
     // multiply vector with |v_a| - (distance(RSSI_a))
-    util.log(oldCoord);
+    //util.log(oldCoord);
     var positionVector = getPositionVector(oldCoord, antennaCoord);
     var pvLength = getVectorLength(positionVector);
     var vLength = pvLength - antennaCoord.dist;
