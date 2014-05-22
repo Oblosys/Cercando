@@ -5,12 +5,11 @@
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 /// <reference path="../shared/Shared.ts" />
 
+export interface Dummy {}; // Dummy export causes Eclipse-TypeScript to not put this file's declarations in the global namespace (code generation is not affected)
 
 $(document).ready(function(){
-  Simulator.initialize();
+  initialize();
 });
-
-module Simulator {
   
   var debug = true;
   var floorHeight = 500;
@@ -47,7 +46,7 @@ module Simulator {
     createVisitor();
    }
   
-   export function initialize() {
+   function initialize() {
     $.ajaxSetup({ cache: false });
     serverState = Shared.initialServerState();
     initLayoutSelector();
@@ -381,15 +380,15 @@ function setBackgroundImage(backgroundImage : string) {
     });
   }
   
-  export function handleStartRefreshButton() {
+  function handleStartRefreshButton() {
     startRefreshInterval();
   }
   
-  export function handleStopRefreshButton() {
+  function handleStopRefreshButton() {
     stopRefreshInterval();
   }
     
-  export function handleToggleTagLocationsButton() {
+  function handleToggleTagLocationsButton() {
     if ($('#tag-info-plane').css('display')=='none') {
       $('#toggle-locations-button').attr('value','Show tag locations');
       $('#tag-info-plane').show();
@@ -399,7 +398,7 @@ function setBackgroundImage(backgroundImage : string) {
     }
   }
   
-  export function handleSelectLayout(selectElt : HTMLSelectElement) {
+  function handleSelectLayout(selectElt : HTMLSelectElement) {
     selectLayout(selectElt.selectedIndex);
   }
 
@@ -443,4 +442,3 @@ function setBackgroundImage(backgroundImage : string) {
   function showTime(date : Date) {
     return util.padZero(2, date.getHours()) + ":" + util.padZero(2, date.getMinutes()) + ":" + util.padZero(2, date.getSeconds()) 
   }
-}
