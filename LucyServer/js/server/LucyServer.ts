@@ -211,6 +211,8 @@ function initExpress() {
 function setAntennaLayout(nr : number) {
   state.selectedAntennaLayout = util.clip(0, allAntennaLayouts.length-1, nr);
   allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayout].readerAntennaSpecs);
+  state.tagsData = [];
+  state.unknownAntennaIds = [];
 }
 
 function getAntennaInfo(nr : number) : Shared.AntennaInfo {
@@ -347,7 +349,7 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
 
   var readerTimestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
   // take the time in between firstSeen and lastSeen.
-  util.log('Reader event: ' + JSON.stringify(readerEvent));
+  //util.log('Reader event: ' + JSON.stringify(readerEvent));
   if (outputFileStream) {
     var date = months[readerTimestamp.getMonth()]+'-'+readerTimestamp.getDate()+'-'+readerTimestamp.getFullYear();
     var time = readerTimestamp.getHours()+':'+util.padZero(2,readerTimestamp.getMinutes())+':'+

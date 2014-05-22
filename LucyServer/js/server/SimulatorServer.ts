@@ -169,6 +169,8 @@ function initExpress() {
 function setAntennaLayout(nr : number) {
   state.selectedAntennaLayout = util.clip(0, allAntennaLayouts.length-1, nr);
   allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayout].readerAntennaSpecs);
+  state.tagsData = [];
+  state.unknownAntennaIds = [];
 }
 
 function getAntennaInfo(nr : number) : Shared.AntennaInfo {
