@@ -19,6 +19,7 @@ var floorWidth = 0;
 var origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
 var scale = 80; // pixels per meter
 
+var nrOfGeneratedVisitors = 3;
 
 var refreshRate = 500;
 var trailLength = 30;
@@ -44,7 +45,7 @@ function resetClientState() {
   ClientCommon.drawAntennas();
   setAntennasDragHandler();
   ClientCommon.createMarkers();
-  createVisitor();
+  createVisitors(nrOfGeneratedVisitors);
  }
 
  function initialize() {
@@ -113,23 +114,35 @@ function setAntennasDragHandler() {
     });
   d3.selectAll('.antenna-marker').call(drag);
 }
-function createVisitor() {
-  d3.select('#trilateration-plane').append('circle').attr('class', 'visitor')
-    .style('stroke', 'red')
-    .style('fill', 'black')
-    .attr('r', 8)
-    .attr('cx', ClientCommon.toScreenX(0))
-    .attr('cy', ClientCommon.toScreenY(0));
 
+function createVisitors(nrOfGeneratedVisitors : number) {
+  var visitors =   
+    _(_.range(nrOfGeneratedVisitors)).map((i) => {
+      return {epc: util.padZero(31, i), coord: {x:Math.random()*8-5, y:Math.random()*5-3}};
+    });
+  _(visitors).each((visitor) => {
+    createVisitor(visitor);
+  });
+  $.get('/query/set-all-tags', {allTags: JSON.stringify(visitors)}, function() {}); 
+}
+
+function createVisitor(visitor : {epc : string; coord : Shared.Coord}) {
+  var visitorSVG = d3.select('#trilateration-plane').append('circle').attr('class', 'visitor')
+    .style('stroke', 'white')
+    .style('fill', 'red')
+    .attr('r', 8)
+    .attr('cx', ClientCommon.toScreenX(visitor.coord.x))
+    .attr('cy', ClientCommon.toScreenY(visitor.coord.y));
+  util.log(visitor.epc);
   var drag = d3.behavior.drag()
     .on("drag", function(d,i) {
       $(this).attr('cx', d3.event.x)
              .attr('cy', d3.event.y);
       var x = ClientCommon.fromScreenX(d3.event.x);
       var y = ClientCommon.fromScreenY(d3.event.y);
-      $.get('/query/move-tag/'+x+'/'+y, function() {}); // simply send all drag events to server (only meant for local connection)
+      $.get('/query/set-tag/'+visitor.epc+'/'+x+'/'+y, function() {}); // simply send all drag events to server (only meant for local connection)
     });
-  d3.selectAll('.visitor').call(drag);
+  visitorSVG.call(drag);
 }
 
 function updateLabels() {

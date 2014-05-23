@@ -37,7 +37,9 @@ var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and
 var app = express();
 
 // Simulator-specific state
-var tagCoord : Shared.Coord = {x:0, y:0};
+
+var allTags : {epc : string; coord : Shared.Coord}[] = [];
+
 var readerServerSocket : net.Socket;
 
 
@@ -144,10 +146,23 @@ function initExpress() {
     res.end();
   });
 
-  app.get('/query/move-tag/:x/:y', function(req, res) {  
+  app.get('/query/set-all-tags', function(req, res) {
+    util.log('setting all tags');
+    allTags = JSON.parse(req.query.allTags);
+  });
+  
+  app.get('/query/set-tag/:epc/:x/:y', function(req, res) {  
     var newCoord : Shared.Coord = {x: parseFloat(req.params.x), y: parseFloat(req.params.y)};
-    tagCoord = newCoord;
-    util.log('Moving tag to ' + JSON.stringify(newCoord) );
+    util.log('Moving tag '+req.params.epc+' to (' + newCoord.x.toFixed(2) + ',' + newCoord.y.toFixed(2) + ')');
+    
+    var tag = _(allTags).findWhere({epc: req.params.epc});
+    if (tag != null) {
+      tag.coord = newCoord;
+    } else {
+      allTags.push({epc: req.params.epc, coord: newCoord});
+    }
+         
+    //util.log(util.showJSON(allTags));
     res.setHeader('content-type', 'text/plain');
     res.writeHead(204);
     res.end();
@@ -230,7 +245,7 @@ function getAntennaNr(antennaId : Shared.AntennaId) {
 
 var clientSocket : net.Socket;
 var eventInterval : NodeTimer;
-var eventEmissionDelay = 200; // 
+var eventEmissionDelay = 1000; // 
 
 function startReaderServer() {
   var server = net.createServer(function(c) { //'connection' listener
@@ -262,12 +277,14 @@ function emitEvents() {
     //util.log('Client is connected, emitting event');
     var readerEvents : ServerCommon.ReaderEvent[] = [];
     for (var i=0; i<allAntennas.length; i++) {
-      var rssi = pointToRssi(i, tagCoord);
-      var readerEvent = createReaderEvent(allAntennas[i].antennaId.readerIp, '0000000000000000000000000503966', allAntennas[i].antennaId.antennaNr, rssi);
-      
-      if (rssi) {
-        //util.log(readerEvent);        
-        readerEvents.push(readerEvent);
+      for (var j=0; j<allTags.length; j++) {
+        var rssi = pointToRssi(i, allTags[j].coord);
+        
+        if (rssi) {
+          var readerEvent = createReaderEvent(allAntennas[i].antennaId.readerIp, allTags[j].epc, allAntennas[i].antennaId.antennaNr, rssi);
+          //util.log(readerEvent);        
+          readerEvents.push(readerEvent);
+        }
       }
     }
     sendReaderEvents(readerEvents);
