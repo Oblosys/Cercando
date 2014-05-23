@@ -381,7 +381,7 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   } else {
     if (allAntennas[antNr].shortMidRangeTarget) {
       var shortMidRangeTarget = allAntennas[antNr].shortMidRangeTarget;
-      signalPresentationServer(shortMidRangeTarget.serverIp, shortMidRangeTarget.antennaIndex, readerEvent.epc);
+      //signalPresentationServer(shortMidRangeTarget.serverIp, shortMidRangeTarget.antennaIndex, readerEvent.epc);
     } else {
       var oldAntennaRssi = getAntennaRssiForAntNr(antNr, tag.antennaRssis);
       
