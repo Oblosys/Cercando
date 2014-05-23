@@ -5,7 +5,7 @@ module Shared {
   
   export var maxAntennaRangeShort = 0.25;
   export var maxAntennaRangeMid = 0.5;
-  export var maxAntennaRangeLong = 1.5;
+  export var maxAntennaRangeLong = 2.0;
 
   export interface Coord { x: number; y : number}
 
