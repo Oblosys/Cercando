@@ -44,24 +44,17 @@ module ClientCommon {
   
   export function drawAntenna(planeSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
     var pos = ClientCommon.toScreen(antenna.coord);
-    var antennaSVG = planeSVG.append('g').attr('id', 'a-'+antennaNr).attr('class', 'antenna-marker')
+    var antennaClass = (antenna.shortMidRangeTarget ? (antenna.shortMidRangeTarget.isShortRange ? 'short' : 'mid') :'long') +
+                       '-range';
+    var antennaSVG = planeSVG.append('g').attr('id', 'a-'+antennaNr).attr('class', 'antenna-marker '+antennaClass)
                        .attr('transform', 'translate('+pos.x+','+pos.y+')');
     // 'g' element with translate is annoying, but nested svg creates clipping problems
     
-    antennaSVG.append('circle')
-      .style('stroke', 'white')
-      .style('fill', 'blue')
-      .attr('r', 8)
-    antennaSVG.append('circle')
-      .style('stroke', 'black')
-      .style('fill', 'red')
-      .style('fill-opacity', 0.3)
-      .attr('r', Shared.maxAntennaRange*scale)
-    var text = antennaSVG.append('text').attr('class', 'l-'+antennaNr).text(antenna.name)
-      .attr('font-family', 'verdana')
-      .attr('font-size', '10px')
-      .attr('fill', 'white');
-    var labelSize = $('.l-'+antennaNr)[0].getBoundingClientRect();
+    // styling is done with css (unfortunately, r is not a css attribute)
+    antennaSVG.append('circle').attr('class', 'antenna-max-range').attr('r', Shared.getAntennaMaxRange(antenna)*scale)
+    antennaSVG.append('circle').attr('class', 'antenna-shape').attr('r', 8)
+    var text = antennaSVG.append('text').attr('id', 'l-'+antennaNr).attr('class', 'antenna-label').text(antenna.name);
+    var labelSize = $('#l-'+antennaNr)[0].getBoundingClientRect();
     //util.log('label ' +antenna.name + ' ' , labelSize.width);
     text.attr('x', -labelSize.width/2 + 1)
         .attr('y', labelSize.height/2 - 3.5)

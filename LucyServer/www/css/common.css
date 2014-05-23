@@ -52,6 +52,39 @@ body {
   cursor: default;
 }
 
+.antenna-shape {
+	stroke: white;
+}
+.short-range .antenna-shape {
+  fill: darkred;
+}
+.mid-range .antenna-shape {
+	fill: darkgreen;
+}
+.long-range .antenna-shape {
+  fill: blue;
+}
+.short-range .antenna-max-range {
+  stroke: black;
+  fill: purple;
+  fill-opacity: 0.3;
+}
+.mid-range .antenna-max-range {
+  stroke: black;
+  fill: green;
+  fill-opacity: 0.3;
+}
+.long-range .antenna-max-range {
+  stroke: black;
+  fill: red;
+  fill-opacity: 0.3;
+}
+.antenna-label {
+	font-family: verdana;
+	font-size: 10px;
+	fill: white;
+}
+
 #tags-data {
   display: inline-block;
   margin-top: 20px;

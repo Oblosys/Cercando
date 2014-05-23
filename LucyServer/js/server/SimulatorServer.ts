@@ -291,7 +291,7 @@ function pointToRssi(antennaIx : number, p : Shared.Coord) : number {
   var dist = trilateration.distance(antennaCoord.x, antennaCoord.y, p.x, p.y);
   //util.log('ant '+JSON.stringify(antennaCoord)+' :'+dist.toFixed(2)+ ' '+p.x.toFixed(1)+' '+p.y.toFixed(1));
   
-  if (dist > shared.maxAntennaRange)
+  if (dist > shared.getAntennaMaxRange(allAntennas[antennaIx]))
     return null;
   else
     return trilateration.getRssiForDistance3d(dist);

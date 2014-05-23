@@ -3,7 +3,9 @@ module Shared {
 
   // NOTE: When adding constants or functions, also add them to exports declaration below
   
-  export var maxAntennaRange = 1.5;
+  export var maxAntennaRangeShort = 0.25;
+  export var maxAntennaRangeMid = 0.5;
+  export var maxAntennaRangeLong = 1.5;
 
   export interface Coord { x: number; y : number}
 
@@ -41,18 +43,27 @@ module Shared {
   
   // NOTE: When adding constants or functions, also add them to exports declaration below
   
-  export function initialServerState() : Shared.ServerState {
+  export function initialServerState() : ServerState {
     return {
       status: {isConnected: false, isSaving: false, webServerTime : null, readerServerTime : null},
-      selectedAntennaLayout: 2,
+      selectedAntennaLayout: 0,
       tagsData: [],
       unknownAntennaIds: []
     };
   }
+  
+  export function getAntennaMaxRange(antenna : Antenna) : number {
+    return antenna.shortMidRangeTarget ? (antenna.shortMidRangeTarget.isShortRange ? maxAntennaRangeShort : maxAntennaRangeMid) 
+                                       : maxAntennaRangeLong;
+  }
+
 } 
 
 declare var exports: any;
 if (typeof exports != 'undefined') {
-  exports.maxAntennaRange = Shared.maxAntennaRange;
+  exports.maxAntennaRangeShort = Shared.maxAntennaRangeShort;
+  exports.maxAntennaRangeMid = Shared.maxAntennaRangeMid;
+  exports.maxAntennaRangeLong = Shared.maxAntennaRangeLong;
   exports.initialServerState = Shared.initialServerState;
+  exports.getAntennaMaxRange = Shared.getAntennaMaxRange;
 }
