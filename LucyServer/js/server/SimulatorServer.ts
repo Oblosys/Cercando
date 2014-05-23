@@ -149,6 +149,9 @@ function initExpress() {
   app.get('/query/set-all-tags', function(req, res) {
     util.log('setting all tags');
     allTags = JSON.parse(req.query.allTags);
+    res.setHeader('content-type', 'text/plain');
+    res.writeHead(204);
+    res.end();
   });
   
   app.get('/query/set-tag/:epc/:x/:y', function(req, res) {  
