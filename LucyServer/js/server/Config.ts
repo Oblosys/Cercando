@@ -138,18 +138,21 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                 { x: 5.29066650390625
                 , y: -2.339935846573267
                 }
+              , shortMidRangeTarget: {isShortRange:false, serverIp : '127.0.0.1', antennaIndex: 1}
               }
             , { name: '2'
               , coord:
                 { x: 4.48066650390625
                 , y: -0.3399356939853766
                 }
+              , shortMidRangeTarget: {isShortRange:true, serverIp : '127.0.0.1', antennaIndex: 11}
               }
             , { name: '3'
               , coord:
                 { x: 3.86066650390625
                 , y: 0.7350640008388422
                 }
+              , shortMidRangeTarget: {isShortRange:true, serverIp : '127.0.0.1', antennaIndex: 12}
               }
             , { name: '4'
               , coord:
@@ -162,12 +165,14 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                 { x: 1.67066650390625
                 , y: 2.8500643060146236
                 }
+              , shortMidRangeTarget: {isShortRange:false, serverIp : '127.0.0.1', antennaIndex: 2}
               }
             , { name: '6'
               , coord:
                 { x: 0.14066650390625
                 , y: 2.8500643060146236
                 }
+              , shortMidRangeTarget: {isShortRange:false, serverIp : '127.0.0.1', antennaIndex: 3}
               }
             , { name: '7'
               , coord:
@@ -226,6 +231,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                 { x: 0.73066650390625
                 , y: -2.629935846573267
                 }
+              , shortMidRangeTarget: {isShortRange:false, serverIp : '127.0.0.1', antennaIndex: 4}
               }
             , { name: '16'
               , coord:
@@ -242,6 +248,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                 { x: -4.889333343505859
                 , y: 2.6500643060146234
                 }
+              , shortMidRangeTarget: {isShortRange:false, serverIp : '127.0.0.1', antennaIndex: 5}
               }
             , { name: '18'
               , coord:
@@ -284,6 +291,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                 { x: -6.419333343505859
                 , y: -1.2199358465732673
                 }
+              , shortMidRangeTarget: {isShortRange:false, serverIp : '127.0.0.1', antennaIndex: 6}
               }
             ]
           }
