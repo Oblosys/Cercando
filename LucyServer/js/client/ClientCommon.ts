@@ -5,6 +5,7 @@
 /// <reference path="../shared/Shared.ts" />
 
 // Global variables. TODO: put these in some kind of state object
+
 declare var scale : number;
 declare var origin : Shared.Coord;
 declare var floorWidth : number;
@@ -14,6 +15,8 @@ declare var allTagInfo : Shared.TagInfo[];
 
 module ClientCommon {
 
+  var nrOfMarkers = 10; // TODO: should be dynamic
+  
   // d3 common code
   
   export function resizeFloor(dim : {width : number; height : number}) {
@@ -81,7 +84,7 @@ module ClientCommon {
   }
   
   export function createMarkers() {
-    _.map(_.range(0, 50), (i : number) => createMarker(i));
+    _.map(_.range(0, nrOfMarkers), (i : number) => createMarker(i));
   }
   
   export function createMarker(markerNr : number) {
