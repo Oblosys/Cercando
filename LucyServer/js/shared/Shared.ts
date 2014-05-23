@@ -25,7 +25,7 @@ module Shared {
   
   export interface AntennaRSSI {antNr : number; value : number; timestamp : Date; age? : number; /* milliseconds */ distance? : number}
    
-  export interface LayoutInfo { selectedLayout : number; names : string[] }
+  export interface LayoutInfo { selectedLayoutNr : number; names : string[] }
   
   export interface TagInfo { epc : string; color: string; coord: Coord}
   
@@ -36,7 +36,7 @@ module Shared {
   
   export interface ServerState {
     status : {isConnected : boolean; isSaving : boolean; webServerTime : string; readerServerTime : string }
-    selectedAntennaLayout : number
+    selectedAntennaLayoutNr : number
     tagsData : {epc : string; antennaRssis : AntennaRSSI[]; coordinate? : { coord: {x : number; y : number}; isRecent : boolean } }[]
     unknownAntennaIds : AntennaId[]
   }
@@ -46,7 +46,7 @@ module Shared {
   export function initialServerState() : ServerState {
     return {
       status: {isConnected: false, isSaving: false, webServerTime : null, readerServerTime : null},
-      selectedAntennaLayout: 0,
+      selectedAntennaLayoutNr: 0,
       tagsData: [],
       unknownAntennaIds: []
     };

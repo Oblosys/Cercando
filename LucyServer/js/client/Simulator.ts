@@ -82,14 +82,14 @@ function initLayoutSelector() {
     $.each(layoutInfo.names, function( index, name ) {
       $('#layout-selector').append('<option value="'+name+'">'+name+'</option>');
     });
-    selectLayout(layoutInfo.selectedLayout);
+    selectLayout(layoutInfo.selectedLayoutNr);
   });
 }
 
 // TODO: Maybe combine with query antennas so we can easily handle actions that require both to have finished
 function queryTagInfo() {
   $.getJSON( 'query/tag-info', function(newTagInfo : Shared.TagInfo[]) {
-    util.log('Queried tag info:\n'+JSON.stringify(newTagInfo));
+    //util.log('Queried tag info:\n'+JSON.stringify(newTagInfo));
     allTagInfo = newTagInfo;
     ClientCommon.drawTagSetup();
     ClientCommon.createMarkers();

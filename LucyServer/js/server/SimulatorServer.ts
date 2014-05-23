@@ -71,7 +71,7 @@ function initServer() {
 function resetServerState() {
   state = shared.initialServerState();
   allAntennaLayouts = Config.getAllAntennaLayouts();
-  setAntennaLayout(state.selectedAntennaLayout);
+  setAntennaLayout(state.selectedAntennaLayoutNr);
 }
 
 function initExpress() {
@@ -112,14 +112,14 @@ function initExpress() {
     util.log('Sending tag info to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
     
-    res.send(JSON.stringify(allAntennaLayouts[state.selectedAntennaLayout].tagConfiguration));
+    res.send(JSON.stringify(allAntennaLayouts[state.selectedAntennaLayoutNr].tagConfiguration));
   });
 
   app.get('/query/layout-info', function(req, res) {  
     util.log('Sending layout info to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
     var layoutInfo : Shared.LayoutInfo =
-      {selectedLayout: state.selectedAntennaLayout, names: _(allAntennaLayouts).pluck('name')}
+      {selectedLayoutNr: state.selectedAntennaLayoutNr, names: _(allAntennaLayouts).pluck('name')}
     res.send(JSON.stringify(layoutInfo));
   });
     
@@ -175,7 +175,7 @@ function initExpress() {
     var newCoord : Shared.Coord = {x: parseFloat(req.params.x), y: parseFloat(req.params.y)};
     util.log('Moving antenna '+allAntennas[antennaNr].antennaId+' to ' + JSON.stringify(newCoord) );
     allAntennas[antennaNr].coord = newCoord;
-    var readerAntennaSpec = _(allAntennaLayouts[state.selectedAntennaLayout].readerAntennaSpecs).findWhere({readerIp: readerIp});
+    var readerAntennaSpec = _(allAntennaLayouts[state.selectedAntennaLayoutNr].readerAntennaSpecs).findWhere({readerIp: readerIp});
     
     if (readerAntennaSpec)
       readerAntennaSpec.antennaSpecs[ readerAntennaNr - 1 ].coord = newCoord;
@@ -193,15 +193,15 @@ function initExpress() {
     
     var indent = '        ';
     var spec = '    , readerAntennaSpecs:\n' +
-               indent + util.showJSON(allAntennaLayouts[state.selectedAntennaLayout].readerAntennaSpecs, 20, indent) + '\n';
+               indent + util.showJSON(allAntennaLayouts[state.selectedAntennaLayoutNr].readerAntennaSpecs, 20, indent) + '\n';
     
     res.send(spec);
   });
 }
 
 function setAntennaLayout(nr : number) {
-  state.selectedAntennaLayout = util.clip(0, allAntennaLayouts.length-1, nr);
-  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayout].readerAntennaSpecs);
+  state.selectedAntennaLayoutNr = util.clip(0, allAntennaLayouts.length-1, nr);
+  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr].readerAntennaSpecs);
   state.tagsData = [];
   state.unknownAntennaIds = [];
 }
