@@ -446,35 +446,6 @@ function trilaterateAllTags() {
     _(tag.antennaRssis).each((antennaRssi) => {
       antennaRssi.distance = trilateration.getRssiDistance(tag.epc, allAntennas[antennaRssi.antNr].name, antennaRssi.value);
       antennaRssi.age = nowTimestamp - antennaRssi.timestamp.getTime(); 
-
-      
-      /*[{"ant":1,"value":-70.3080407663629,"timestamp":"2014-05-14T07:08:07.897Z","distance":4.465716581123385,"age":30}
-  ,{"ant":2,"value":-57.150192202546535,"timestamp":"2014-05-14T07:08:07.796Z","distance":0.31433948708783727,"age":131}
-  ,{"ant":3,"value":-57.150192202546535,"timestamp":"2014-05-14T07:07:14.045Z","distance":2.998144176986311,"age":53882}
-  ,{"ant":4,"value":-61.35184579400259,"timestamp":"2014-05-14T07:08:07.858Z","distance":1.4579527081920527,"age":69}]
-*/
-/*
-      // override for testing
-      switch (antNr) {
-        case 0:
-          rssi.value = -71.150192202546535;
-          rssi.distance =5.998144176986311;
-          break;
-        case 1:
-          rssi.value = -61.35184579400259;
-          rssi.distance = 1.4579527081920527;
-          break;
-        case 2:
-          rssi.value = -70.3080407663629;
-          rssi.distance = 4.465716581123385;
-          break;
-        case 3:
-          rssi.value = -57.150192202546535;
-          rssi.distance = 0.31433948708783727;
-          break;
-      }
-      rssi.age = 10;
-*/      
       return antennaRssi.distance;
     });
     var oldCoord = tag.coordinate ? tag.coordinate.coord : null;
