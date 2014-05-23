@@ -81,7 +81,7 @@ module ClientCommon {
   }
   
   export function createMarkers() {
-    _.map(_.range(0, allTagInfo.length), (i : number) => createMarker(i));
+    _.map(_.range(0, 50), (i : number) => createMarker(i));
   }
   
   export function createMarker(markerNr : number) {
