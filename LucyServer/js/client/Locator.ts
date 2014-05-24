@@ -43,7 +43,6 @@ function resetClientState() {
   ClientCommon.drawTagSetup();
   ClientCommon.drawAntennas();
   initTrails();
-  ClientCommon.createMarkers();
 }
 
  function initialize() {
@@ -256,9 +255,37 @@ function stopRefreshInterval() {
 function refresh() {
   $.getJSON( 'query/tags', function(newServerState : Shared.ServerState) {
     var oldSelectedAntennaLayoutNr = serverState.selectedAntennaLayoutNr;
+    var oldTagsData = serverState.tagsData;
+    
     serverState = newServerState;
     if (serverState.selectedAntennaLayoutNr != oldSelectedAntennaLayoutNr)
       selectLayout(serverState.selectedAntennaLayoutNr);
+    
+    var oldEpcs = _(oldTagsData).pluck('epc');
+    var currentEpcs = _(serverState.tagsData).pluck('epc');
+
+    util.log(JSON.stringify('old epcs: '+oldEpcs));
+    util.log(JSON.stringify('new epcs: '+currentEpcs));
+
+    // Maybe use D3 for adding and removing?
+    // TODO: not stable agains reordering tags in the tag data
+    _(oldTagsData).each((tag, i) => { // i is the index of the tag in the old tag data
+      if (!_(currentEpcs).contains(tag.epc)) {
+        util.log('Removed tag ' + tag.epc + ', tag nr '+i); 
+        ClientCommon.removeMarker(i);
+        $('.r-1-'+i).remove(); // TODO do this already when antenna goes ancient, rather than when tag disappears
+        $('.r-2-'+i).remove(); // TODO do this already when antenna goes ancient, rather than when tag disappears
+        $('.r-3-'+i).remove(); // TODO do this already when antenna goes ancient, rather than when tag disappears
+        $('.r-4-'+i).remove(); // TODO do this already when antenna goes ancient, rather than when tag disappears
+      }
+    });
+
+    _(serverState.tagsData).each((tag, i) => { // i is the index of the tag in the current tag data
+      if (!_(oldEpcs).contains(tag.epc)) {
+        util.log('New tag ' + tag.epc + ', tag nr '+i); 
+        ClientCommon.createMarker(i);
+      }
+    });
     updateTags();
   }).fail(function(jqXHR : JQueryXHR, status : any, err : any) {
     resetClientState();
@@ -352,7 +379,7 @@ function getTagNr(epc : string) {
 function getTagInfo(epc : string) {
   var ix = _(allTagInfo).pluck('epc').indexOf(epc);
   if (ix == -1) {
-    console.log('Tag with epc %s not found in allTagInfo',epc)
+    //console.log('Tag with epc %s not found in allTagInfo',epc)
     return {epc:epc, color:'red', coord:null}
   } else {
     return allTagInfo[ix];

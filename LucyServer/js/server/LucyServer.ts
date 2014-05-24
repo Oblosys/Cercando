@@ -80,7 +80,7 @@ function resetServerState() {
   connectReaderServer();
   allAntennaLayouts = Config.getAllAntennaLayouts();
   setAntennaLayout(state.selectedAntennaLayoutNr);
-  util.log(allAntennas);
+  //util.log(allAntennas);
 }
 
 function initExpress() {
@@ -362,6 +362,7 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   var tag = _.findWhere(state.tagsData, {epc: readerEvent.epc});
   if (!tag) {
     tag = { epc:readerEvent.epc, antennaRssis: [] }
+    util.log('Encountered new tag '+tag.epc);
     state.tagsData.push(tag);
   }
   
@@ -376,7 +377,6 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
     if (!_(state.unknownAntennaIds).find((unknownId) => { 
         return _.isEqual(unknownId, antennaId);})) {
       state.unknownAntennaIds.push(antennaId);
-      util.log('adding '+JSON.stringify(antennaId));
     }
   } else {
     if (allAntennas[antNr].shortMidRangeTarget) {
@@ -442,14 +442,34 @@ function trilaterateAllTags() {
   var dt = previousPositioningTimestamp ? (nowTimestamp - previousPositioningTimestamp) / 1000 :  0
   previousPositioningTimestamp = nowTimestamp; 
 
+  // compute distance and age for each antennaRssi for each tag
   _(state.tagsData).each((tag) => {
     _(tag.antennaRssis).each((antennaRssi) => {
       antennaRssi.distance = trilateration.getRssiDistance(tag.epc, allAntennas[antennaRssi.antNr].name, antennaRssi.value);
       antennaRssi.age = nowTimestamp - antennaRssi.timestamp.getTime(); 
       return antennaRssi.distance;
     });
+  });
+  
+  purgeOldTags();  
+  
+  // compute coordinate for each tag
+  _(state.tagsData).each((tag) => {
     var oldCoord = tag.coordinate ? tag.coordinate.coord : null;
     tag.coordinate = trilateration.getPosition(tag.epc, allAntennas, oldCoord, dt, tag.antennaRssis);
+  });
+}
+
+var ancientAge = 5000; // TODO also make a constant for staleAge
+
+// remove all tags that only have timestamps larger than ancientAge
+function purgeOldTags() {
+  state.tagsData = _(state.tagsData).filter((tag) => {
+    var allAncient = _(tag.antennaRssis).all((antennaRssi) => {return antennaRssi.age > ancientAge});
+    if (allAncient) {
+      util.log('Purging tag '+tag.epc);
+    }
+    return !allAncient;
   });
 }
 
