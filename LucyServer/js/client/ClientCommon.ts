@@ -90,7 +90,7 @@ module ClientCommon {
   export function createMarker(markerNr : number) {
     var trilaterationPlaneSVG = d3.select('#trilateration-plane');
    
-    trilaterationPlaneSVG.append('circle').attr('class', 'm-'+markerNr)
+    trilaterationPlaneSVG.append('circle').attr('id', 'v-'+markerNr).attr('class', 'visitor-marker')
       .style('stroke', 'white')
       .style('fill', 'yellow')
       .attr('r', 6)

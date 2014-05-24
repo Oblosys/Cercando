@@ -208,7 +208,7 @@ function updateTags() {
            .style('stroke-dasharray', isRangeRecent ? 'none' : '5,2')
            .attr('r', dist*scale+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation          
     }
-    var markerD3 = d3.select('.m-'+tagNr);
+    var markerD3 = d3.select('#v-'+tagNr);
     
     if (tagData.coordinate && tagData.coordinate.coord) {
       recordTrail(tagData.epc, tagData.coordinate.coord);  // TODO: no coordinate case?
