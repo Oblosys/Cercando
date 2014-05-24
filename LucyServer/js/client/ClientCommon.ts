@@ -83,6 +83,7 @@ module ClientCommon {
       .attr('height', size);
   }
   
+  // obsolete, might be useful for simulator
   export function createMarkers() {
     _.map(_.range(0, nrOfMarkers), (i : number) => createMarker(i));
   }
@@ -98,7 +99,10 @@ module ClientCommon {
       .attr('cy', ClientCommon.toScreenY(0))
       .style('display', 'none');
   }
-
+  
+  export function removeMarker(markerNr : number) {
+    $('#trilateration-plane #v-' + markerNr).remove();
+  }
   
   // utility functions
   
