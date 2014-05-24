@@ -122,7 +122,7 @@ function updateTrails() {
   // TODO: handle new tags and disappeared tags
   _.each(serverState.tagsData, (tagData) => {
     var tagNr = getTagNr(tagData.epc);
-    var color = getTagInfo(tagData.epc).color;
+    var color = ClientCommon.getTagInfo(tagData.epc).color;
     var tagTrail = tagTrails[tagNr];
     
     if (tagTrail) {
@@ -155,7 +155,6 @@ function updateLabels() {
 function updateTags() {
   updateLabels();
     
-  var rssiPlaneSVG = d3.select('#rssi-plane');
   var now = new Date();
   var unknownAntennasHtml = serverState.unknownAntennaIds.length == 0 ? 'None' :
     _(serverState.unknownAntennaIds).map((unknownAntenna) => {
@@ -165,7 +164,7 @@ function updateTags() {
   _.map(serverState.tagsData, (tagData) => {
     //util.log(tagRssis.epc + '(' + tagNr + ':' + tagColors[tagNr] + ')' + tagRssis.rssis);
     var tagNr = getTagNr(tagData.epc);
-    var color = getTagInfo(tagData.epc).color;
+    var color = ClientCommon.getTagInfo(tagData.epc).color;
     //$('.tag-rssis:eq('+tagNr+') .tag-label').text(tagData.epc);
     var $tagLabel = $('.tag-rssis:eq('+tagNr+') .tag-label');
     $tagLabel.css('color', color);
@@ -178,33 +177,22 @@ function updateTags() {
       var rssi = antRssi.value;
       var signalAge = antRssi.age;
       var dist =  antRssi.distance;
-      var isRangeRecent = signalAge<2000; // todo: do this server side
+      var isSignalRecent = signalAge<2000; // todo: do this server side
       // show in table
       if (rssi) {
         $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+antNr+')').html('<span class="dist-label">' + dist.toFixed(1) + 'm</span>' +
                                                                  '<span class="rssi-label">(' + rssi.toFixed(1) + ')</span>');
-        $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+antNr+') .dist-label').css('color', isRangeRecent ? 'white' : 'red');
-        $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+antNr+') .rssi-label').css('color', isRangeRecent ? '#bbb' : 'red');
+        $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+antNr+') .dist-label').css('color', isSignalRecent ? 'white' : 'red');
+        $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+antNr+') .rssi-label').css('color', isSignalRecent ? '#bbb' : 'red');
       }
       //util.log(tagNr + '-' + ant +' '+ rssi);
 
-      var rangeClass = 'r-'+(antNr+1)+'-'+tagNr; 
-      var range = d3.select('.'+rangeClass)
-      if (range.empty() && tagNr <=11) { // use <= to filter tags
-        util.log('Creating range for antenna '+antNr + ': '+rangeClass);
+      var signal = d3.select('#'+ClientCommon.mkSignalId(antRssi, tagData));
+      if (signal.empty())
+        ClientCommon.createSignalMarker(antRssi, tagData);
         
-        var pos = ClientCommon.toScreen(allAntennas[antNr].coord);
-        range = rssiPlaneSVG.append('circle').attr('class', rangeClass)
-                  .style('stroke', color)
-                  .style('fill', 'transparent')
-                  .attr('cx', pos.x)
-                  .attr('cy', pos.y);
-      }
       //util.log('A'+ant+': tag'+tagNr+': '+dist);
-      range.transition()
-           .duration(refreshDelay)
-           .style('stroke-dasharray', isRangeRecent ? 'none' : '5,2')
-           .attr('r', dist*scale+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation          
+      ClientCommon.setSignalMarkerRssi(antRssi, tagData);
     }
     var markerD3 = d3.select('#' + ClientCommon.mkTagId(tagData));
     
@@ -271,7 +259,7 @@ function refresh() {
     _(oldTagsData).each((tag, i) => { // i is the index of the tag in the old tag data
       if (!_(currentEpcs).contains(tag.epc)) {
         util.log('Removed tag ' + tag.epc + ', tag nr '+i); 
-        ClientCommon.removeMarker(tag);
+        ClientCommon.removeTagMarker(tag);
         $('.r-1-'+i).remove(); // TODO do this already when antenna goes ancient, rather than when tag disappears
         $('.r-2-'+i).remove(); // TODO do this already when antenna goes ancient, rather than when tag disappears
         $('.r-3-'+i).remove(); // TODO do this already when antenna goes ancient, rather than when tag disappears
@@ -374,14 +362,3 @@ function handleSelectLayout(selectElt : HTMLSelectElement) {
 function getTagNr(epc : string) {
   return _(serverState.tagsData).pluck('epc').indexOf(epc);
 }
-
-function getTagInfo(epc : string) {
-  var ix = _(allTagInfo).pluck('epc').indexOf(epc);
-  if (ix == -1) {
-    //console.log('Tag with epc %s not found in allTagInfo',epc)
-    return {epc:epc, color:'red', coord:null}
-  } else {
-    return allTagInfo[ix];
-  }
-}
-

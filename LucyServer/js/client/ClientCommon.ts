@@ -6,6 +6,7 @@
 
 // Global variables. TODO: put these in some kind of state object
 
+declare var refreshDelay : number;
 declare var scale : number;
 declare var origin : Shared.Coord;
 declare var floorWidth : number;
@@ -63,6 +64,48 @@ module ClientCommon {
         .attr('y', labelSize.height/2 - 3.5)
   }
 
+  export function createTagMarker(tag : Shared.TagData) {
+    var trilaterationPlaneSVG = d3.select('#trilateration-plane');
+   
+    trilaterationPlaneSVG.append('circle').attr('id', mkTagId(tag)).attr('class', 'visitor-marker')
+      .style('stroke', 'white')
+      .style('fill', 'yellow')
+      .attr('r', 6)
+      .attr('cx', ClientCommon.toScreenX(0))
+      .attr('cy', ClientCommon.toScreenY(0))
+      .style('display', 'none');
+  }
+  
+  export function removeTagMarker(tag : Shared.TagData) {
+    $('#'+mkTagId(tag)).remove();
+  }
+
+  export function createSignalMarker(antennaRssi : Shared.AntennaRSSI, tag : Shared.TagData) {
+    var rssiPlaneSVG = d3.select('#rssi-plane');
+
+    var antNr = antennaRssi.antNr;
+    var pos = ClientCommon.toScreen(allAntennas[antNr].coord);
+    rssiPlaneSVG.append('circle').attr('id', mkSignalId(antennaRssi, tag)).attr('class', 'signal-marker')
+              .style('stroke', getTagInfo(tag.epc).color)
+              .style('fill', 'transparent')
+              .attr('cx', pos.x)
+              .attr('cy', pos.y);
+  }
+
+  export function removeSignalMarker(antennaRssi : Shared.AntennaRSSI, tag : Shared.TagData) {
+    $('#'+mkSignalId(antennaRssi, tag)).remove();
+  }
+
+  export function setSignalMarkerRssi(antennaRssi : Shared.AntennaRSSI, tag : Shared.TagData) {
+    var isRangeRecent = antennaRssi.age<2000; // todo: do this server side
+
+    var signal = d3.select('#'+mkSignalId(antennaRssi, tag));
+    signal.transition()
+          .duration(refreshDelay)
+          .style('stroke-dasharray', isRangeRecent ? 'none' : '5,2')
+          .attr('r', antennaRssi.distance*scale);          
+  }
+  
   export function drawTagSetup() {
     var tagInfoPlaneSVG = d3.select('#tag-info-plane');
     _(allTagInfo).each((tag, tagNr)=>{
@@ -83,24 +126,18 @@ module ClientCommon {
       .attr('height', size);
   }
   
-  export function createTagMarker(tag : Shared.TagData) {
-    var trilaterationPlaneSVG = d3.select('#trilateration-plane');
-   
-    trilaterationPlaneSVG.append('circle').attr('id', mkTagId(tag)).attr('class', 'visitor-marker')
-      .style('stroke', 'white')
-      .style('fill', 'yellow')
-      .attr('r', 6)
-      .attr('cx', ClientCommon.toScreenX(0))
-      .attr('cy', ClientCommon.toScreenY(0))
-      .style('display', 'none');
-  }
-  
-  export function removeMarker(tag : Shared.TagData) {
-    $('#'+mkTagId(tag)).remove();
-  }
   
   // utility functions
-  
+  export function getTagInfo(epc : string) {
+    var ix = _(allTagInfo).pluck('epc').indexOf(epc);
+    if (ix == -1) {
+      //console.log('Tag with epc %s not found in allTagInfo',epc)
+      return {epc:epc, color:'red', coord:null}
+    } else {
+      return allTagInfo[ix];
+    }
+  }
+
   export function mkTagId(tag : Shared.TagData) {
     return mkId('tag', tag.epc)
   }
@@ -108,7 +145,12 @@ module ClientCommon {
   export function getEpcFromTagId(tagId : string) {
     return stripIdPrefix('tag', tagId);
   } 
-  
+
+  export function mkSignalId(antennaRssi : Shared.AntennaRSSI, tag : Shared.TagData) {
+    return mkId('signal', antennaRssi.antNr + '-' + tag.epc);
+  }
+
+
   function mkId(prefix : string, id : string) {
     return prefix + '-' + id;
   }
