@@ -38,14 +38,14 @@ module ClientCommon {
     }
   }
   
-  export function drawAntennas() {
+  export function createAntennaMarkers() {
     var antennaPlaneSVG = d3.select('#antenna-plane');
   
-    _.each(allAntennas, (ant, i) => drawAntenna(antennaPlaneSVG, ant, i));
+    _.each(allAntennas, (ant, i) => createAntennaMarker(antennaPlaneSVG, ant, i));
   
   }
   
-  export function drawAntenna(planeSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
+  export function createAntennaMarker(planeSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
     var pos = ClientCommon.toScreen(antenna.coord);
     var antennaClass = (antenna.shortMidRangeTarget ? (antenna.shortMidRangeTarget.isShortRange ? 'short' : 'mid') :'long') +
                        '-range';
@@ -84,14 +84,14 @@ module ClientCommon {
   }
   
   // obsolete, might be useful for simulator
-  export function createMarkers() {
-    _.map(_.range(0, nrOfMarkers), (i : number) => createMarker(i));
+  export function createTagMarkers() {
+    _.map(_.range(0, nrOfMarkers), (i : number) => createTagMarker(i));
   }
   
-  export function createMarker(markerNr : number) {
+  export function createTagMarker(markerNr : number) {
     var trilaterationPlaneSVG = d3.select('#trilateration-plane');
    
-    trilaterationPlaneSVG.append('circle').attr('id', 'v-'+markerNr).attr('class', 'visitor-marker')
+    trilaterationPlaneSVG.append('circle').attr('id', 't-'+markerNr).attr('class', 'visitor-marker')
       .style('stroke', 'white')
       .style('fill', 'yellow')
       .attr('r', 6)
@@ -101,7 +101,7 @@ module ClientCommon {
   }
   
   export function removeMarker(markerNr : number) {
-    $('#trilateration-plane #v-' + markerNr).remove();
+    $('#trilateration-plane #t-' + markerNr).remove();
   }
   
   // utility functions

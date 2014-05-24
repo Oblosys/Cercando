@@ -41,7 +41,7 @@ function resetClientState() {
   $('.tag-rssis .tag-label').text('');
   $('.tag-rssis .ant-rssi').html('');
   ClientCommon.drawTagSetup();
-  ClientCommon.drawAntennas();
+  ClientCommon.createAntennaMarkers();
   initTrails();
 }
 
@@ -90,7 +90,7 @@ function queryTagInfo() {
     allTagInfo = newTagInfo;
     ClientCommon.drawTagSetup();
     initTrails();
-    ClientCommon.createMarkers();
+    ClientCommon.createTagMarkers();
   }) .fail(function(jqXHR : any, status : any, err : any) {
     console.error( "Error:\n\n" + jqXHR.responseText );
   });
@@ -207,7 +207,7 @@ function updateTags() {
            .style('stroke-dasharray', isRangeRecent ? 'none' : '5,2')
            .attr('r', dist*scale+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation          
     }
-    var markerD3 = d3.select('#v-'+tagNr);
+    var markerD3 = d3.select('#t-'+tagNr);
     
     if (tagData.coordinate && tagData.coordinate.coord) {
       recordTrail(tagData.epc, tagData.coordinate.coord);  // TODO: no coordinate case?
@@ -283,7 +283,7 @@ function refresh() {
     _(serverState.tagsData).each((tag, i) => { // i is the index of the tag in the current tag data
       if (!_(oldEpcs).contains(tag.epc)) {
         util.log('New tag ' + tag.epc + ', tag nr '+i); 
-        ClientCommon.createMarker(i);
+        ClientCommon.createTagMarker(i);
       }
     });
     updateTags();

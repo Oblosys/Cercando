@@ -42,9 +42,9 @@ function resetClientState() {
   $('.tag-rssis .tag-label').text('');
   $('.tag-rssis .ant-rssi').html('');
   ClientCommon.drawTagSetup();
-  ClientCommon.drawAntennas();
+  ClientCommon.createAntennaMarkers();
   setAntennasDragHandler();
-  ClientCommon.createMarkers();
+  ClientCommon.createTagMarkers();
   createVisitors(nrOfGeneratedVisitors);
  }
 
@@ -92,7 +92,7 @@ function queryTagInfo() {
     //util.log('Queried tag info:\n'+JSON.stringify(newTagInfo));
     allTagInfo = newTagInfo;
     ClientCommon.drawTagSetup();
-    ClientCommon.createMarkers();
+    ClientCommon.createTagMarkers();
   }) .fail(function(jqXHR : any, status : any, err : any) {
     console.error( "Error:\n\n" + jqXHR.responseText );
   });
