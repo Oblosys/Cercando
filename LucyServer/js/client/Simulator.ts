@@ -19,7 +19,7 @@ var floorWidth = 0;
 var origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
 var scale = 80; // pixels per meter
 
-var nrOfGeneratedVisitors = 3;
+var nrOfGeneratedVisitors = 1;
 
 var refreshRate = 500;
 var trailLength = 30;
@@ -44,7 +44,6 @@ function resetClientState() {
   ClientCommon.drawTagSetup();
   ClientCommon.createAntennaMarkers();
   setAntennasDragHandler();
-  ClientCommon.createTagMarkers();
   createVisitors(nrOfGeneratedVisitors);
  }
 
@@ -92,7 +91,6 @@ function queryTagInfo() {
     //util.log('Queried tag info:\n'+JSON.stringify(newTagInfo));
     allTagInfo = newTagInfo;
     ClientCommon.drawTagSetup();
-    ClientCommon.createTagMarkers();
   }) .fail(function(jqXHR : any, status : any, err : any) {
     console.error( "Error:\n\n" + jqXHR.responseText );
   });

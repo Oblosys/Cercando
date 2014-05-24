@@ -34,10 +34,12 @@ module Shared {
                                ; backgroundImage? : string
                                ; antennaSpecs : Antenna[] }
   
+  export interface TagData {epc : string; antennaRssis : AntennaRSSI[]; coordinate? : { coord: {x : number; y : number}; isRecent : boolean } }[]
+  
   export interface ServerState {
     status : {isConnected : boolean; isSaving : boolean; webServerTime : string; readerServerTime : string }
     selectedAntennaLayoutNr : number
-    tagsData : {epc : string; antennaRssis : AntennaRSSI[]; coordinate? : { coord: {x : number; y : number}; isRecent : boolean } }[]
+    tagsData : TagData[]
     unknownAntennaIds : AntennaId[]
   }
   

@@ -83,15 +83,10 @@ module ClientCommon {
       .attr('height', size);
   }
   
-  // obsolete, might be useful for simulator
-  export function createTagMarkers() {
-    _.map(_.range(0, nrOfMarkers), (i : number) => createTagMarker(i));
-  }
-  
-  export function createTagMarker(markerNr : number) {
+  export function createTagMarker(tag : Shared.TagData) {
     var trilaterationPlaneSVG = d3.select('#trilateration-plane');
    
-    trilaterationPlaneSVG.append('circle').attr('id', 't-'+markerNr).attr('class', 'visitor-marker')
+    trilaterationPlaneSVG.append('circle').attr('id', mkTagId(tag)).attr('class', 'visitor-marker')
       .style('stroke', 'white')
       .style('fill', 'yellow')
       .attr('r', 6)
@@ -100,17 +95,25 @@ module ClientCommon {
       .style('display', 'none');
   }
   
-  export function removeMarker(markerNr : number) {
-    $('#trilateration-plane #t-' + markerNr).remove();
+  export function removeMarker(tag : Shared.TagData) {
+    $('#'+mkTagId(tag)).remove();
   }
   
   // utility functions
   
-  export function mkId(prefix : string, id : string) {
+  export function mkTagId(tag : Shared.TagData) {
+    return mkId('tag', tag.epc)
+  }
+  
+  export function getEpcFromTagId(tagId : string) {
+    return stripIdPrefix('tag', tagId);
+  } 
+  
+  function mkId(prefix : string, id : string) {
     return prefix + '-' + id;
   }
   
-  export function stripIdPrefix(prefix : string, fullId : string) : string {
+  function stripIdPrefix(prefix : string, fullId : string) : string {
     var prefixPlusSep = prefix + '-'
     if (!fullId || fullId.indexOf(prefixPlusSep) != 0) {
       util.log('Error: invalid \'' + prefix + '\' id: ' + fullId);

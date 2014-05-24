@@ -90,7 +90,6 @@ function queryTagInfo() {
     allTagInfo = newTagInfo;
     ClientCommon.drawTagSetup();
     initTrails();
-    ClientCommon.createTagMarkers();
   }) .fail(function(jqXHR : any, status : any, err : any) {
     console.error( "Error:\n\n" + jqXHR.responseText );
   });
@@ -207,7 +206,7 @@ function updateTags() {
            .style('stroke-dasharray', isRangeRecent ? 'none' : '5,2')
            .attr('r', dist*scale+tagNr); // +tagNr to prevent overlap TODO: we don't want this in final visualisation          
     }
-    var markerD3 = d3.select('#t-'+tagNr);
+    var markerD3 = d3.select('#' + ClientCommon.mkTagId(tagData));
     
     if (tagData.coordinate && tagData.coordinate.coord) {
       recordTrail(tagData.epc, tagData.coordinate.coord);  // TODO: no coordinate case?
@@ -272,7 +271,7 @@ function refresh() {
     _(oldTagsData).each((tag, i) => { // i is the index of the tag in the old tag data
       if (!_(currentEpcs).contains(tag.epc)) {
         util.log('Removed tag ' + tag.epc + ', tag nr '+i); 
-        ClientCommon.removeMarker(i);
+        ClientCommon.removeMarker(tag);
         $('.r-1-'+i).remove(); // TODO do this already when antenna goes ancient, rather than when tag disappears
         $('.r-2-'+i).remove(); // TODO do this already when antenna goes ancient, rather than when tag disappears
         $('.r-3-'+i).remove(); // TODO do this already when antenna goes ancient, rather than when tag disappears
@@ -283,7 +282,7 @@ function refresh() {
     _(serverState.tagsData).each((tag, i) => { // i is the index of the tag in the current tag data
       if (!_(oldEpcs).contains(tag.epc)) {
         util.log('New tag ' + tag.epc + ', tag nr '+i); 
-        ClientCommon.createTagMarker(i);
+        ClientCommon.createTagMarker(tag);
       }
     });
     updateTags();
