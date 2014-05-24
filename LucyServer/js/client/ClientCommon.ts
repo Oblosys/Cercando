@@ -106,6 +106,20 @@ module ClientCommon {
   
   // utility functions
   
+  export function mkId(prefix : string, id : string) {
+    return prefix + '-' + id;
+  }
+  
+  export function stripIdPrefix(prefix : string, fullId : string) : string {
+    var prefixPlusSep = prefix + '-'
+    if (!fullId || fullId.indexOf(prefixPlusSep) != 0) {
+      util.log('Error: invalid \'' + prefix + '\' id: ' + fullId);
+      return null;
+    } else {
+      return fullId.substring(prefixPlusSep.length);
+    }
+  } 
+  
   export function showTime(date : Date) {
     return util.padZero(2, date.getHours()) + ":" + util.padZero(2, date.getMinutes()) + ":" + util.padZero(2, date.getSeconds()) 
   }  
