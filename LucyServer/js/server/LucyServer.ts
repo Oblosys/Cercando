@@ -80,7 +80,7 @@ function resetServerState() {
   connectReaderServer();
   allAntennaLayouts = Config.getAllAntennaLayouts();
   setAntennaLayout(state.selectedAntennaLayoutNr);
-  //util.log(allAntennas);
+  util.log('Resetting server state');
 }
 
 function initExpress() {
@@ -122,7 +122,7 @@ function initExpress() {
     res.setHeader('content-type', 'application/json');
     
     state.status.webServerTime = new Date().toString();
-    trilaterateAllTags();
+    positionAllTags();
     
     res.send(JSON.stringify(state));
   });
@@ -373,7 +373,7 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   
   var antennaId : Shared.AntennaId = {readerIp: readerEvent.readerIp, antennaNr: readerEvent.ant };
   var antNr = getAntennaNr(antennaId);
-  if (antNr == -1) {
+  if (antNr == -1) { // The antenna is not part of the current antenna configuration.
     if (!_(state.unknownAntennaIds).find((unknownId) => { 
         return _.isEqual(unknownId, antennaId);})) {
       state.unknownAntennaIds.push(antennaId);
@@ -437,13 +437,14 @@ function filtered(epc : string, ant : number, rssi : number, timestamp : Date, p
 
 
 // trilaterate all tags and age and distance for each rssi value
-function trilaterateAllTags() {
+function positionAllTags() {
   var nowTimestamp = new Date().getTime();
   var dt = previousPositioningTimestamp ? (nowTimestamp - previousPositioningTimestamp) / 1000 :  0
   previousPositioningTimestamp = nowTimestamp; 
 
   // compute distance and age for each antennaRssi for each tag
   _(state.tagsData).each((tag) => {
+    util.log(tag.epc + ':' + tag.antennaRssis.length + ' signals');
     _(tag.antennaRssis).each((antennaRssi) => {
       antennaRssi.distance = trilateration.getRssiDistance(tag.epc, allAntennas[antennaRssi.antNr].name, antennaRssi.value);
       antennaRssi.age = nowTimestamp - antennaRssi.timestamp.getTime(); 
@@ -460,16 +461,23 @@ function trilaterateAllTags() {
   });
 }
 
-var ancientAge = 5000; // TODO also make a constant for staleAge
-
 // remove all tags that only have timestamps larger than ancientAge
 function purgeOldTags() {
   state.tagsData = _(state.tagsData).filter((tag) => {
-    var allAncient = _(tag.antennaRssis).all((antennaRssi) => {return antennaRssi.age > ancientAge});
-    if (allAncient) {
+    tag.antennaRssis = _(tag.antennaRssis).filter((antennaRssi) => {
+      var isAncient = antennaRssi.age > shared.ancientAgeMs;
+      if (isAncient) {
+        util.log('Purging signal for antenna ' + antennaRssi.antNr + ' for tag ' +tag.epc);
+      } else {
+        util.log('Not purging signal for antenna ' + antennaRssi.antNr + ' for tag ' +tag.epc + ' age: '+antennaRssi.age);
+      }
+      return !isAncient; 
+    });
+    var isTagRecent = tag.antennaRssis.length > 0;
+    if (!isTagRecent) {
       util.log('Purging tag '+tag.epc);
-    }
-    return !allAncient;
+    } 
+    return isTagRecent;
   });
 }
 

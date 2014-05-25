@@ -5,6 +5,9 @@ module Shared {
   export var maxAntennaRangeMid = 0.5;
   export var maxAntennaRangeLong = 2.0;
 
+  export var staleAgeMs = 2000;
+  export var ancientAgeMs = 5000;
+  
   export interface Coord { x: number; y : number}
 
   export interface AntennaLayout { name : string; dimensions: {width : number; height : number}; scale: number
@@ -53,6 +56,10 @@ module Shared {
   export function getAntennaMaxRange(antenna : Antenna) : number {
     return antenna.shortMidRangeTarget ? (antenna.shortMidRangeTarget.isShortRange ? maxAntennaRangeShort : maxAntennaRangeMid) 
                                        : maxAntennaRangeLong;
+  }
+  
+  export function isRecentAntennaRSSI(antennaRssi : AntennaRSSI) : boolean {
+    return antennaRssi.age < staleAgeMs;
   }
 
 } 

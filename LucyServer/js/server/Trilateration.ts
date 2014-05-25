@@ -5,7 +5,7 @@ var useIncrementalTrilateration = true;
 import _        = require('underscore');
 import util     = require('oblo-util');
 
-var Shared = require('../shared/Shared.js');
+var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 
 export function getPosition(epc : string, antennas : Shared.Antenna[], oldCoord : Shared.Coord, dt : number, antennaRssis : Shared.AntennaRSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
   return useIncrementalTrilateration ?
@@ -90,10 +90,6 @@ export function convert3dTo2d(dist3d : number) : number {
   return dist;
 }
 
-function isRecentAntennaRSSI(antennaRssi : Shared.AntennaRSSI) : boolean {
-  return antennaRssi.age < 2000; // TODO: duplicated code from Locator.ts
-}
-
 
 // Incremental trilateration 
 
@@ -101,7 +97,7 @@ function isRecentAntennaRSSI(antennaRssi : Shared.AntennaRSSI) : boolean {
 export function incrementalTrilateration(epc : string, antennas : Shared.Antenna[], oldCoord : Shared.Coord, dt : number, antennaRssis : Shared.AntennaRSSI[]): {coord: Shared.Coord; isRecent : boolean} {
   var antennaCoords : {x:number; y:number; dist:number}[] = []; // get positions of antennas that have a signal
   _(antennaRssis).each((antennaRssi) => {
-    if (antennaRssi.value > -100 && antennaRssi.age < 2000) {
+    if (antennaRssi.value > -100 && shared.isRecentAntennaRSSI(antennaRssi)) {
       var antNr = antennaRssi.antNr;
       antennaCoords.push({x: antennas[antNr].coord.x, y: antennas[antNr].coord.y, dist: antennaRssi.distance});
     }
@@ -143,8 +139,8 @@ export function incrementalTrilateration(epc : string, antennas : Shared.Antenna
 
 export function trilateration(epc : string, antennas : Shared.Antenna[], antennaRssis : Shared.AntennaRSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
   //util.log('Trilaterate'+JSON.stringify(ranges));
-  var recentAntennaRssis = _.filter(antennaRssis, isRecentAntennaRSSI);
-  var outdatedAntennaRssis = _.filter(antennaRssis, (rssi:Shared.AntennaRSSI)=> {return !isRecentAntennaRSSI(rssi);});
+  var recentAntennaRssis = _.filter(antennaRssis, shared.isRecentAntennaRSSI);
+  var outdatedAntennaRssis = _.filter(antennaRssis, (rssi:Shared.AntennaRSSI)=> {return !shared.isRecentAntennaRSSI(rssi);});
   var isRecent = recentAntennaRssis.length >= 3;
   
   //util.log(recentRssis.length +' outdated:' +outdatedRssis.length);
