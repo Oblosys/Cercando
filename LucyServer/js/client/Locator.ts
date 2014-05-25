@@ -28,11 +28,22 @@ var refreshInterval : number; // setInterval() returns a number
 var serverState : Shared.ServerState;
 var allAntennas : Shared.Antenna[];
 var allTagInfo : Shared.TagInfo[];
-  
+
+var UIState = Backbone.Model.extend({
+  defaults: {
+    showMaxAntennaRanges: false
+  }
+});
+
+var uiState : Backbone.Model = new UIState();
+
 /***** Initialization *****/
 
 function resetClientState() {
   util.log('Resetting client state');
+  uiState.set('showMaxAntennaRanges', false);
+  uiState.trigger('change'); // reflect current values in UI, even when they are not different from defaults (and don't fire change  event)
+
   tagTrails = [];
   d3.selectAll('#annotation-plane *').remove();
   d3.selectAll('#antenna-plane *').remove();
@@ -43,12 +54,17 @@ function resetClientState() {
   $('.tag-rssis .ant-rssi').html('');
   ClientCommon.drawTagSetup();
   ClientCommon.createAntennaMarkers();
+
   initTrails();
 }
 
- function initialize() {
+function initialize() {
   $.ajaxSetup({ cache: false });
   serverState = Shared.initialServerState();
+
+  uiState.on('change', handleUIStateChange);
+  initSelectorButtons();
+  
   initLayoutSelector();
   queryTagInfo();
   var floorSVG = d3.select('#floor')
@@ -73,6 +89,19 @@ function resetClientState() {
   floorSVG.append('g').attr('id', 'visitor-plane');
 
   startRefreshInterval();
+}
+
+function initSelectorButtons() {
+  $('#show-range-selector .select-button:eq(0)').on('click', () => {uiState.set('showMaxAntennaRanges', true)});
+  $('#show-range-selector .select-button:eq(1)').on('click', () => {uiState.set('showMaxAntennaRanges', false)});
+}
+
+function handleUIStateChange(m : Backbone.Model, newValue : any) {
+  util.log('handleUIStateChange', m, newValue);
+  var showMaxAntennaRanges = uiState.get('showMaxAntennaRanges');
+  util.setAttr($('#show-range-selector .select-button:eq(0)'),'selected', showMaxAntennaRanges);
+  util.setAttr($('#show-range-selector .select-button:eq(1)'),'selected', !showMaxAntennaRanges);
+  $('#antenna-plane .antenna-max-range').attr('visibility', showMaxAntennaRanges ? 'visible' : 'hidden');
 }
 
 function initLayoutSelector() {

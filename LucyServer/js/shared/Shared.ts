@@ -28,7 +28,7 @@ module Shared {
    
   export interface LayoutInfo { selectedLayoutNr : number; names : string[] }
   
-  export interface TagInfo { epc : string; color : string; testCoord : Coord}
+  export interface TagInfo { epc : string; color : string; testCoord : Coord} // testCoord is the actual (non-computed) position of this tag in a test setup
   
   export interface AntennaInfo { name : string; dimensions: {width : number; height : number}
                                ; scale: number // pixels per meter

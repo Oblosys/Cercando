@@ -13,6 +13,7 @@ declare var floorWidth : number;
 declare var floorHeight : number;
 declare var allAntennas : Shared.Antenna[];
 declare var allTagInfo : Shared.TagInfo[];
+var uiState : Backbone.Model;
 
 module ClientCommon {
 
@@ -54,9 +55,12 @@ module ClientCommon {
     var antennaSVG = planeSVG.append('g').attr('id', 'a-'+antennaNr).attr('class', 'antenna-marker '+antennaClass)
                        .attr('transform', 'translate('+pos.x+','+pos.y+')');
     // 'g' element with translate is annoying, but nested svg creates clipping problems
-    
+   
+    var showMaxAntennaRanges = uiState.get('showMaxAntennaRanges');
+
     // styling is done with css (unfortunately, r is not a css attribute)
-    antennaSVG.append('circle').attr('class', 'antenna-max-range').attr('r', Shared.getAntennaMaxRange(antenna)*scale)
+    antennaSVG.append('circle').attr('class', 'antenna-max-range').attr('visibility', showMaxAntennaRanges ? 'visible' : 'hidden')
+      .attr('r', Shared.getAntennaMaxRange(antenna)*scale)
     antennaSVG.append('circle').attr('class', 'antenna-shape').attr('r', 8)
     var text = antennaSVG.append('text').attr('id', 'l-'+antennaNr).attr('class', 'antenna-label').text(antenna.name);
     var labelSize = $('#l-'+antennaNr)[0].getBoundingClientRect();

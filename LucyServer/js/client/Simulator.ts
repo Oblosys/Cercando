@@ -19,7 +19,7 @@ var floorWidth = 0;
 var origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
 var scale = 80; // pixels per meter
 
-var nrOfGeneratedVisitors = 1;
+var nrOfGeneratedVisitors = 20;
 
 var refreshRate = 500;
 var trailLength = 30;
@@ -30,10 +30,22 @@ var serverState : Shared.ServerState;
 var allAntennas : Shared.Antenna[];
 var allTagInfo : Shared.TagInfo[];
   
+var UIState = Backbone.Model.extend({
+  defaults: {
+    showMaxAntennaRanges: false
+  }
+});
+
+var uiState : Backbone.Model = new UIState();
+
 /***** Initialization *****/
 
 function resetClientState() {
   tagTrails = [];
+
+  uiState.set('showMaxAntennaRanges', true);
+  uiState.trigger('change'); // reflect current values in UI, even when they are not different from defaults (and don't fire change  event)
+
   d3.selectAll('#annotation-plane *').remove();
   d3.selectAll('#antenna-plane *').remove();
   d3.selectAll('#tag-info-plane *').remove();
@@ -50,7 +62,11 @@ function resetClientState() {
  function initialize() {
   $.ajaxSetup({ cache: false });
   serverState = Shared.initialServerState();
-  initLayoutSelector();
+
+  uiState.on('change', handleUIStateChange);
+  initSelectorButtons();
+  
+   initLayoutSelector();
   queryTagInfo();
   var floorSVG = d3.select('#floor')
     .append('svg:svg')
@@ -72,8 +88,19 @@ function resetClientState() {
   floorSVG.append('g').attr('id', 'rssi-plane');
   floorSVG.append('g').attr('id', 'trilateration-plane');
   floorSVG.append('g').attr('id', 'visitor-plane');
+}
 
-  //startRefreshInterval();
+function initSelectorButtons() {
+  $('#show-range-selector .select-button:eq(0)').on('click', () => {uiState.set('showMaxAntennaRanges', true)});
+  $('#show-range-selector .select-button:eq(1)').on('click', () => {uiState.set('showMaxAntennaRanges', false)});
+}
+
+function handleUIStateChange(m : Backbone.Model, newValue : any) {
+  util.log('handleUIStateChange', m, newValue);
+  var showMaxAntennaRanges = uiState.get('showMaxAntennaRanges');
+  util.setAttr($('#show-range-selector .select-button:eq(0)'),'selected', showMaxAntennaRanges);
+  util.setAttr($('#show-range-selector .select-button:eq(1)'),'selected', !showMaxAntennaRanges);
+  $('#antenna-plane .antenna-max-range').attr('visibility', showMaxAntennaRanges ? 'visible' : 'hidden');
 }
 
 function initLayoutSelector() {
