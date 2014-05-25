@@ -209,9 +209,9 @@ function updateTags() {
       var antNr = antRssi.antNr;
       //util.log('epc:'+tagData.epc+'  '+tagNr);
       var rssi = antRssi.value;
-      var signalAge = antRssi.age;
       var dist =  antRssi.distance;
-      var isSignalRecent = signalAge<2000; // todo: do this server side
+      var isSignalRecent = Shared.isRecentAntennaRSSI(antRssi);
+        
       // show in table
       if (rssi) {
         $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+antNr+')').html('<span class="dist-label">' + dist.toFixed(1) + 'm</span>' +

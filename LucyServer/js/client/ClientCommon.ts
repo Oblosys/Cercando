@@ -117,8 +117,8 @@ module ClientCommon {
   export function drawTagSetup() {
     var tagInfoPlaneSVG = d3.select('#tag-info-plane');
     _(allTagInfo).each((tag, tagNr)=>{
-      if (tag.coord) {
-        var tagCoord = ClientCommon.toScreen(tag.coord);
+      if (tag.testCoord) {
+        var tagCoord = ClientCommon.toScreen(tag.testCoord);
         drawSquare(tagInfoPlaneSVG, tagCoord.x, tagCoord.y, 10, tag.color);
       }
     });
@@ -140,7 +140,7 @@ module ClientCommon {
     var ix = _(allTagInfo).pluck('epc').indexOf(epc);
     if (ix == -1) {
       //console.log('Tag with epc %s not found in allTagInfo',epc)
-      return {epc:epc, color:colors[parseInt(epc.charAt(epc.length-1))], coord:null}
+      return {epc:epc, color:colors[parseInt(epc.charAt(epc.length-1))], testCoord:null}
     } else {
       return allTagInfo[ix];
     }

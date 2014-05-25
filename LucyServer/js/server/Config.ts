@@ -13,17 +13,17 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
           }
         ]
     , tagConfiguration: 
-        [ {epc:'0000000000000000000000000370869', color:'green',     coord:null}
-        , {epc:'0000000000000000000000000503968', color:'yellow',    coord:null}
-        , {epc:'0000000000000000000000000370802', color:'black',     coord:null}
-        , {epc:'0000000000000000000000000103921', color:'purple',    coord:null}
-        , {epc:'0000000000000000000000000000795', color:'red',       coord:null}
-        , {epc:'0000000000000000000000000370870', color:'orange',    coord:null}
-        , {epc:'0000000000000000000000000370845', color:'white',     coord:null}
-        , {epc:'0000000000000000000000000100842', color:'brown',     coord:null} 
-        , {epc:'0000000000000000000000000503972', color:'gray',      coord:null}
-        , {epc:'0000000000000000000000000023040', color:'lightblue', coord:null}
-        , {epc:'0000000000000000000000000023140', color:'darkgray',  coord:null}
+        [ {epc:'0000000000000000000000000370869', color:'green',     testCoord:null}
+        , {epc:'0000000000000000000000000503968', color:'yellow',    testCoord:null}
+        , {epc:'0000000000000000000000000370802', color:'black',     testCoord:null}
+        , {epc:'0000000000000000000000000103921', color:'purple',    testCoord:null}
+        , {epc:'0000000000000000000000000000795', color:'red',       testCoord:null}
+        , {epc:'0000000000000000000000000370870', color:'orange',    testCoord:null}
+        , {epc:'0000000000000000000000000370845', color:'white',     testCoord:null}
+        , {epc:'0000000000000000000000000100842', color:'brown',     testCoord:null} 
+        , {epc:'0000000000000000000000000503972', color:'gray',      testCoord:null}
+        , {epc:'0000000000000000000000000023040', color:'lightblue', testCoord:null}
+        , {epc:'0000000000000000000000000023140', color:'darkgray',  testCoord:null}
         ]
     };
 
@@ -42,17 +42,17 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
           }
         ]
     , tagConfiguration: 
-        [ {epc:'0000000000000000000000000370869', color:'green',     coord:{x:1.2-0*0.35, y:1.2-0*0.35}}
-        , {epc:'0000000000000000000000000503968', color:'yellow',    coord:{x:1.2-1*0.35, y:1.2-1*0.35}}
-        , {epc:'0000000000000000000000000370802', color:'black',     coord:{x:1.2-2*0.35-0.03, y:1.2-2*0.35}}
-        , {epc:'0000000000000000000000000103921', color:'purple',    coord:{x:1.2-2*0.35+0.03, y:1.2-2*0.35}}
-        , {epc:'0000000000000000000000000000795', color:'red',       coord:{x:1.2-3*0.35, y:1.2-3*0.35}}
-        , {epc:'0000000000000000000000000370870', color:'orange',    coord:{x:1.2-4*0.35, y:1.2-4*0.35}}
-        , {epc:'0000000000000000000000000370845', color:'white',     coord:{x:1.35, y:1.2-0.5-0*0.5}}
-        , {epc:'0000000000000000000000000100842', color:'brown',     coord:{x:1.35, y:1.2-0.5-1*0.5}} 
-        , {epc:'0000000000000000000000000503972', color:'gray',      coord:{x:1.35, y:1.2-0.5-2*0.5}}
-        , {epc:'0000000000000000000000000023040', color:'lightblue', coord:null}
-        , {epc:'0000000000000000000000000023140', color:'darkgray',  coord:null}
+        [ {epc:'0000000000000000000000000370869', color:'green',     testCoord:{x:1.2-0*0.35, y:1.2-0*0.35}}
+        , {epc:'0000000000000000000000000503968', color:'yellow',    testCoord:{x:1.2-1*0.35, y:1.2-1*0.35}}
+        , {epc:'0000000000000000000000000370802', color:'black',     testCoord:{x:1.2-2*0.35-0.03, y:1.2-2*0.35}}
+        , {epc:'0000000000000000000000000103921', color:'purple',    testCoord:{x:1.2-2*0.35+0.03, y:1.2-2*0.35}}
+        , {epc:'0000000000000000000000000000795', color:'red',       testCoord:{x:1.2-3*0.35, y:1.2-3*0.35}}
+        , {epc:'0000000000000000000000000370870', color:'orange',    testCoord:{x:1.2-4*0.35, y:1.2-4*0.35}}
+        , {epc:'0000000000000000000000000370845', color:'white',     testCoord:{x:1.35, y:1.2-0.5-0*0.5}}
+        , {epc:'0000000000000000000000000100842', color:'brown',     testCoord:{x:1.35, y:1.2-0.5-1*0.5}} 
+        , {epc:'0000000000000000000000000503972', color:'gray',      testCoord:{x:1.35, y:1.2-0.5-2*0.5}}
+        , {epc:'0000000000000000000000000023040', color:'lightblue', testCoord:null}
+        , {epc:'0000000000000000000000000023140', color:'darkgray',  testCoord:null}
         ]
     };
     
