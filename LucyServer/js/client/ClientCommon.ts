@@ -16,7 +16,8 @@ declare var allTagInfo : Shared.TagInfo[];
 
 module ClientCommon {
 
-  var nrOfMarkers = 10; // TODO: should be dynamic
+  export var colors = ['yellow', 'gray', 'blue', 'green', 'purple', 'black', 'red', 'orange', 'darkgray',
+'lightblue'];
   
   // d3 common code
   
@@ -139,7 +140,7 @@ module ClientCommon {
     var ix = _(allTagInfo).pluck('epc').indexOf(epc);
     if (ix == -1) {
       //console.log('Tag with epc %s not found in allTagInfo',epc)
-      return {epc:epc, color:'red', coord:null}
+      return {epc:epc, color:colors[parseInt(epc.charAt(epc.length-1))], coord:null}
     } else {
       return allTagInfo[ix];
     }

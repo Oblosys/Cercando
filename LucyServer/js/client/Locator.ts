@@ -234,7 +234,7 @@ function updateTags() {
       recordTrail(tagData.epc, tagData.coordinate.coord);  // TODO: no coordinate case?
       var pos = ClientCommon.toScreen(tagData.coordinate.coord);
       markerD3.style('display', 'block');
-      markerD3.style('fill', color) // TODO: dynamically create markers
+      markerD3.style('fill', color)
             .style('stroke', tagData.coordinate.isRecent ? 'white' : 'red');
       markerD3.transition()
               .duration(refreshDelay)
@@ -243,7 +243,6 @@ function updateTags() {
     } else {
       markerD3.style('display', 'none'); 
     }
-
   });
   updateTrails();
 }
