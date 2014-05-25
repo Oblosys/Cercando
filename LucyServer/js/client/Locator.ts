@@ -32,6 +32,7 @@ var allTagInfo : Shared.TagInfo[];
 /***** Initialization *****/
 
 function resetClientState() {
+  util.log('Resetting client state');
   tagTrails = [];
   d3.selectAll('#annotation-plane *').remove();
   d3.selectAll('#antenna-plane *').remove();
@@ -116,6 +117,39 @@ function initTrails() {
       //.style('stroke', allTagInfo[tagNr].color)
       .attr('fill', 'none');
   }
+}
+
+// TODO: maybe use D3 for adding and removing?
+function addRemoveSVGElements(oldTagsData : Shared.TagData[], currentTagsData : Shared.TagData[]) {
+  // Remove disappeared signals and tags
+  _(oldTagsData).each((oldTag) => {
+    var currentTag = _(currentTagsData).findWhere({epc: oldTag.epc});
+    _(oldTag.antennaRssis).each((oldAntennaRssi) => { // todo: refactor pluck call
+      if (!currentTag || !_(_(currentTag.antennaRssis).pluck('antNr')).contains(oldAntennaRssi.antNr)) {
+        util.log('Removed signal for antenna ' + oldAntennaRssi.antNr + ' for tag ' + oldTag.epc); 
+        ClientCommon.removeSignalMarker(oldAntennaRssi, oldTag);
+      }
+    });
+    if (!currentTag) {
+      util.log('Removed tag ' + oldTag.epc); 
+      ClientCommon.removeTagMarker(oldTag);
+    }
+  });
+
+  // Add newly-appeared signals and tags
+  _(currentTagsData).each((currentTag) => {
+    var oldTag = _(oldTagsData).findWhere({epc: currentTag.epc});
+    _(currentTag.antennaRssis).each((currentAntennaRssi) => { // todo: refactor pluck call
+      if (!oldTag || !_(_(oldTag.antennaRssis).pluck('antNr')).contains(currentAntennaRssi.antNr)) {
+        util.log('New signal for antenna ' + currentAntennaRssi.antNr + ' for tag ' + currentTag.epc); 
+        ClientCommon.createSignalMarker(currentAntennaRssi, currentTag);
+      }
+    });
+    if (!oldTag) {
+      util.log('New tag ' + currentTag.epc); 
+      ClientCommon.createTagMarker(currentTag);
+    }
+  });
 }
 
 function updateTrails() {
@@ -241,45 +275,21 @@ function stopRefreshInterval() {
 
 function refresh() {
   $.getJSON( 'query/tags', function(newServerState : Shared.ServerState) {
-    var oldSelectedAntennaLayoutNr = serverState.selectedAntennaLayoutNr;
-    var oldTagsData = serverState.tagsData;
-    
+    //util.log(JSON.stringify('old epcs: '+_(serverState.tagsData).pluck('epc')));
+    //util.log(JSON.stringify('new epcs: '+_(newServerState.tagsData).pluck('epc')));
+    addRemoveSVGElements(serverState.tagsData, newServerState.tagsData)
+
+    var oldSelectedAntennaLayoutNr = serverState.selectedAntennaLayoutNr;    
     serverState = newServerState;
     if (serverState.selectedAntennaLayoutNr != oldSelectedAntennaLayoutNr)
       selectLayout(serverState.selectedAntennaLayoutNr);
-    
-    var oldEpcs = _(oldTagsData).pluck('epc');
-    var currentEpcs = _(serverState.tagsData).pluck('epc');
 
-    util.log(JSON.stringify('old epcs: '+oldEpcs));
-    util.log(JSON.stringify('new epcs: '+currentEpcs));
-
-    // Maybe use D3 for adding and removing?
-    // TODO: not stable agains reordering tags in the tag data
-    _(oldTagsData).each((tag, i) => { // i is the index of the tag in the old tag data
-      if (!_(currentEpcs).contains(tag.epc)) {
-        util.log('Removed tag ' + tag.epc + ', tag nr '+i); 
-        ClientCommon.removeTagMarker(tag);
-        $('.r-1-'+i).remove(); // TODO do this already when antenna goes ancient, rather than when tag disappears
-        $('.r-2-'+i).remove(); // TODO do this already when antenna goes ancient, rather than when tag disappears
-        $('.r-3-'+i).remove(); // TODO do this already when antenna goes ancient, rather than when tag disappears
-        $('.r-4-'+i).remove(); // TODO do this already when antenna goes ancient, rather than when tag disappears
-      }
-    });
-
-    _(serverState.tagsData).each((tag, i) => { // i is the index of the tag in the current tag data
-      if (!_(oldEpcs).contains(tag.epc)) {
-        util.log('New tag ' + tag.epc + ', tag nr '+i); 
-        ClientCommon.createTagMarker(tag);
-      }
-    });
     updateTags();
   }).fail(function(jqXHR : JQueryXHR, status : any, err : any) {
     resetClientState();
     console.error( "Error:\n\n" + jqXHR.responseText );
   });
 }
-
 
 function connectReader() {
   $.get('/query/connect', function() {
