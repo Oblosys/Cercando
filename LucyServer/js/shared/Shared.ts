@@ -1,7 +1,5 @@
 module Shared {
   // TODO: find a way to import other libs (e.g. underscore) in a type-safe way. Adding import hides Shared namespace.
-
-  // NOTE: When adding constants or functions, also add them to exports declaration below
   
   export var maxAntennaRangeShort = 0.25;
   export var maxAntennaRangeMid = 0.5;
@@ -43,8 +41,6 @@ module Shared {
     unknownAntennaIds : AntennaId[]
   }
   
-  // NOTE: When adding constants or functions, also add them to exports declaration below
-  
   export function initialServerState() : ServerState {
     return {
       status: {isConnected: false, isSaving: false, webServerTime : null, readerServerTime : null},
@@ -61,11 +57,18 @@ module Shared {
 
 } 
 
-declare var exports: any;
+// Workaround for preventing typescript warning about implicit any on index signature
+// See: http://typescript.codeplex.com/discussions/535628
+interface Object {
+  [idx: string]: any;
+}
+
+// Automatically export all declarations in this module. (Necessary, because in node modules we import this as a .js module instead of .ts)  
+declare var exports : any;
 if (typeof exports != 'undefined') {
-  exports.maxAntennaRangeShort = Shared.maxAntennaRangeShort;
-  exports.maxAntennaRangeMid = Shared.maxAntennaRangeMid;
-  exports.maxAntennaRangeLong = Shared.maxAntennaRangeLong;
-  exports.initialServerState = Shared.initialServerState;
-  exports.getAntennaMaxRange = Shared.getAntennaMaxRange;
+  for (var decl in Shared) {
+    console.log(typeof decl);
+    if (Shared.hasOwnProperty(decl))
+      exports[decl] = Shared[decl];
+  }
 }
