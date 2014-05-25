@@ -97,12 +97,19 @@ module ClientCommon {
   }
 
   export function setSignalMarkerRssi(antennaRssi : Shared.AntennaRSSI, tag : Shared.TagData) {
-    var isRangeRecent = antennaRssi.age<2000; // todo: do this server side
-
+    var dashArray : string;
+    if (Shared.isRecentAntennaRSSI(antennaRssi)) 
+      dashArray = 'none';
+    else {
+      var maxStalePeriod = Shared.ancientAgeMs - Shared.staleAgeMs;
+      var staleIndex = Math.floor(((util.clip(0,maxStalePeriod-1,antennaRssi.age-Shared.staleAgeMs) / maxStalePeriod)*9))+1;
+      // staleIndex lies between 1 and 9, 1: just became stale, 9: almost ancient
+      dashArray = ''+(10-staleIndex)+','+staleIndex;
+    }
     var signal = d3.select('#'+mkSignalId(antennaRssi, tag));
     signal.transition()
           .duration(refreshDelay)
-          .style('stroke-dasharray', isRangeRecent ? 'none' : '5,2')
+          .style('stroke-dasharray', dashArray)
           .attr('r', antennaRssi.distance*scale);          
   }
   
