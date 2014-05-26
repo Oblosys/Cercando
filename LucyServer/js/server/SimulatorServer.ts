@@ -149,7 +149,7 @@ function initExpress() {
   app.get('/query/set-all-tags', function(req, res) {
     util.log('setting all tags');
     allTags = <Shared.TagData[]>JSON.parse(req.query.allTags);
-    util.log(util.showJSON(allTags));
+    //util.log(util.showJSON(allTags));
     
     res.setHeader('content-type', 'text/plain');
     res.writeHead(204);
