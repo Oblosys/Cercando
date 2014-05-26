@@ -76,8 +76,8 @@ module ClientCommon {
       .style('stroke', 'white')
       .style('fill', 'yellow')
       .attr('r', 6)
-      .attr('cx', ClientCommon.toScreenX(0))
-      .attr('cy', ClientCommon.toScreenY(0))
+      .attr('cx', ClientCommon.toScreenX(tag.coordinate ? tag.coordinate.coord.x : 0))
+      .attr('cy', ClientCommon.toScreenY(tag.coordinate ? tag.coordinate.coord.y : 0))
       .style('display', 'none');
   }
   
