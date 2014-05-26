@@ -198,7 +198,7 @@ function initExpress() {
     
     var indent = '        ';
     var spec = '    , readerAntennaSpecs:\n' +
-               indent + util.showJSON(allAntennaLayouts[state.selectedAntennaLayoutNr].readerAntennaSpecs, 20, indent) + '\n';
+               indent + util.showJSON(allAntennaLayouts[state.selectedAntennaLayoutNr].readerAntennaSpecs, indent, 20) + '\n';
     
     res.send(spec);
   });
