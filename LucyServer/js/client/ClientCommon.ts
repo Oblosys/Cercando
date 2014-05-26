@@ -13,6 +13,9 @@ declare var floorWidth : number;
 declare var floorHeight : number;
 declare var allAntennas : Shared.Antenna[];
 declare var allTagInfo : Shared.TagInfo[];
+declare var tagTrails : {}; 
+declare var trailLength : number;
+
 var uiState : Backbone.Model;
 
 module ClientCommon {
@@ -140,6 +143,43 @@ module ClientCommon {
     $('#'+mkDataRowId(tag)).remove();
   }
 
+  export function createTrail(tag : Shared.TagData) {
+    tagTrails[tag.epc] = [];
+  
+    var color = getTagInfo(tag.epc).color;
+    var visitorTrail = d3.select('#trail-plane')
+      .append('path')
+      .attr('id', mkTrailId(tag))
+      .attr('class', 'tag-trail')
+      .attr('stroke-dasharray','none')
+      .style('stroke', color)
+      .attr('fill', 'none');
+  }
+
+  export function removeTrail(tag : Shared.TagData) {
+    delete tagTrails[tag.epc];
+     
+    $('#'+mkTrailId(tag)).remove();
+  }
+  
+  export function updateTrail(tag : Shared.TagData) {
+    // Store coord at the head of the corresponding trail, moving up the rest, and clipping at trailLength.
+    tagTrails[tag.epc] = _.union([tag.coordinate.coord], tagTrails[tag.epc]).slice(0,trailLength);
+
+    var tagTrail = tagTrails[tag.epc];
+    
+    var lineFunction = d3.svg.line()
+      .x(function(d) { return ClientCommon.toScreenX(d.x); })
+      .y(function(d) { return ClientCommon.toScreenY(d.y); })
+      .interpolate('linear');
+  
+    d3.select('#'+ClientCommon.mkTrailId(tag))
+      .attr('d', lineFunction(tagTrail.slice(1)))
+      .attr('stroke-dasharray','none')
+      .style('stroke-opacity', 0.5)
+      .attr('fill', 'none');
+}
+
   export function drawTagSetup() {
     var tagInfoPlaneSVG = d3.select('#tag-info-plane');
     _(allTagInfo).each((tag, tagNr)=>{
@@ -171,10 +211,6 @@ module ClientCommon {
       return allTagInfo[ix];
     }
   }
-
-  export function mkDataRowId(tag : Shared.TagData) {
-    return mkId('data-row', tag.epc)
-  }
   
   export function mkTagId(tag : Shared.TagData) {
     return mkId('tag', tag.epc)
@@ -188,6 +224,13 @@ module ClientCommon {
     return mkId('signal', antennaRssi.antNr + '-' + tag.epc);
   }
 
+  export function mkDataRowId(tag : Shared.TagData) {
+    return mkId('data-row', tag.epc)
+  }
+
+  export function mkTrailId(tag : Shared.TagData) {
+    return mkId('trail', tag.epc)
+  }
 
   function mkId(prefix : string, id : string) {
     return prefix + '-' + id;

@@ -22,7 +22,7 @@ var scale = 80; // pixels per meter
 
 var refreshDelay = 500;
 var trailLength = 30;
-var tagTrails : Shared.Coord[][] = [];
+var tagTrails = {}; // Object that has epc keys for Shared.Coord[] values (can't easily enforce this in TypeScript)
 
 var refreshInterval : number; // setInterval() returns a number
 var serverState : Shared.ServerState;
@@ -45,8 +45,8 @@ function resetClientState() {
   uiState.set('showMaxAntennaRanges', false);
   uiState.trigger('change'); // reflect current values in UI, even when they are not different from defaults (and don't fire change  event)
   serverState.tagsData = [];
-  tagTrails = [];
-  d3.selectAll('#annotation-plane *').remove();
+  tagTrails = {};
+  d3.selectAll('#trail-plane *').remove();
   d3.selectAll('#antenna-plane *').remove();
   d3.selectAll('#tag-info-plane *').remove();
   d3.selectAll('#rssi-plane *').remove();
@@ -54,8 +54,6 @@ function resetClientState() {
   ClientCommon.initDataRows()
   ClientCommon.drawTagSetup();
   ClientCommon.createAntennaMarkers();
-
-  initTrails();
 }
 
 function initialize() {
@@ -79,7 +77,7 @@ function initialize() {
     .attr('width', floorWidth)
     .attr('height', floorHeight);
     
-  floorSVG.append('g').attr('id', 'annotation-plane');
+  floorSVG.append('g').attr('id', 'trail-plane');
   floorSVG.append('g').attr('id', 'antenna-plane');
   floorSVG.append('g').attr('id', 'tag-info-plane');
   floorSVG.append('g').attr('id', 'rssi-plane');
@@ -128,28 +126,6 @@ function initLayoutSelector() {
   });
 }
 
-// Store coord at the head of the corresponding trail, moving up the rest, and clipping at trailLength.
-function recordTrail(epc : string, coord : Shared.Coord) {
-  var tagNr = getTagNr(epc);
-  var tagTrail = tagTrails[tagNr];
-  if (!tagTrail) { // create new trail if non-existent
-    tagTrail = [];
-    tagTrails[tagNr] = tagTrail;
-  }
-  tagTrails[tagNr] = _.union([coord], tagTrail).slice(0,trailLength);
-}
-
-function initTrails() {
-  for (var tagNr=0; tagNr<allTagInfo.length; tagNr++) {
-    var visitorTrail = d3.select('#annotation-plane')
-      .append('path')
-      .attr('id', 'trail-'+tagNr)
-      .attr('class', 'tag-trail')
-      .attr('stroke-dasharray','none')
-      //.style('stroke', allTagInfo[tagNr].color)
-      .attr('fill', 'none');
-  }
-}
 
 // TODO: maybe use D3 for adding and removing? Is this possible when we also add/remove non-d3 elements? (e.g. data rows) 
 function addRemoveSVGElements(oldTagsData : Shared.TagData[], currentTagsData : Shared.TagData[]) {
@@ -166,6 +142,7 @@ function addRemoveSVGElements(oldTagsData : Shared.TagData[], currentTagsData : 
       util.log('Removed tag ' + oldTag.epc); 
       ClientCommon.removeTagMarker(oldTag);
       ClientCommon.removeDataRow(oldTag);
+      ClientCommon.removeTrail(oldTag);
     }
   });
 
@@ -182,29 +159,7 @@ function addRemoveSVGElements(oldTagsData : Shared.TagData[], currentTagsData : 
       //util.log('New tag ' + currentTag.epc); 
       ClientCommon.createTagMarker(currentTag);
       ClientCommon.createDataRow(currentTag);
-    }
-  });
-}
-
-function updateTrails() {
-  // TODO: handle new tags and disappeared tags
-  _.each(serverState.tagsData, (tagData) => {
-    var tagNr = getTagNr(tagData.epc);
-    var color = ClientCommon.getTagInfo(tagData.epc).color;
-    var tagTrail = tagTrails[tagNr];
-    
-    if (tagTrail) {
-      var lineFunction = d3.svg.line()
-        .x(function(d) { return ClientCommon.toScreenX(d.x); })
-        .y(function(d) { return ClientCommon.toScreenY(d.y); })
-        .interpolate('linear');
-    
-      d3.select('#trail-'+tagNr)
-        .attr('d', lineFunction(tagTrail.slice(1)))
-        .attr('stroke-dasharray','none')
-        .style('stroke', color)
-        .style('stroke-opacity', 0.5)
-        .attr('fill', 'none');
+      ClientCommon.createTrail(currentTag);
     }
   });
 }
@@ -260,7 +215,7 @@ function updateTags() {
     var markerD3 = d3.select('#' + ClientCommon.mkTagId(tagData));
     
     if (tagData.coordinate && tagData.coordinate.coord) {
-      recordTrail(tagData.epc, tagData.coordinate.coord);  // TODO: no coordinate case?
+      ClientCommon.updateTrail(tagData);
       var pos = ClientCommon.toScreen(tagData.coordinate.coord);
       markerD3.style('display', 'block');
       markerD3.style('stroke', tagData.coordinate.isRecent ? 'white' : 'red');
@@ -273,7 +228,6 @@ function updateTags() {
       markerD3.style('display', 'none'); 
     }
   });
-  updateTrails();
 }
 
 function selectLayout(layoutNr : number) {
