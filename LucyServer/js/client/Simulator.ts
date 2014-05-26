@@ -19,7 +19,7 @@ var floorWidth = 0;
 var origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
 var scale = 80; // pixels per meter
 
-var nrOfGeneratedVisitors = 20;
+var nrOfGeneratedTags = 20;
 
 var refreshRate = 500;
 var trailLength = 30;
@@ -56,7 +56,7 @@ function resetClientState() {
   ClientCommon.drawTagSetup();
   ClientCommon.createAntennaMarkers();
   setAntennasDragHandler();
-  createVisitors(nrOfGeneratedVisitors);
+  generateTags(nrOfGeneratedTags);
  }
 
  function initialize() {
@@ -140,34 +140,32 @@ function setAntennasDragHandler() {
   d3.selectAll('.antenna-marker').call(drag);
 }
 
-function createVisitors(nrOfGeneratedVisitors : number) {
-  var visitors =   
+function generateTags(nrOfGeneratedVisitors : number) {
+  var tags : Shared.TagData[] =   
     _(_.range(nrOfGeneratedVisitors)).map((i) => {
-      return {epc: util.padZero(31, i), coord: {x:Math.random()*8-5, y:Math.random()*5-3}};
+      return {epc: util.padZero(31, i), antennaRssis: [], coordinate:{coord: {x:Math.random()*8-5, y:Math.random()*5-3}, isRecent: true}};
     });
-  _(visitors).each((visitor) => {
-    createVisitor(visitor);
+  _(tags).each((tag) => {
+    
+    generateTag(tag);
+    //createVisitor(visitor);
   });
-  $.get('/query/set-all-tags', {allTags: JSON.stringify(visitors)}, function() {}); 
+  $.get('/query/set-all-tags', {allTags: JSON.stringify(tags)}, function() {}); 
 }
 
-function createVisitor(visitor : {epc : string; coord : Shared.Coord}) {
-  var visitorSVG = d3.select('#trilateration-plane').append('circle').attr('class', 'visitor')
-    .style('stroke', 'white')
-    .style('fill', 'red')
-    .attr('r', 8)
-    .attr('cx', ClientCommon.toScreenX(visitor.coord.x))
-    .attr('cy', ClientCommon.toScreenY(visitor.coord.y));
-  util.log(visitor.epc);
+// Create a tag marker with a larger radius and an attached drag handler
+function generateTag(tag : Shared.TagData) {
+  ClientCommon.createTagMarker(tag);
+  var tagSVG = d3.select('#' + ClientCommon.mkTagId(tag));
   var drag = d3.behavior.drag()
     .on("drag", function(d,i) {
       $(this).attr('cx', d3.event.x)
              .attr('cy', d3.event.y);
       var x = ClientCommon.fromScreenX(d3.event.x);
       var y = ClientCommon.fromScreenY(d3.event.y);
-      $.get('/query/set-tag/'+visitor.epc+'/'+x+'/'+y, function() {}); // simply send all drag events to server (only meant for local connection)
+      $.get('/query/set-tag/'+tag.epc+'/'+x+'/'+y, function() {}); // simply send all drag events to server (only meant for local connection)
     });
-  visitorSVG.call(drag);
+  tagSVG.attr('r', 8).call(drag);
 }
 
 function updateLabels() {

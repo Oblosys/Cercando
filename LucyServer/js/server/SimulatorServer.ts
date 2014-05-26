@@ -38,7 +38,7 @@ var app = express();
 
 // Simulator-specific state
 
-var allTags : {epc : string; coord : Shared.Coord}[] = [];
+var allTags : Shared.TagData[] = [];
 
 var readerServerSocket : net.Socket;
 
@@ -148,7 +148,9 @@ function initExpress() {
 
   app.get('/query/set-all-tags', function(req, res) {
     util.log('setting all tags');
-    allTags = JSON.parse(req.query.allTags);
+    allTags = <Shared.TagData[]>JSON.parse(req.query.allTags);
+    util.log(util.showJSON(allTags));
+    
     res.setHeader('content-type', 'text/plain');
     res.writeHead(204);
     res.end();
@@ -160,9 +162,9 @@ function initExpress() {
     
     var tag = _(allTags).findWhere({epc: req.params.epc});
     if (tag != null) {
-      tag.coord = newCoord;
+      tag.coordinate = {coord: newCoord, isRecent: true};
     } else {
-      allTags.push({epc: req.params.epc, coord: newCoord});
+      allTags.push({epc: req.params.epc, coordinate: {coord: newCoord, isRecent: true}, antennaRssis: []});
     }
          
     //util.log(util.showJSON(allTags));
@@ -281,7 +283,8 @@ function emitEvents() {
     var readerEvents : ServerCommon.ReaderEvent[] = [];
     for (var i=0; i<allAntennas.length; i++) {
       for (var j=0; j<allTags.length; j++) {
-        var rssi = pointToRssi(i, allTags[j].coord);
+        //util.log(allTags[j].epc, allTags[i].coordinate.coord)
+        var rssi = pointToRssi(i, allTags[j].coordinate.coord);
         
         if (rssi) {
           var readerEvent = createReaderEvent(allAntennas[i].antennaId.readerIp, allTags[j].epc, allAntennas[i].antennaId.antennaNr, rssi);
