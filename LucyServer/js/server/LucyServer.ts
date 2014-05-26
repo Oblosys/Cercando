@@ -444,7 +444,7 @@ function positionAllTags() {
 
   // compute distance and age for each antennaRssi for each tag
   _(state.tagsData).each((tag) => {
-    util.log(tag.epc + ':' + tag.antennaRssis.length + ' signals');
+    //util.log(tag.epc + ':' + tag.antennaRssis.length + ' signals');
     _(tag.antennaRssis).each((antennaRssi) => {
       antennaRssi.distance = trilateration.getRssiDistance(tag.epc, allAntennas[antennaRssi.antNr].name, antennaRssi.value);
       antennaRssi.age = nowTimestamp - antennaRssi.timestamp.getTime(); 
@@ -469,7 +469,7 @@ function purgeOldTags() {
       if (isAncient) {
         util.log('Purging signal for antenna ' + antennaRssi.antNr + ' for tag ' +tag.epc);
       } else {
-        util.log('Not purging signal for antenna ' + antennaRssi.antNr + ' for tag ' +tag.epc + ' age: '+antennaRssi.age);
+        //util.log('Not purging signal for antenna ' + antennaRssi.antNr + ' for tag ' +tag.epc + ' age: '+antennaRssi.age);
       }
       return !isAncient; 
     });
