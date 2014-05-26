@@ -12,7 +12,9 @@ module Shared {
 
   export interface AntennaLayout { name : string; dimensions: {width : number; height : number}; scale: number
                                  ; backgroundImage? : string
-                                 ; readerAntennaSpecs : ReaderAntennaSpec[]; tagConfiguration : TagInfo[] }
+                                 ; tagConfiguration : TagConfiguration[]
+                                 ; readerAntennaSpecs : ReaderAntennaSpec[]; 
+                                 }
   
   export interface ReaderAntennaSpec { readerIp : string; antennaSpecs : AntennaSpec[] }
 
@@ -24,21 +26,23 @@ module Shared {
   
   export interface Antenna extends AntennaSpec { antennaId : AntennaId }
   
-  export interface AntennaRSSI {antNr : number; value : number; timestamp : Date; age? : number; /* milliseconds */ distance? : number}
+  export interface AntennaRSSI { antNr : number; value : number; timestamp : Date; age? : number; /* milliseconds */ distance? : number }
    
   export interface LayoutInfo { selectedLayoutNr : number; names : string[] }
   
-  export interface TagInfo { epc : string; color : string; testCoord : Coord} // testCoord is the actual (non-computed) position of this tag in a test setup
+  export interface TagConfiguration { epc : string; color : string; testCoord : Coord} // testCoord is the actual (non-computed) position of this tag in a test setup
   
   export interface AntennaInfo { name : string; dimensions: {width : number; height : number}
                                ; scale: number // pixels per meter
                                ; backgroundImage? : string
+                               ; tagConfiguration : TagConfiguration[]
                                ; antennaSpecs : Antenna[] }
   
-  export interface TagData {epc : string; antennaRssis : AntennaRSSI[]; coordinate? : { coord: {x : number; y : number}; isRecent : boolean } }[]
+  export interface TagData { epc : string; antennaRssis : AntennaRSSI[]
+                           ; coordinate? : { coord: {x : number; y : number}; isRecent : boolean } }[]
   
   export interface ServerState {
-    status : {isConnected : boolean; isSaving : boolean; webServerTime : string; readerServerTime : string }
+    status : { isConnected : boolean; isSaving : boolean; webServerTime : string; readerServerTime : string }
     selectedAntennaLayoutNr : number
     tagsData : TagData[]
     unknownAntennaIds : AntennaId[]

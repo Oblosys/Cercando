@@ -127,14 +127,6 @@ function initExpress() {
     res.send(JSON.stringify(state));
   });
 
-  app.get('/query/tag-info', function(req, res) {  
-    util.log('Sending tag info to client. (' + new Date() + ')');
-    res.setHeader('content-type', 'application/json');
-    
-    res.send(JSON.stringify(allAntennaLayouts[state.selectedAntennaLayoutNr].tagConfiguration));
-  });
-
-
   app.get('/query/layout-info', function(req, res) {  
     util.log('Sending layout info to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
@@ -219,7 +211,9 @@ function getAntennaInfo(nr : number) : Shared.AntennaInfo {
   var antennaLayout = allAntennaLayouts[nr];
   var info  = { name: antennaLayout.name, dimensions: antennaLayout.dimensions, scale: antennaLayout.scale
               , backgroundImage: antennaLayout.backgroundImage
-              , antennaSpecs: allAntennas }; // todo: global allAntennas ref is not elegant
+              , antennaSpecs: allAntennas  // todo: global allAntennas ref is not elegant
+              , tagConfiguration : allAntennaLayouts[state.selectedAntennaLayoutNr].tagConfiguration 
+              };
   return info;
 }
     

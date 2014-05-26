@@ -28,7 +28,7 @@ var tagTrails : Shared.Coord[][] = [];
 var refreshInterval : number; // setInterval() returns a number
 var serverState : Shared.ServerState;
 var allAntennas : Shared.Antenna[];
-var allTagInfo : Shared.TagInfo[];
+var tagConfiguration : Shared.TagConfiguration[];
   
 var UIState = Backbone.Model.extend({
   defaults: {
@@ -114,7 +114,7 @@ function initLayoutSelector() {
 
 // TODO: Maybe combine with query antennas so we can easily handle actions that require both to have finished
 function queryTagInfo() {
-  $.getJSON( 'query/tag-info', function(newTagInfo : Shared.TagInfo[]) {
+  $.getJSON( 'query/tag-info', function(newTagInfo : Shared.TagConfiguration[]) {
     //util.log('Queried tag info:\n'+JSON.stringify(newTagInfo));
     allTagInfo = newTagInfo;
     ClientCommon.drawTagSetup();

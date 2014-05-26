@@ -12,7 +12,7 @@ declare var origin : Shared.Coord;
 declare var floorWidth : number;
 declare var floorHeight : number;
 declare var allAntennas : Shared.Antenna[];
-declare var allTagInfo : Shared.TagInfo[];
+declare var tagConfiguration : Shared.TagConfiguration[];
 declare var allTagTrails : {}; // Object that has epc keys for Shared.Coord[] values (can't easily enforce this in TypeScript)
 declare var trailLength : number;
 
@@ -179,9 +179,11 @@ module ClientCommon {
 }
 
   export function drawTagSetup() {
+    util.log('tag setup '+JSON.stringify(tagConfiguration));
     var tagInfoPlaneSVG = d3.select('#tag-info-plane');
-    _(allTagInfo).each((tag, tagNr)=>{
+    _(tagConfiguration).each((tag, tagNr)=>{
       if (tag.testCoord) {
+        util.log('testCoord');
         var tagCoord = ClientCommon.toScreen(tag.testCoord);
         drawSquare(tagInfoPlaneSVG, tagCoord.x, tagCoord.y, 10, tag.color);
       }
@@ -201,12 +203,12 @@ module ClientCommon {
   
   // utility functions
   export function getTagInfo(epc : string) {
-    var ix = _(allTagInfo).pluck('epc').indexOf(epc);
+    var ix = _(tagConfiguration).pluck('epc').indexOf(epc);
     if (ix == -1) {
       //console.log('Tag with epc %s not found in allTagInfo',epc)
       return {epc:epc, color:colors[parseInt(epc.charAt(epc.length-1))], testCoord:null}
     } else {
-      return allTagInfo[ix];
+      return tagConfiguration[ix];
     }
   }
   

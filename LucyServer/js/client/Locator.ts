@@ -27,7 +27,7 @@ var allTagTrails = {}; // Object that has epc keys for Shared.Coord[] values (ca
 var refreshInterval : number; // setInterval() returns a number
 var serverState : Shared.ServerState;
 var allAntennas : Shared.Antenna[];
-var allTagInfo : Shared.TagInfo[];
+var tagConfiguration : Shared.TagConfiguration[];
 
 var UIState = Backbone.Model.extend({
   defaults: {
@@ -85,18 +85,7 @@ function initialize() {
   floorSVG.append('g').attr('id', 'trilateration-plane');
   floorSVG.append('g').attr('id', 'visitor-plane');
 
-  queryTagInfo(); // queryTagInfo calls initLayoutSelector, which calls selectLayout, which finishes client init and starts refresh interval
-}
-
-// TODO: Maybe combine with query antennas so we can easily handle actions that require both to have finished
-function queryTagInfo() {
-  $.getJSON( 'query/tag-info', function(newTagInfo : Shared.TagInfo[]) {
-    //util.log('Queried tag info:\n'+JSON.stringify(newTagInfo));
-    allTagInfo = newTagInfo;
-    initLayoutSelector();
-  }) .fail(function(jqXHR : any, status : any, err : any) {
-    util.error( "Error in queryTagInfo:\n\n" + jqXHR.responseText );
-  });
+  initLayoutSelector(); // initLayoutSelector calls selectLayout, which finishes client init and starts refresh interval
 }
 
 function initSelectorButtons() {
@@ -244,6 +233,8 @@ function selectLayout(layoutNr : number) {
   $.getJSON( 'query/select-layout/'+layoutNr, function(antennaInfo : Shared.AntennaInfo) {
     serverState.selectedAntennaLayoutNr = layoutNr;
     allAntennas = antennaInfo.antennaSpecs;
+    tagConfiguration = antennaInfo.tagConfiguration;
+    util.log(JSON.stringify(antennaInfo));
     scale = antennaInfo.scale;
     ClientCommon.resizeFloor(antennaInfo.dimensions);
     ClientCommon.setBackgroundImage(antennaInfo.backgroundImage);
