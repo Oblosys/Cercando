@@ -13,7 +13,7 @@ declare var floorWidth : number;
 declare var floorHeight : number;
 declare var allAntennas : Shared.Antenna[];
 declare var allTagInfo : Shared.TagInfo[];
-declare var allTagTrails : {}; 
+declare var allTagTrails : {}; // Object that has epc keys for Shared.Coord[] values (can't easily enforce this in TypeScript)
 declare var trailLength : number;
 
 var uiState : Backbone.Model;
@@ -46,9 +46,7 @@ module ClientCommon {
   
   export function createAntennaMarkers() {
     var antennaPlaneSVG = d3.select('#antenna-plane');
-  
     _.each(allAntennas, (ant, i) => createAntennaMarker(antennaPlaneSVG, ant, i));
-  
   }
   
   export function createAntennaMarker(planeSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
