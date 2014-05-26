@@ -96,7 +96,7 @@ function queryTagInfo() {
     allTagInfo = newTagInfo;
     initLayoutSelector();
   }) .fail(function(jqXHR : any, status : any, err : any) {
-    console.error( "Error in queryTagInfo:\n\n" + jqXHR.responseText );
+    util.error( "Error in queryTagInfo:\n\n" + jqXHR.responseText );
   });
 }
 
@@ -266,7 +266,8 @@ function updateTags() {
               .attr('cx',pos.x)
               .attr('cy',pos.y);
     } else {
-      //markerD3.style('display', 'none'); 
+      util.error('No coordinate for tag '+tagData.epc);
+      markerD3.style('display', 'none'); 
     }
   });
   updateTrails();
@@ -285,7 +286,7 @@ function selectLayout(layoutNr : number) {
     resetClientState();
     startRefreshInterval();
   }) .fail(function(jqXHR : any, status : any, err : any) {
-    console.error( "Error:\n\n" + jqXHR.responseText );
+    util.error( "Error:\n\n" + jqXHR.responseText );
   });
 }
   
@@ -318,7 +319,7 @@ function refresh() {
     updateTags();
   }).fail(function(jqXHR : JQueryXHR, status : any, err : any) {
     resetClientState();
-    console.error( "Error:\n\n" + jqXHR.responseText );
+    util.error( "Error:\n\n" + jqXHR.responseText );
   });
 }
 

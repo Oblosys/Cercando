@@ -185,7 +185,7 @@ function initExpress() {
     if (readerAntennaSpec)
       readerAntennaSpec.antennaSpecs[ readerAntennaNr - 1 ].coord = newCoord;
     else
-      console.error('Move: no readerAntennaSpec found for reader ' + readerIp);
+      util.error('Move: no readerAntennaSpec found for reader ' + readerIp);
     
     res.setHeader('content-type', 'text/plain');
     res.writeHead(204);

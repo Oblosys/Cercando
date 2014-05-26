@@ -119,7 +119,7 @@ function queryTagInfo() {
     allTagInfo = newTagInfo;
     ClientCommon.drawTagSetup();
   }) .fail(function(jqXHR : any, status : any, err : any) {
-    console.error( "Error:\n\n" + jqXHR.responseText );
+    util.error( "Error:\n\n" + jqXHR.responseText );
   });
 }
 
@@ -191,7 +191,7 @@ function selectLayout(layoutNr : number) {
     ClientCommon.setBackgroundImage(antennaInfo.backgroundImage);
     resetClientState();
   }) .fail(function(jqXHR : any, status : any, err : any) {
-    console.error( "Error:\n\n" + jqXHR.responseText );
+    util.error( "Error:\n\n" + jqXHR.responseText );
   });
 }
   
@@ -207,7 +207,7 @@ function stopRefreshInterval() {
 }
 
 function refresh() {
-  console.error('refresh() not implemented');
+  util.error('refresh() not implemented');
 }
 
 function handleStartRefreshButton() {

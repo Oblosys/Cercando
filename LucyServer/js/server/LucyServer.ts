@@ -308,7 +308,7 @@ function readerServerConnected(readerServerSocket : net.Socket) {
         try {
           var readerEvent : ServerCommon.ReaderEvent = JSON.parse(line);
         } catch (e) {
-          console.error('JSON parse error in line:\n"'+showInvisibles(line)+'"', e);
+          util.error('JSON parse error in line:\n"'+showInvisibles(line)+'"', e);
         }
         if (readerEvent)
           processReaderEvent(readerEvent);
