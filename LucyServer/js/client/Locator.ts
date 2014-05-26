@@ -32,7 +32,8 @@ var allTagInfo : Shared.TagInfo[];
 var UIState = Backbone.Model.extend({
   defaults: {
     showMaxAntennaRanges: false,
-    showSignals: true
+    showSignals: true,
+    showTrails: true
   }
 });
 
@@ -103,6 +104,8 @@ function initSelectorButtons() {
   $('#show-ranges-selector .select-button:eq(1)').on('click', () => {uiState.set('showMaxAntennaRanges', false)});
   $('#show-signals-selector .select-button:eq(0)').on('click', () => {uiState.set('showSignals', true)});
   $('#show-signals-selector .select-button:eq(1)').on('click', () => {uiState.set('showSignals', false)});
+  $('#show-trails-selector .select-button:eq(0)').on('click', () => {uiState.set('showTrails', true)});
+  $('#show-trails-selector .select-button:eq(1)').on('click', () => {uiState.set('showTrails', false)});
 }
 
 function handleUIStateChange(m : Backbone.Model, newValue : any) {
@@ -115,6 +118,10 @@ function handleUIStateChange(m : Backbone.Model, newValue : any) {
   util.setAttr($('#show-signals-selector .select-button:eq(0)'),'selected', showSignals);
   util.setAttr($('#show-signals-selector .select-button:eq(1)'),'selected', !showSignals);
   $('#rssi-plane').attr('visibility', showSignals ? 'visible' : 'hidden');
+  var showTrails = uiState.get('showTrails');
+  util.setAttr($('#show-trails-selector .select-button:eq(0)'),'selected', showTrails);
+  util.setAttr($('#show-trails-selector .select-button:eq(1)'),'selected', !showTrails);
+  $('#trail-plane').attr('visibility', showTrails ? 'visible' : 'hidden');
 }
 
 function initLayoutSelector() {
