@@ -159,7 +159,7 @@ module ClientCommon {
   export function initDataRows() {
     $('#tags-data *').remove();
     $('#tags-data').append('<tr class="data-row"><td>EPC</td>' +
-                             _(_.range(1,allAntennas.length)).map((i) => {return '<td class="ant-rssi">' + i + '</td>'}).join('') +
+                             _(_.range(1,allAntennas.length+1)).map((i) => {return '<td class="ant-rssi">' + i + '</td>'}).join('') +
                            '</tr>');
   }
   
