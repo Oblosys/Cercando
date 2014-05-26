@@ -51,7 +51,7 @@ module Shared {
   export function initialServerState() : ServerState {
     return {
       status: {isConnected: false, isSaving: false, webServerTime : null, readerServerTime : null},
-      selectedAntennaLayoutNr: 0,
+      selectedAntennaLayoutNr: 1,
       tagsData: [],
       unknownAntennaIds: []
     };
