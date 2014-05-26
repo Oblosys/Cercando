@@ -143,7 +143,8 @@ function setAntennasDragHandler() {
 function generateTags(nrOfGeneratedVisitors : number) {
   var tags : Shared.TagData[] =   
     _(_.range(nrOfGeneratedVisitors)).map((i) => {
-      var coord = i==0 ? {x:0.0, y:0} : {x:Math.random()*8-5, y:Math.random()*5-3}
+      var coord = i==0 ? {x:0.0, y:0} : { x:ClientCommon.fromScreenX(Math.random()*0.8*floorWidth + 0.1*floorWidth)
+                                        , y:ClientCommon.fromScreenY(Math.random()*0.8*floorHeight + 0.1*floorHeight) }
       return {epc: util.padZero(31, i), antennaRssis: [], coordinate:{coord: coord, isRecent: true}};
     });
   _(tags).each((tag) => {
