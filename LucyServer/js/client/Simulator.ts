@@ -104,15 +104,14 @@ function initLayoutSelector() {
 function setAntennasDragHandler() {
   var drag = d3.behavior.drag()
     .on("drag", function(d,i) {
+      var antennaNr = parseInt(ClientCommon.getAntennaNrFromId($(this).attr('id'))); 
       $(this).attr('transform', 'translate('+d3.event.x+','+d3.event.y+')');
+      d3.select('#'+ClientCommon.mkAntennaRangeId(antennaNr)).attr('cx', d3.event.x)
+                                                             .attr('cy', d3.event.y);
+      d3.select('#'+ClientCommon.mkAntennaRangeBackgroundId(antennaNr)).attr('cx', d3.event.x)
+                                                                       .attr('cy', d3.event.y);
       var x = ClientCommon.fromScreenX(d3.event.x);
       var y = ClientCommon.fromScreenY(d3.event.y);
-      var splitId = $(this).attr('id').split('-');
-      var antennaNr : number = 0; 
-      if (splitId.length > 0)
-        antennaNr = parseInt(splitId[1]);
-      else
-        util.log('Incorrect antenna id: \'' + $(this).attr('id') + '\'');
       $.get('/query/move-antenna/'+antennaNr+'/'+x+'/'+y, function() {}); // simply send all drag events to server (only meant for local connection)
     });
   d3.selectAll('.antenna-marker').call(drag);

@@ -79,22 +79,24 @@ module ClientCommon {
     var pos = ClientCommon.toScreen(antenna.coord);
     var antennaClass = (antenna.shortMidRangeTarget ? (antenna.shortMidRangeTarget.isShortRange ? 'short' : 'mid') :'long') +
                        '-range';
-    var antennaSVG = planeSVG.append('g').attr('id', 'a-'+antennaNr).attr('class', 'antenna-marker '+antennaClass)
+
+    // styling is done with css (unfortunately, r is not a css attribute)
+    rangeBackgroundPlaneSVG.append('circle').attr('id', mkAntennaRangeBackgroundId(antennaNr)).attr('class', 'antenna-max-range-background '+antennaClass)
+      .attr('r', Shared.getAntennaMaxRange(antenna)*scale)
+      .attr('cx', pos.x)
+      .attr('cy', pos.y);
+    rangePlaneSVG.append('circle').attr('id', mkAntennaRangeId(antennaNr)).attr('class', 'antenna-max-range '+antennaClass)
+      .attr('r', Shared.getAntennaMaxRange(antenna)*scale)
+      .attr('cx', pos.x)
+      .attr('cy', pos.y);
+
+    var antennaSVG = planeSVG.append('g').attr('id', mkAntennaId(antennaNr)).attr('class', 'antenna-marker '+antennaClass)
                        .attr('transform', 'translate('+pos.x+','+pos.y+')');
     // 'g' element with translate is annoying, but nested svg creates clipping problems
    
-    // styling is done with css (unfortunately, r is not a css attribute)
-    rangeBackgroundPlaneSVG.append('circle').attr('class', 'antenna-max-range-background '+antennaClass)
-      .attr('r', Shared.getAntennaMaxRange(antenna)*scale)
-      .attr('cx', pos.x)
-      .attr('cy', pos.y);
-    rangePlaneSVG.append('circle').attr('class', 'antenna-max-range '+antennaClass)
-      .attr('r', Shared.getAntennaMaxRange(antenna)*scale)
-      .attr('cx', pos.x)
-      .attr('cy', pos.y);
     antennaSVG.append('circle').attr('class', 'antenna-shape').attr('r', 8)
-    var text = antennaSVG.append('text').attr('id', 'l-'+antennaNr).attr('class', 'antenna-label').text(antenna.name);
-    var labelSize = $('#l-'+antennaNr)[0].getBoundingClientRect();
+    var text = antennaSVG.append('text').attr('id', mkAntennaLabelId(antennaNr)).attr('class', 'antenna-label').text(antenna.name);
+    var labelSize = $('#'+mkAntennaLabelId(antennaNr))[0].getBoundingClientRect();
     //util.log('label ' +antenna.name + ' ' , labelSize.width);
     text.attr('x', -labelSize.width/2 + 1)
         .attr('y', labelSize.height/2 - 3.5)
@@ -238,6 +240,26 @@ module ClientCommon {
     } else {
       return tagConfiguration[ix];
     }
+  }
+  
+  export function mkAntennaId(nr : number) {
+    return mkId('antenna', ''+nr)
+  }
+  
+  export function getAntennaNrFromId(antennaId : string) {
+    return stripIdPrefix('antenna', antennaId);
+  } 
+
+  export function mkAntennaLabelId(nr : number) {
+    return mkId('antenna-label', ''+nr)
+  }
+
+  export function mkAntennaRangeId(nr : number) {
+    return mkId('antenna-range', ''+nr)
+  }
+  
+  export function mkAntennaRangeBackgroundId(nr : number) {
+    return mkId('antenna-range-background', ''+nr)
   }
   
   export function mkTagId(tag : Shared.TagData) {
