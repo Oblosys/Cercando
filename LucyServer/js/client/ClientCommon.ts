@@ -24,6 +24,30 @@ module ClientCommon {
 'lightblue'];
   
   // d3 common code
+  export function initFloorSVG() {
+    var floorSVG = d3.select('#floor')
+      .append('svg:svg')
+      .attr('width', floorWidth)
+      .attr('height', floorHeight);
+    
+    var backgroundPlane = floorSVG.append('g').attr('id', 'background-plane');
+    
+    backgroundPlane.append('rect').attr('id', 'floor-background-rect')
+      .attr('width', floorWidth)
+      .attr('height', floorHeight);
+    backgroundPlane.append('image').attr('id', 'floor-background-image')
+      .attr('width', floorWidth)
+      .attr('height', floorHeight);
+      
+    floorSVG.append('g').attr('id', 'trail-plane');
+    floorSVG.append('g').attr('id', 'antenna-range-background-plane');
+    floorSVG.append('g').attr('id', 'antenna-range-plane');
+    floorSVG.append('g').attr('id', 'antenna-plane');
+    floorSVG.append('g').attr('id', 'tag-setup-plane');
+    floorSVG.append('g').attr('id', 'rssi-plane');
+    floorSVG.append('g').attr('id', 'trilateration-plane');
+    floorSVG.append('g').attr('id', 'visitor-plane');
+  }
   
   export function resizeFloor(dim : {width : number; height : number}) {
     floorWidth = scale*dim.width;
@@ -46,10 +70,12 @@ module ClientCommon {
   
   export function createAntennaMarkers() {
     var antennaPlaneSVG = d3.select('#antenna-plane');
-    _.each(allAntennas, (ant, i) => createAntennaMarker(antennaPlaneSVG, ant, i));
+    var rangePlaneSVG = d3.select('#antenna-range-plane');
+    var rangeBackgroundPlaneSVG = d3.select('#antenna-range-background-plane');
+    _.each(allAntennas, (ant, i) => createAntennaMarker(antennaPlaneSVG, rangePlaneSVG, rangeBackgroundPlaneSVG, ant, i));
   }
   
-  export function createAntennaMarker(planeSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
+  export function createAntennaMarker(planeSVG : D3.Selection, rangePlaneSVG : D3.Selection, rangeBackgroundPlaneSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
     var pos = ClientCommon.toScreen(antenna.coord);
     var antennaClass = (antenna.shortMidRangeTarget ? (antenna.shortMidRangeTarget.isShortRange ? 'short' : 'mid') :'long') +
                        '-range';
@@ -57,11 +83,15 @@ module ClientCommon {
                        .attr('transform', 'translate('+pos.x+','+pos.y+')');
     // 'g' element with translate is annoying, but nested svg creates clipping problems
    
-    var showMaxAntennaRanges = uiState.get('showMaxAntennaRanges');
-
     // styling is done with css (unfortunately, r is not a css attribute)
-    antennaSVG.append('circle').attr('class', 'antenna-max-range').attr('visibility', showMaxAntennaRanges ? 'visible' : 'hidden')
+    rangeBackgroundPlaneSVG.append('circle').attr('class', 'antenna-max-range-background '+antennaClass)
       .attr('r', Shared.getAntennaMaxRange(antenna)*scale)
+      .attr('cx', pos.x)
+      .attr('cy', pos.y);
+    rangePlaneSVG.append('circle').attr('class', 'antenna-max-range '+antennaClass)
+      .attr('r', Shared.getAntennaMaxRange(antenna)*scale)
+      .attr('cx', pos.x)
+      .attr('cy', pos.y);
     antennaSVG.append('circle').attr('class', 'antenna-shape').attr('r', 8)
     var text = antennaSVG.append('text').attr('id', 'l-'+antennaNr).attr('class', 'antenna-label').text(antenna.name);
     var labelSize = $('#l-'+antennaNr)[0].getBoundingClientRect();

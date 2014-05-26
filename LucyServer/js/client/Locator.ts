@@ -64,28 +64,9 @@ function initialize() {
 
   uiState.on('change', handleUIStateChange);
   initSelectorButtons();
-  
-  var floorSVG = d3.select('#floor')
-    .append('svg:svg')
-    .attr('width', floorWidth)
-    .attr('height', floorHeight);
-  
-  var backgroundPlane = floorSVG.append('g').attr('id', 'background-plane');
-  
-  backgroundPlane.append('rect').attr('id', 'floor-background-rect')
-    .attr('width', floorWidth)
-    .attr('height', floorHeight);
-  backgroundPlane.append('image').attr('id', 'floor-background-image')
-    .attr('width', floorWidth)
-    .attr('height', floorHeight);
-    
-  floorSVG.append('g').attr('id', 'trail-plane');
-  floorSVG.append('g').attr('id', 'antenna-plane');
-  floorSVG.append('g').attr('id', 'tag-setup-plane');
-  floorSVG.append('g').attr('id', 'rssi-plane');
-  floorSVG.append('g').attr('id', 'trilateration-plane');
-  floorSVG.append('g').attr('id', 'visitor-plane');
 
+  ClientCommon.initFloorSVG();
+  
   initLayoutSelector(); // initLayoutSelector calls selectLayout, which finishes client init and starts refresh interval
 }
 
@@ -105,7 +86,8 @@ function handleUIStateChange(m : Backbone.Model, newValue : any) {
   var showMaxAntennaRanges = uiState.get('showMaxAntennaRanges');
   util.setAttr($('#show-ranges-selector .select-button:eq(0)'),'selected', showMaxAntennaRanges);
   util.setAttr($('#show-ranges-selector .select-button:eq(1)'),'selected', !showMaxAntennaRanges);
-  $('#antenna-plane .antenna-max-range').attr('visibility', showMaxAntennaRanges ? 'visible' : 'hidden');
+  $('#antenna-range-plane').attr('visibility', showMaxAntennaRanges ? 'visible' : 'hidden');
+  $('#antenna-range-background-plane').attr('visibility', showMaxAntennaRanges ? 'visible' : 'hidden');
   var showSignals = uiState.get('showSignals');
   util.setAttr($('#show-signals-selector .select-button:eq(0)'),'selected', showSignals);
   util.setAttr($('#show-signals-selector .select-button:eq(1)'),'selected', !showSignals);
