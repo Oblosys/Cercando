@@ -94,7 +94,12 @@ module ClientCommon {
                        .attr('transform', 'translate('+pos.x+','+pos.y+')');
     // 'g' element with translate is annoying, but nested svg creates clipping problems
    
-    antennaSVG.append('circle').attr('class', 'antenna-shape').attr('r', 8)
+    var size = 15;
+    antennaSVG.append('rect').attr('class', 'antenna-shape')
+      .attr('x', -size/2)
+      .attr('y', -size/2)
+      .attr('width', size)
+      .attr('height', size);
     var text = antennaSVG.append('text').attr('id', mkAntennaLabelId(antennaNr)).attr('class', 'antenna-label').text(antenna.name);
     var labelSize = $('#'+mkAntennaLabelId(antennaNr))[0].getBoundingClientRect();
     //util.log('label ' +antenna.name + ' ' , labelSize.width);
