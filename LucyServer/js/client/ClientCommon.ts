@@ -118,6 +118,28 @@ module ClientCommon {
           .attr('r', antennaRssi.distance*scale);          
   }
   
+  export function initDataRows() {
+    $('#tags-data *').remove();
+    $('#tags-data').append('<tr class="data-row"><td>EPC</td>' +
+                             _(_.range(1,allAntennas.length)).map((i) => {return '<td class="ant-rssi">' + i + '</td>'}).join('') +
+                           '</tr>');
+  }
+  
+  export function createDataRow(tag : Shared.TagData) {
+    $('#tags-data').append('<tr id="' + mkDataRowId(tag) + '" class="data-row"><td class="tag-label">'+tag.epc.slice(-7)+'</td>' +
+                             util.replicate(allAntennas.length, '<td class="ant-rssi">&nbsp;</td>').join('') +
+                           '</tr>');
+    var color = getTagInfo(tag.epc).color;
+    //$('.tag-rssis:eq('+tagNr+') .tag-label').text(tagData.epc);
+    var $tagLabel = $('#'+mkDataRowId(tag));
+    $tagLabel.css('color', color);
+
+  }
+  
+  export function removeDataRow(tag : Shared.TagData) {
+    $('#'+mkDataRowId(tag)).remove();
+  }
+
   export function drawTagSetup() {
     var tagInfoPlaneSVG = d3.select('#tag-info-plane');
     _(allTagInfo).each((tag, tagNr)=>{
@@ -150,6 +172,10 @@ module ClientCommon {
     }
   }
 
+  export function mkDataRowId(tag : Shared.TagData) {
+    return mkId('data-row', tag.epc)
+  }
+  
   export function mkTagId(tag : Shared.TagData) {
     return mkId('tag', tag.epc)
   }

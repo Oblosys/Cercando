@@ -50,8 +50,7 @@ function resetClientState() {
   d3.selectAll('#tag-info-plane *').remove();
   d3.selectAll('#rssi-plane *').remove();
   d3.selectAll('#trilateration-plane *').remove();
-  $('.tag-rssis .tag-label').text('');
-  $('.tag-rssis .ant-rssi').html('');
+  ClientCommon.initDataRows()
   ClientCommon.drawTagSetup();
   ClientCommon.createAntennaMarkers();
 
@@ -145,7 +144,7 @@ function initTrails() {
   }
 }
 
-// TODO: maybe use D3 for adding and removing?
+// TODO: maybe use D3 for adding and removing? Is this possible when we also add/remove non-d3 elements? (e.g. data rows) 
 function addRemoveSVGElements(oldTagsData : Shared.TagData[], currentTagsData : Shared.TagData[]) {
   // Remove disappeared signals and tags
   _(oldTagsData).each((oldTag) => {
@@ -159,6 +158,7 @@ function addRemoveSVGElements(oldTagsData : Shared.TagData[], currentTagsData : 
     if (!currentTag) {
       util.log('Removed tag ' + oldTag.epc); 
       ClientCommon.removeTagMarker(oldTag);
+      ClientCommon.removeDataRow(oldTag);
     }
   });
 
@@ -174,6 +174,7 @@ function addRemoveSVGElements(oldTagsData : Shared.TagData[], currentTagsData : 
     if (!oldTag) {
       //util.log('New tag ' + currentTag.epc); 
       ClientCommon.createTagMarker(currentTag);
+      ClientCommon.createDataRow(currentTag);
     }
   });
 }
@@ -224,13 +225,8 @@ function updateTags() {
   _.map(serverState.tagsData, (tagData) => {
     //util.log(tagRssis.epc + '(' + tagNr + ':' + tagColors[tagNr] + ')' + tagRssis.rssis);
     var tagNr = getTagNr(tagData.epc);
-    var color = ClientCommon.getTagInfo(tagData.epc).color;
-    //$('.tag-rssis:eq('+tagNr+') .tag-label').text(tagData.epc);
-    var $tagLabel = $('.tag-rssis:eq('+tagNr+') .tag-label');
-    $tagLabel.css('color', color);
-    $tagLabel.text(tagNr + ' ' +tagData.epc.slice(-7));
     
-      for (var i=0; i < tagData.antennaRssis.length; i++) {
+    for (var i=0; i < tagData.antennaRssis.length; i++) {
       var antRssi = tagData.antennaRssis[i];
       var antNr = antRssi.antNr;
       //util.log('epc:'+tagData.epc+'  '+tagNr);
@@ -240,10 +236,10 @@ function updateTags() {
         
       // show in table
       if (rssi) {
-        $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+antNr+')').html('<span class="dist-label">' + dist.toFixed(1) + 'm</span>' +
+        $('#'+ClientCommon.mkDataRowId(tagData)+' .ant-rssi:eq('+antNr+')').html('<span class="dist-label">' + dist.toFixed(1) + 'm</span>' +
                                                                  '<span class="rssi-label">(' + rssi.toFixed(1) + ')</span>');
-        $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+antNr+') .dist-label').css('color', isSignalRecent ? 'white' : 'red');
-        $('.tag-rssis:eq('+tagNr+') .ant-rssi:eq('+antNr+') .rssi-label').css('color', isSignalRecent ? '#bbb' : 'red');
+        $('#'+ClientCommon.mkDataRowId(tagData)+' .dist-label').css('color', isSignalRecent ? 'white' : 'red');
+        $('#'+ClientCommon.mkDataRowId(tagData)+' .rssi-label').css('color', isSignalRecent ? '#bbb' : 'red');
       }
       //util.log(tagNr + '-' + ant +' '+ rssi);
 

@@ -105,27 +105,28 @@ body {
 	fill: white;
 }
 
-#tags-data {
-  display: inline-block;
+table#tags-data {
+  table-layout: auto;
   margin-top: 20px;
+  border: solid 1px grey;
 }
 
-.tag-rssis {
+tr.table-row {
   color: white;
-  float: left;
 }
-.tag-label {
+td.tag-label {
   text-align: right;
-  margin-right: 10px;
-  float: left;
+  padding-right: 10px;
+  border: solid 1px grey;
   width: 100px;
 }
 
-.ant-rssi {
-  float: left;
-  width: 100px;
-  margin-left: 20px;
-  margin-right: 20px;
+td.ant-rssi {
+  min-width:75px;
+  padding-left: 4px;
+  padding-right: 4px;
+  font-size: 80%;
+  border: solid 1px grey;
 }
 
 .dist-label {
