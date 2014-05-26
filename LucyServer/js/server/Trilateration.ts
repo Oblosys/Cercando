@@ -102,34 +102,37 @@ export function incrementalTrilateration(epc : string, antennas : Shared.Antenna
       antennaCoords.push({x: antennas[antNr].coord.x, y: antennas[antNr].coord.y, dist: antennaRssi.distance});
     }
   });
-  //var oldCoord :;
-  if (!oldCoord) // TODO: is this right?
-    oldCoord = {x:0, y:0};
 
-  var walkingSpeed = 0.2;
-  
+  var walkingSpeed = 1;
+  var startCoord = oldCoord || {x:0, y:0};
+   
   var movementVectors : PositionVector[] = _(antennaCoords).map((antennaCoord) => {
     //return getPositionVector(oldCoord, antennaCoord) // Ernst: simply return vector itself
     
     // multiply vector with |v_a| - (distance(RSSI_a))
     //util.log(oldCoord);
-    var positionVector = getPositionVector(oldCoord, antennaCoord);
+    var positionVector = getPositionVector(startCoord, antennaCoord);
     var pvLength = getVectorLength(positionVector);
     var vLength = pvLength - antennaCoord.dist;
     var movementVector = pvLength > 0.0000001 ? scaleVector( vLength/pvLength, positionVector) : positionVector;
     return movementVector;
   });
 
-
   var movementVector = getVectorSum(movementVectors);
-  var movementSpeed = getVectorLength(movementVector);
-  if (movementSpeed > walkingSpeed) {
-    scaleVector(walkingSpeed / movementSpeed, movementVector);
+
+  var newCoord : Shared.Coord;
+  if (oldCoord == null) { // if there was no previous point, we take the movementVector as the starting point
+    newCoord = {x: movementVector.x, y: movementVector.y};
+  } else {
+    var movementSpeed = getVectorLength(movementVector);
+    if (movementSpeed > walkingSpeed) { // todo: probably need to divide by nr of vectors
+      movementVector = scaleVector(walkingSpeed / movementSpeed, movementVector);
+    }
+    
+    var deltaVector = scaleVector (dt, movementVector); 
+    
+    newCoord = {x: startCoord.x + deltaVector.x, y: startCoord.y + deltaVector.y};
   }
-  
-  var deltaVector = scaleVector (dt, movementVector); 
-  
-  var newCoord = {x: oldCoord.x + deltaVector.x, y: oldCoord.y + deltaVector.y};
   return {coord: newCoord, isRecent: true};
 }
 
