@@ -37,8 +37,8 @@ body {
 .select-button {
   display: inline-block;
   padding: 5px;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-top: 4px;
+  margin-bottom: 4px;
   vertical-align:middle;
 }
 .select-button[selected] {

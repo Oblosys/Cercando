@@ -31,7 +31,8 @@ var allTagInfo : Shared.TagInfo[];
 
 var UIState = Backbone.Model.extend({
   defaults: {
-    showMaxAntennaRanges: false
+    showMaxAntennaRanges: false,
+    showSignals: true
   }
 });
 
@@ -100,16 +101,22 @@ function queryTagInfo() {
 }
 
 function initSelectorButtons() {
-  $('#show-range-selector .select-button:eq(0)').on('click', () => {uiState.set('showMaxAntennaRanges', true)});
-  $('#show-range-selector .select-button:eq(1)').on('click', () => {uiState.set('showMaxAntennaRanges', false)});
+  $('#show-ranges-selector .select-button:eq(0)').on('click', () => {uiState.set('showMaxAntennaRanges', true)});
+  $('#show-ranges-selector .select-button:eq(1)').on('click', () => {uiState.set('showMaxAntennaRanges', false)});
+  $('#show-signals-selector .select-button:eq(0)').on('click', () => {uiState.set('showSignals', true)});
+  $('#show-signals-selector .select-button:eq(1)').on('click', () => {uiState.set('showSignals', false)});
 }
 
 function handleUIStateChange(m : Backbone.Model, newValue : any) {
  // util.log('handleUIStateChange', m, newValue); // note that m and newValue not set on trigger('change')
   var showMaxAntennaRanges = uiState.get('showMaxAntennaRanges');
-  util.setAttr($('#show-range-selector .select-button:eq(0)'),'selected', showMaxAntennaRanges);
-  util.setAttr($('#show-range-selector .select-button:eq(1)'),'selected', !showMaxAntennaRanges);
+  util.setAttr($('#show-ranges-selector .select-button:eq(0)'),'selected', showMaxAntennaRanges);
+  util.setAttr($('#show-ranges-selector .select-button:eq(1)'),'selected', !showMaxAntennaRanges);
   $('#antenna-plane .antenna-max-range').attr('visibility', showMaxAntennaRanges ? 'visible' : 'hidden');
+  var showSignals = uiState.get('showSignals');
+  util.setAttr($('#show-signals-selector .select-button:eq(0)'),'selected', showSignals);
+  util.setAttr($('#show-signals-selector .select-button:eq(1)'),'selected', !showSignals);
+  $('#rssi-plane').attr('visibility', showSignals ? 'visible' : 'hidden');
 }
 
 function initLayoutSelector() {
