@@ -379,23 +379,22 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
       state.unknownAntennaIds.push(antennaId);
     }
   } else {
+    var oldAntennaRssi = getAntennaRssiForAntNr(antNr, tag.antennaRssis);
+    
+    var newRssi = !useSmoother ? readerEvent.rssi 
+                               : filtered(readerEvent.epc, readerEvent.ant, readerEvent.rssi, timestamp, oldAntennaRssi);
+    var newAntennaRssi = {antNr: antNr, value: newRssi, timestamp: timestamp};
+    //if (readerEvent.epc == '0000000000000000000000000503968' && readerEvent.ant == 1) {
+    //  util.log(new Date().getSeconds() + ' ' + readerEvent.epc + ' ant '+readerEvent.ant + ' rawRssi: '+readerEvent.rssi.toFixed(1) + ' dist: '+
+    //          trilateration.getRssiDistance(readerEvent.epc, ''+readerEvent.ant, readerEvent.rssi));
+    //}
+    
+    updateAntennaRssi(newAntennaRssi, tag.antennaRssis);
+    //trilateration.getRssiDistance(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI);
+    //util.log(tagsState);
     if (allAntennas[antNr].shortMidRangeTarget) {
       var shortMidRangeTarget = allAntennas[antNr].shortMidRangeTarget;
       //signalPresentationServer(shortMidRangeTarget.serverIp, shortMidRangeTarget.antennaIndex, readerEvent.epc);
-    } else {
-      var oldAntennaRssi = getAntennaRssiForAntNr(antNr, tag.antennaRssis);
-      
-      var newRssi = !useSmoother ? readerEvent.rssi 
-                                 : filtered(readerEvent.epc, readerEvent.ant, readerEvent.rssi, timestamp, oldAntennaRssi);
-      var newAntennaRssi = {antNr: antNr, value: newRssi, timestamp: timestamp};
-      //if (readerEvent.epc == '0000000000000000000000000503968' && readerEvent.ant == 1) {
-      //  util.log(new Date().getSeconds() + ' ' + readerEvent.epc + ' ant '+readerEvent.ant + ' rawRssi: '+readerEvent.rssi.toFixed(1) + ' dist: '+
-      //          trilateration.getRssiDistance(readerEvent.epc, ''+readerEvent.ant, readerEvent.rssi));
-      //}
-      
-      updateAntennaRssi(newAntennaRssi, tag.antennaRssis);
-      //trilateration.getRssiDistance(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI);
-      //util.log(tagsState);
     }
   }
 }
@@ -442,9 +441,10 @@ function positionAllTags() {
   var dt = previousPositioningTimestamp ? (nowTimestamp - previousPositioningTimestamp) / 1000 :  0
   previousPositioningTimestamp = nowTimestamp; 
 
+  util.log(state.tagsData.length + ' tags')
   // compute distance and age for each antennaRssi for each tag
   _(state.tagsData).each((tag) => {
-    //util.log(tag.epc + ':' + tag.antennaRssis.length + ' signals');
+    util.log(tag.epc + ':' + tag.antennaRssis.length + ' signals');
     _(tag.antennaRssis).each((antennaRssi) => {
       antennaRssi.distance = trilateration.getRssiDistance(tag.epc, allAntennas[antennaRssi.antNr].name, antennaRssi.value);
       antennaRssi.age = nowTimestamp - antennaRssi.timestamp.getTime(); 
@@ -456,8 +456,17 @@ function positionAllTags() {
   
   // compute coordinate for each tag
   _(state.tagsData).each((tag) => {
-    var oldCoord = tag.coordinate ? tag.coordinate.coord : null;
-    tag.coordinate = trilateration.getPosition(tag.epc, allAntennas, oldCoord, dt, tag.antennaRssis);
+    var shortMidRangeRssi = _(tag.antennaRssis).find((antennaRssi) => {
+      var shortMidRangeTarget = allAntennas[antennaRssi.antNr].shortMidRangeTarget;
+      return shortMidRangeTarget != null && shared.isRecentAntennaRSSI(antennaRssi);
+    });
+    if (shortMidRangeRssi) {
+      util.log('short mid for tag '+tag.epc);
+      tag.coordinate = {coord: allAntennas[shortMidRangeRssi.antNr].coord, isRecent:true};
+    } else {
+      var oldCoord = tag.coordinate ? tag.coordinate.coord : null;
+      tag.coordinate = trilateration.getPosition(tag.epc, allAntennas, oldCoord, dt, tag.antennaRssis);
+    }
   });
 }
 
