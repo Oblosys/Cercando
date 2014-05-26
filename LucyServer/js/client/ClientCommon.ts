@@ -71,14 +71,14 @@ module ClientCommon {
 
   export function createTagMarker(tag : Shared.TagData) {
     var trilaterationPlaneSVG = d3.select('#trilateration-plane');
-   
-    trilaterationPlaneSVG.append('circle').attr('id', mkTagId(tag)).attr('class', 'visitor-marker')
+    var tagInfo = getTagInfo(tag.epc);
+    
+    trilaterationPlaneSVG.append('circle').attr('id', mkTagId(tag)).attr('class', 'tag-marker')
       .style('stroke', 'white')
-      .style('fill', 'yellow')
+      .style('fill', tagInfo.color)
       .attr('r', 6)
       .attr('cx', ClientCommon.toScreenX(tag.coordinate ? tag.coordinate.coord.x : 0))
-      .attr('cy', ClientCommon.toScreenY(tag.coordinate ? tag.coordinate.coord.y : 0))
-      .style('display', 'none');
+      .attr('cy', ClientCommon.toScreenY(tag.coordinate ? tag.coordinate.coord.y : 0));
   }
   
   export function removeTagMarker(tag : Shared.TagData) {
