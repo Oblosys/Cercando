@@ -43,7 +43,7 @@ function resetClientState() {
   util.log('Resetting client state');
   uiState.set('showMaxAntennaRanges', false);
   uiState.trigger('change'); // reflect current values in UI, even when they are not different from defaults (and don't fire change  event)
-
+  serverState.tagsData = [];
   tagTrails = [];
   d3.selectAll('#annotation-plane *').remove();
   d3.selectAll('#antenna-plane *').remove();
@@ -65,8 +65,6 @@ function initialize() {
   uiState.on('change', handleUIStateChange);
   initSelectorButtons();
   
-  initLayoutSelector();
-  queryTagInfo();
   var floorSVG = d3.select('#floor')
     .append('svg:svg')
     .attr('width', floorWidth)
@@ -88,7 +86,18 @@ function initialize() {
   floorSVG.append('g').attr('id', 'trilateration-plane');
   floorSVG.append('g').attr('id', 'visitor-plane');
 
-  startRefreshInterval();
+  queryTagInfo(); // queryTagInfo calls initLayoutSelector, which calls selectLayout, which finishes client init and starts refresh interval
+}
+
+// TODO: Maybe combine with query antennas so we can easily handle actions that require both to have finished
+function queryTagInfo() {
+  $.getJSON( 'query/tag-info', function(newTagInfo : Shared.TagInfo[]) {
+    //util.log('Queried tag info:\n'+JSON.stringify(newTagInfo));
+    allTagInfo = newTagInfo;
+    initLayoutSelector();
+  }) .fail(function(jqXHR : any, status : any, err : any) {
+    console.error( "Error in queryTagInfo:\n\n" + jqXHR.responseText );
+  });
 }
 
 function initSelectorButtons() {
@@ -97,7 +106,7 @@ function initSelectorButtons() {
 }
 
 function handleUIStateChange(m : Backbone.Model, newValue : any) {
-  util.log('handleUIStateChange', m, newValue);
+ // util.log('handleUIStateChange', m, newValue); // note that m and newValue not set on trigger('change')
   var showMaxAntennaRanges = uiState.get('showMaxAntennaRanges');
   util.setAttr($('#show-range-selector .select-button:eq(0)'),'selected', showMaxAntennaRanges);
   util.setAttr($('#show-range-selector .select-button:eq(1)'),'selected', !showMaxAntennaRanges);
@@ -110,18 +119,6 @@ function initLayoutSelector() {
       $('#layout-selector').append('<option value="'+name+'">'+name+'</option>');
     });
     selectLayout(layoutInfo.selectedLayoutNr);
-  });
-}
-
-// TODO: Maybe combine with query antennas so we can easily handle actions that require both to have finished
-function queryTagInfo() {
-  $.getJSON( 'query/tag-info', function(newTagInfo : Shared.TagInfo[]) {
-    //util.log('Queried tag info:\n'+JSON.stringify(newTagInfo));
-    allTagInfo = newTagInfo;
-    ClientCommon.drawTagSetup();
-    initTrails();
-  }) .fail(function(jqXHR : any, status : any, err : any) {
-    console.error( "Error:\n\n" + jqXHR.responseText );
   });
 }
 
@@ -170,12 +167,12 @@ function addRemoveSVGElements(oldTagsData : Shared.TagData[], currentTagsData : 
     var oldTag = _(oldTagsData).findWhere({epc: currentTag.epc});
     _(currentTag.antennaRssis).each((currentAntennaRssi) => { // todo: refactor pluck call
       if (!oldTag || !_(_(oldTag.antennaRssis).pluck('antNr')).contains(currentAntennaRssi.antNr)) {
-        util.log('New signal for antenna ' + currentAntennaRssi.antNr + ' for tag ' + currentTag.epc); 
+        //util.log('New signal for antenna ' + currentAntennaRssi.antNr + ' for tag ' + currentTag.epc); 
         ClientCommon.createSignalMarker(currentAntennaRssi, currentTag);
       }
     });
     if (!oldTag) {
-      util.log('New tag ' + currentTag.epc); 
+      //util.log('New tag ' + currentTag.epc); 
       ClientCommon.createTagMarker(currentTag);
     }
   });
@@ -269,7 +266,7 @@ function updateTags() {
               .attr('cx',pos.x)
               .attr('cy',pos.y);
     } else {
-      markerD3.style('display', 'none'); 
+      //markerD3.style('display', 'none'); 
     }
   });
   updateTrails();
@@ -277,19 +274,23 @@ function updateTags() {
 
 function selectLayout(layoutNr : number) {
   util.log('Selecting layout '+layoutNr);
+  stopRefreshInterval();
   (<HTMLSelectElement>$('#layout-selector').get(0)).selectedIndex = layoutNr;
   $.getJSON( 'query/select-layout/'+layoutNr, function(antennaInfo : Shared.AntennaInfo) {
+    serverState.selectedAntennaLayoutNr = layoutNr;
     allAntennas = antennaInfo.antennaSpecs;
     scale = antennaInfo.scale;
     ClientCommon.resizeFloor(antennaInfo.dimensions);
     ClientCommon.setBackgroundImage(antennaInfo.backgroundImage);
     resetClientState();
+    startRefreshInterval();
   }) .fail(function(jqXHR : any, status : any, err : any) {
     console.error( "Error:\n\n" + jqXHR.responseText );
   });
 }
   
 function startRefreshInterval() {
+  util.log('Starting refresh interval');
   refreshInterval = <any>setInterval(refresh, refreshDelay); 
   // unfortunately Eclipse TypeScript is stupid and doesn't respect reference paths, so it includes all TypeScript
   // declarations in the source tree and assumes a different type for setInterval here
@@ -297,6 +298,7 @@ function startRefreshInterval() {
 }
 
 function stopRefreshInterval() {
+  util.log('Stopping refresh interval');
   <any>clearInterval(<any>refreshInterval); // see Eclipse TypeScript comment above
 }
 
@@ -308,8 +310,10 @@ function refresh() {
 
     var oldSelectedAntennaLayoutNr = serverState.selectedAntennaLayoutNr;    
     serverState = newServerState;
-    if (serverState.selectedAntennaLayoutNr != oldSelectedAntennaLayoutNr)
+    if (serverState.selectedAntennaLayoutNr != oldSelectedAntennaLayoutNr) {
+      util.log('old layout was ' + oldSelectedAntennaLayoutNr + ' selecting new layout');
       selectLayout(serverState.selectedAntennaLayoutNr);
+    }
 
     updateTags();
   }).fail(function(jqXHR : JQueryXHR, status : any, err : any) {
