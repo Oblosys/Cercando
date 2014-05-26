@@ -46,7 +46,7 @@ function resetClientState() {
   uiState.set('showMaxAntennaRanges', true);
   uiState.trigger('change'); // reflect current values in UI, even when they are not different from defaults (and don't fire change  event)
 
-  d3.selectAll('#annotation-plane *').remove();
+  d3.selectAll('#trail-plane *').remove();
   d3.selectAll('#antenna-plane *').remove();
   d3.selectAll('#tag-info-plane *').remove();
   d3.selectAll('#rssi-plane *').remove();
@@ -59,15 +59,13 @@ function resetClientState() {
   generateTags(nrOfGeneratedTags);
  }
 
- function initialize() {
+function initialize() {
   $.ajaxSetup({ cache: false });
   serverState = Shared.initialServerState();
 
   uiState.on('change', handleUIStateChange);
   initSelectorButtons();
   
-   initLayoutSelector();
-  queryTagInfo();
   var floorSVG = d3.select('#floor')
     .append('svg:svg')
     .attr('width', floorWidth)
@@ -82,12 +80,14 @@ function resetClientState() {
     .attr('width', floorWidth)
     .attr('height', floorHeight);
   
-  floorSVG.append('g').attr('id', 'annotation-plane');
+  floorSVG.append('g').attr('id', 'trail-plane');
   floorSVG.append('g').attr('id', 'antenna-plane');
   floorSVG.append('g').attr('id', 'tag-info-plane');
   floorSVG.append('g').attr('id', 'rssi-plane');
   floorSVG.append('g').attr('id', 'trilateration-plane');
   floorSVG.append('g').attr('id', 'visitor-plane');
+
+  initLayoutSelector(); // initLayoutSelector calls selectLayout, which finishes client init and starts refresh interval
 }
 
 function initSelectorButtons() {
@@ -109,17 +109,6 @@ function initLayoutSelector() {
       $('#layout-selector').append('<option value="'+name+'">'+name+'</option>');
     });
     selectLayout(layoutInfo.selectedLayoutNr);
-  });
-}
-
-// TODO: Maybe combine with query antennas so we can easily handle actions that require both to have finished
-function queryTagInfo() {
-  $.getJSON( 'query/tag-info', function(newTagInfo : Shared.TagConfiguration[]) {
-    //util.log('Queried tag info:\n'+JSON.stringify(newTagInfo));
-    allTagInfo = newTagInfo;
-    ClientCommon.drawTagSetup();
-  }) .fail(function(jqXHR : any, status : any, err : any) {
-    util.error( "Error:\n\n" + jqXHR.responseText );
   });
 }
 
@@ -184,8 +173,11 @@ function updateLabels() {
 function selectLayout(layoutNr : number) {
   util.log('Selecting layout '+layoutNr);
   (<HTMLSelectElement>$('#layout-selector').get(0)).selectedIndex = layoutNr;
-  $.getJSON( 'query/select-layout/'+layoutNr, function( antennaInfo : Shared.AntennaInfo ) {
+  $.getJSON( 'query/select-layout/'+layoutNr, function(antennaInfo : Shared.AntennaInfo) {
+    serverState.selectedAntennaLayoutNr = layoutNr;
     allAntennas = antennaInfo.antennaSpecs;
+    tagConfiguration = antennaInfo.tagConfiguration;
+
     scale = antennaInfo.scale;
     ClientCommon.resizeFloor(antennaInfo.dimensions);
     ClientCommon.setBackgroundImage(antennaInfo.backgroundImage);
