@@ -20,15 +20,16 @@
     <div id="main">
       <div id="control-panel">
         Antenna layout: <select onchange="handleSelectLayout(this);" id="layout-selector"></select><br/>
-        <input type="button" id="toggle-locations-button" onclick="handleToggleTagLocationsButton()" value="Show tag locations"></input><br/>
         <br/>
         <input type="button" id="start-refresh-button" onclick="handleStartRefreshButton()" value="Start refresh"></input>
         <input type="button" id="stop-refresh-button" onclick="handleStopRefreshButton()" value="Stop refresh"></input>
         <input type="button" id="reset-button" onclick="handleResetButton()" value="Reset"></input><br/>
         <br/>
-        <input type="button" id="reset-button" onclick="handleShowAntennaSpecButton()" value="Show antenna layout"></input><br/>
-        
-        <div id="show-range-selector" class="selector">Max range: <div class="select-button">Show</div> <div class="select-button">Hide</div></div><br/>
+        <input type="button" id="reset-button" onclick="handleShowAntennaSpecButton()" value="Show antenna layout JSON"></input><br/>
+        <br/>
+        <span id="show-ranges-selector" class="selector"><div class="select-button">Show</div> <div class="select-button">Hide</div></span>&nbsp;Max ranges<br/>
+        <span id="show-tag-setup-selector" class="selector"><div class="select-button">Show</div> <div class="select-button">Hide</div></span>&nbsp;Tag setup<br/>
+        <br/>
       </div>
       <div id="wrap">
         <div id="floor"></div>

@@ -33,7 +33,8 @@ var UIState = Backbone.Model.extend({
   defaults: {
     showMaxAntennaRanges: false,
     showSignals: true,
-    showTrails: true
+    showTrails: true,
+    showTagSetup: true
   }
 });
 
@@ -49,7 +50,7 @@ function resetClientState() {
   allTagTrails = {};
   d3.selectAll('#trail-plane *').remove();
   d3.selectAll('#antenna-plane *').remove();
-  d3.selectAll('#tag-info-plane *').remove();
+  d3.selectAll('#tag-setup-plane *').remove();
   d3.selectAll('#rssi-plane *').remove();
   d3.selectAll('#trilateration-plane *').remove();
   ClientCommon.initDataRows()
@@ -80,7 +81,7 @@ function initialize() {
     
   floorSVG.append('g').attr('id', 'trail-plane');
   floorSVG.append('g').attr('id', 'antenna-plane');
-  floorSVG.append('g').attr('id', 'tag-info-plane');
+  floorSVG.append('g').attr('id', 'tag-setup-plane');
   floorSVG.append('g').attr('id', 'rssi-plane');
   floorSVG.append('g').attr('id', 'trilateration-plane');
   floorSVG.append('g').attr('id', 'visitor-plane');
@@ -95,6 +96,8 @@ function initSelectorButtons() {
   $('#show-signals-selector .select-button:eq(1)').on('click', () => {uiState.set('showSignals', false)});
   $('#show-trails-selector .select-button:eq(0)').on('click', () => {uiState.set('showTrails', true)});
   $('#show-trails-selector .select-button:eq(1)').on('click', () => {uiState.set('showTrails', false)});
+  $('#show-tag-setup-selector .select-button:eq(0)').on('click', () => {uiState.set('showTagSetup', true)});
+  $('#show-tag-setup-selector .select-button:eq(1)').on('click', () => {uiState.set('showTagSetup', false)});
 }
 
 function handleUIStateChange(m : Backbone.Model, newValue : any) {
@@ -111,6 +114,10 @@ function handleUIStateChange(m : Backbone.Model, newValue : any) {
   util.setAttr($('#show-trails-selector .select-button:eq(0)'),'selected', showTrails);
   util.setAttr($('#show-trails-selector .select-button:eq(1)'),'selected', !showTrails);
   $('#trail-plane').attr('visibility', showTrails ? 'visible' : 'hidden');
+  var showTagSetup = uiState.get('showTagSetup');
+  util.setAttr($('#show-tag-setup-selector .select-button:eq(0)'),'selected', showTagSetup);
+  util.setAttr($('#show-tag-setup-selector .select-button:eq(1)'),'selected', !showTagSetup);
+  $('#tag-setup-plane').attr('visibility', showTagSetup ? 'visible' : 'hidden');
 }
 
 function initLayoutSelector() {
@@ -234,7 +241,7 @@ function selectLayout(layoutNr : number) {
     serverState.selectedAntennaLayoutNr = layoutNr;
     allAntennas = antennaInfo.antennaSpecs;
     tagConfiguration = antennaInfo.tagConfiguration;
-    util.log(JSON.stringify(antennaInfo));
+    //util.log(JSON.stringify(antennaInfo));
     scale = antennaInfo.scale;
     ClientCommon.resizeFloor(antennaInfo.dimensions);
     ClientCommon.setBackgroundImage(antennaInfo.backgroundImage);
@@ -338,16 +345,6 @@ function handleSaveButton() {
       util.log('Stopped saving events.');
       $('#save-button').val('Start saving');
     }); // Assume that stop won't fail
-  }
-}
-
-function handleToggleTagLocationsButton() {
-  if ($('#tag-info-plane').css('display')=='none') {
-    $('#toggle-locations-button').attr('value','Show tag locations');
-    $('#tag-info-plane').show();
-  } else {
-    $('#toggle-locations-button').attr('value','Hide tag locations');
-    $('#tag-info-plane').hide();
   }
 }
 

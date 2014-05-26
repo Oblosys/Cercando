@@ -32,7 +32,8 @@ var tagConfiguration : Shared.TagConfiguration[];
   
 var UIState = Backbone.Model.extend({
   defaults: {
-    showMaxAntennaRanges: false
+    showMaxAntennaRanges: false,
+    showTagSetup: true
   }
 });
 
@@ -48,7 +49,7 @@ function resetClientState() {
 
   d3.selectAll('#trail-plane *').remove();
   d3.selectAll('#antenna-plane *').remove();
-  d3.selectAll('#tag-info-plane *').remove();
+  d3.selectAll('#tag-setup-plane *').remove();
   d3.selectAll('#rssi-plane *').remove();
   d3.selectAll('#trilateration-plane *').remove();
   $('.tag-rssis .tag-label').text('');
@@ -82,7 +83,7 @@ function initialize() {
   
   floorSVG.append('g').attr('id', 'trail-plane');
   floorSVG.append('g').attr('id', 'antenna-plane');
-  floorSVG.append('g').attr('id', 'tag-info-plane');
+  floorSVG.append('g').attr('id', 'tag-setup-plane');
   floorSVG.append('g').attr('id', 'rssi-plane');
   floorSVG.append('g').attr('id', 'trilateration-plane');
   floorSVG.append('g').attr('id', 'visitor-plane');
@@ -91,16 +92,22 @@ function initialize() {
 }
 
 function initSelectorButtons() {
-  $('#show-range-selector .select-button:eq(0)').on('click', () => {uiState.set('showMaxAntennaRanges', true)});
-  $('#show-range-selector .select-button:eq(1)').on('click', () => {uiState.set('showMaxAntennaRanges', false)});
+  $('#show-ranges-selector .select-button:eq(0)').on('click', () => {uiState.set('showMaxAntennaRanges', true)});
+  $('#show-ranges-selector .select-button:eq(1)').on('click', () => {uiState.set('showMaxAntennaRanges', false)});
+  $('#show-tag-setup-selector .select-button:eq(0)').on('click', () => {uiState.set('showTagSetup', true)});
+  $('#show-tag-setup-selector .select-button:eq(1)').on('click', () => {uiState.set('showTagSetup', false)});
 }
 
 function handleUIStateChange(m : Backbone.Model, newValue : any) {
-  util.log('handleUIStateChange', m, newValue);
+ // util.log('handleUIStateChange', m, newValue); // note that m and newValue not set on trigger('change')
   var showMaxAntennaRanges = uiState.get('showMaxAntennaRanges');
-  util.setAttr($('#show-range-selector .select-button:eq(0)'),'selected', showMaxAntennaRanges);
-  util.setAttr($('#show-range-selector .select-button:eq(1)'),'selected', !showMaxAntennaRanges);
+  util.setAttr($('#show-ranges-selector .select-button:eq(0)'),'selected', showMaxAntennaRanges);
+  util.setAttr($('#show-ranges-selector .select-button:eq(1)'),'selected', !showMaxAntennaRanges);
   $('#antenna-plane .antenna-max-range').attr('visibility', showMaxAntennaRanges ? 'visible' : 'hidden');
+  var showTagSetup = uiState.get('showTagSetup');
+  util.setAttr($('#show-tag-setup-selector .select-button:eq(0)'),'selected', showTagSetup);
+  util.setAttr($('#show-tag-setup-selector .select-button:eq(1)'),'selected', !showTagSetup);
+  $('#tag-setup-plane').attr('visibility', showTagSetup ? 'visible' : 'hidden');
 }
 
 function initLayoutSelector() {
@@ -218,16 +225,6 @@ function handleResetButton() {
     util.log('Server and client were reset.');
     startRefreshInterval();
   });
-}
-
-function handleToggleTagLocationsButton() {
-  if ($('#tag-info-plane').css('display')=='none') {
-    $('#toggle-locations-button').attr('value','Show tag locations');
-    $('#tag-info-plane').show();
-  } else {
-    $('#toggle-locations-button').attr('value','Hide tag locations');
-    $('#tag-info-plane').hide();
-  }
 }
 
 function handleShowAntennaSpecButton() {

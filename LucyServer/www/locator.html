@@ -20,7 +20,6 @@
     <div id="main">
       <div id="control-panel">
         Antenna layout: <select onchange="handleSelectLayout(this);" id="layout-selector"></select><br/>
-        <input type="button" id="toggle-locations-button" onclick="handleToggleTagLocationsButton()" value="Show tag locations"></input><br/>
         <br/>
         <input type="button" id="start-refresh-button" onclick="handleStartRefreshButton()" value="Start refresh"></input>
         <input type="button" id="stop-refresh-button" onclick="handleStopRefreshButton()" value="Stop refresh"></input>
@@ -34,6 +33,7 @@
         <span id="show-ranges-selector" class="selector"><div class="select-button">Show</div> <div class="select-button">Hide</div></span>&nbsp;Max ranges<br/>
         <span id="show-signals-selector" class="selector"><div class="select-button">Show</div> <div class="select-button">Hide</div></span>&nbsp;Signals<br/>
         <span id="show-trails-selector" class="selector"><div class="select-button">Show</div> <div class="select-button">Hide</div></span>&nbsp;Trails<br/>
+        <span id="show-tag-setup-selector" class="selector"><div class="select-button">Show</div> <div class="select-button">Hide</div></span>&nbsp;Tag setup<br/>
         <br/>
         <table>
           <tr><td>Client time:&nbsp;<td><td><span id="client-time-label"></span><td></tr>

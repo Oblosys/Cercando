@@ -179,11 +179,9 @@ module ClientCommon {
 }
 
   export function drawTagSetup() {
-    util.log('tag setup '+JSON.stringify(tagConfiguration));
-    var tagInfoPlaneSVG = d3.select('#tag-info-plane');
+    var tagInfoPlaneSVG = d3.select('#tag-setup-plane');
     _(tagConfiguration).each((tag, tagNr)=>{
       if (tag.testCoord) {
-        util.log('testCoord');
         var tagCoord = ClientCommon.toScreen(tag.testCoord);
         drawSquare(tagInfoPlaneSVG, tagCoord.x, tagCoord.y, 10, tag.color);
       }
