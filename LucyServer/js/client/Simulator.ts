@@ -54,7 +54,7 @@ function resetClientState() {
   d3.selectAll('#trilateration-plane *').remove();
   $('.tag-rssis .tag-label').text('');
   $('.tag-rssis .ant-rssi').html('');
-  ClientCommon.drawTagSetup();
+  ClientCommon.createTagSetup();
   ClientCommon.createAntennaMarkers();
   setAntennasDragHandler();
   generateTags(nrOfGeneratedTags);

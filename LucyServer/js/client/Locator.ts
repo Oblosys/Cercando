@@ -54,7 +54,7 @@ function resetClientState() {
   d3.selectAll('#rssi-plane *').remove();
   d3.selectAll('#trilateration-plane *').remove();
   ClientCommon.initDataRows()
-  ClientCommon.drawTagSetup();
+  ClientCommon.createTagSetup();
   ClientCommon.createAntennaMarkers();
 }
 

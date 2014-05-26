@@ -215,17 +215,17 @@ module ClientCommon {
       .attr('fill', 'none');
 }
 
-  export function drawTagSetup() {
+  export function createTagSetup() {
     var tagInfoPlaneSVG = d3.select('#tag-setup-plane');
     _(tagConfiguration).each((tag, tagNr)=>{
       if (tag.testCoord) {
         var tagCoord = ClientCommon.toScreen(tag.testCoord);
-        drawSquare(tagInfoPlaneSVG, tagCoord.x, tagCoord.y, 10, tag.color);
+        createSquare(tagInfoPlaneSVG, tagCoord.x, tagCoord.y, 10, tag.color);
       }
     });
   }
   
-  export function drawSquare(planeSVG : D3.Selection, x : number, y : number, size : number, color : string) {
+  export function createSquare(planeSVG : D3.Selection, x : number, y : number, size : number, color : string) {
     planeSVG.append('rect')
       .style('stroke', 'white')
       .style('fill', color)
