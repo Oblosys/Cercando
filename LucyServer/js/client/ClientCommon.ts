@@ -13,7 +13,7 @@ declare var floorWidth : number;
 declare var floorHeight : number;
 declare var allAntennas : Shared.Antenna[];
 declare var allTagInfo : Shared.TagInfo[];
-declare var tagTrails : {}; 
+declare var allTagTrails : {}; 
 declare var trailLength : number;
 
 var uiState : Backbone.Model;
@@ -144,7 +144,7 @@ module ClientCommon {
   }
 
   export function createTrail(tag : Shared.TagData) {
-    tagTrails[tag.epc] = [];
+    allTagTrails[tag.epc] = [];
   
     var color = getTagInfo(tag.epc).color;
     var visitorTrail = d3.select('#trail-plane')
@@ -157,16 +157,16 @@ module ClientCommon {
   }
 
   export function removeTrail(tag : Shared.TagData) {
-    delete tagTrails[tag.epc];
+    delete allTagTrails[tag.epc];
      
     $('#'+mkTrailId(tag)).remove();
   }
   
   export function updateTrail(tag : Shared.TagData) {
     // Store coord at the head of the corresponding trail, moving up the rest, and clipping at trailLength.
-    tagTrails[tag.epc] = _.union([tag.coordinate.coord], tagTrails[tag.epc]).slice(0,trailLength);
+    allTagTrails[tag.epc] = _.union([tag.coordinate.coord], allTagTrails[tag.epc]).slice(0,trailLength);
 
-    var tagTrail = tagTrails[tag.epc];
+    var tagTrail = allTagTrails[tag.epc];
     
     var lineFunction = d3.svg.line()
       .x(function(d) { return ClientCommon.toScreenX(d.x); })

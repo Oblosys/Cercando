@@ -22,7 +22,7 @@ var scale = 80; // pixels per meter
 
 var refreshDelay = 500;
 var trailLength = 30;
-var tagTrails = {}; // Object that has epc keys for Shared.Coord[] values (can't easily enforce this in TypeScript)
+var allTagTrails = {}; // Object that has epc keys for Shared.Coord[] values (can't easily enforce this in TypeScript)
 
 var refreshInterval : number; // setInterval() returns a number
 var serverState : Shared.ServerState;
@@ -46,7 +46,7 @@ function resetClientState() {
   uiState.set('showMaxAntennaRanges', false);
   uiState.trigger('change'); // reflect current values in UI, even when they are not different from defaults (and don't fire change  event)
   serverState.tagsData = [];
-  tagTrails = {};
+  allTagTrails = {};
   d3.selectAll('#trail-plane *').remove();
   d3.selectAll('#antenna-plane *').remove();
   d3.selectAll('#tag-info-plane *').remove();
