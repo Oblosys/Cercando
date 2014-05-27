@@ -1,3 +1,8 @@
+/// <reference path="../shared/Shared.ts" />
+
+import _        = require('underscore');
+import util     = require('oblo-util');
+
 export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
   var groningenHorizontaal : Shared.AntennaLayout =
     { name: 'Groningen (horizontaal)'
@@ -112,6 +117,56 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
     , tagConfiguration: 
         []
     };
+   var rotterdamOpening : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
+    scaleAndTranslate(1/1000,-9,-5,
+    { name: 'Rotterdam'
+    //, dimensions: {width: 14, height: 14 * 1686/3183}
+    , dimensions: {width: 17, height: 17 * 734/1365}
+    , scale: 50
+    , backgroundImage: 'floorPlans/Rotterdam floor plan - grid.png' // width="3183" height="1686"
+    //, backgroundImage: 'floorPlans/Antenne layout 3 - RFID Blueprint versie 3.jpg' // width="1365" height="734"
+    , readerAntennaSpecs: // copied from Antenne layout 3 - RFID Blueprint versie 3.jpg
+        [ { readerIp: '10.0.0.30'
+          , antennaSpecs:
+            [ {name: 'A1', coord: {x:10450, y:2536}}
+            , {name: 'A2', coord: {x:12195, y:1507}}
+            , {name: 'A3', coord: {x:13768, y:1907}}
+            , {name: 'A4', coord: {x:13083, y:4438}}
+            //, {name: 'A5', coord: {x:2450, y:2536}, , shortMidRangeTarget: {isShortRange:false, serverIp : '127.0.0.1', antennaIndex: 1}}
+            //, {name: 'A6', coord: {x:2450, y:2536}} // 11 & 12 is for double
+            //, {name: 'A7', coord: {x:2450, y:2536}}
+            //, {name: 'A8', coord: {x:2450, y:2536}}
+            ]
+          }
+        , { readerIp: '10.0.0.31'
+          , antennaSpecs:
+            [ //{name: 'B1', coord: {x:2450, y:2450}}
+              {name: 'B2', coord: {x:12465, y:6941}}
+            , {name: 'B3', coord: {x:9303, y:5025}}
+            , {name: 'B4', coord: {x:10094, y:7692}}
+            , {name: 'B5', coord: {x:10703, y:5025}}
+            , {name: 'B6', coord: {x:7612, y:7967}}
+            , {name: 'B7', coord: {x:12050, y:7939}}
+            //, {name: 'B8', coord: {x:10450, y:2536}}
+            ]
+          }
+        , { readerIp: '10.0.0.32'
+          , antennaSpecs:
+            [ {name: 'C1', coord: {x:9524, y:2298}}
+            , {name: 'C2', coord: {x:7365, y:4953}}
+            , {name: 'C3', coord: {x:7564, y:6385}}
+            , {name: 'C4', coord: {x:4181, y:6236}}
+            , {name: 'C5', coord: {x:6188, y:6827}}
+            , {name: 'C6', coord: {x:3391, y:7949}}
+            //, {name: 'C7', coord: {x:10450, y:2536}}
+            //, {name: 'C8', coord: {x:10450, y:2536}}
+            ]
+          }
+        ]
+    , tagConfiguration: 
+        []
+    });
+ 
   var rotterdam : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
     { name: 'Rotterdam'
     //, dimensions: {width: 14, height: 14 * 1686/3183}
@@ -340,5 +395,16 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
     , tagConfiguration: 
         []
     };
-  return [groningenHorizontaal, groningenSchuin, rotterdam];
+  return [groningenHorizontaal, groningenSchuin, rotterdamOpening, rotterdam];
+}
+
+function scaleAndTranslate( scale : number, translationX : number, translationY : number
+                          , layout : Shared.AntennaLayout ) : Shared.AntennaLayout {
+  _(layout.readerAntennaSpecs).each((readerAntennaSpec) => {
+    _(readerAntennaSpec.antennaSpecs).each((antennaSpec) => {
+      antennaSpec.coord.x = scale*antennaSpec.coord.x + translationX;
+      antennaSpec.coord.y = scale*antennaSpec.coord.y + translationY;
+    });
+  });
+  return layout;
 }
