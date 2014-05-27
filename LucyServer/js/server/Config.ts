@@ -117,9 +117,9 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
     , tagConfiguration: 
         []
     };
-   var rotterdamOpening : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
+   var rotterdamOpeningMM : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
     scaleAndTranslate(1/1000,-9,-5,
-    { name: 'Rotterdam'
+    { name: 'Rotterdam mm'
     //, dimensions: {width: 14, height: 14 * 1686/3183}
     , dimensions: {width: 17, height: 17 * 734/1365}
     , scale: 50
@@ -132,22 +132,22 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
             , {name: 'A2', coord: {x:12195, y:1507}}
             , {name: 'A3', coord: {x:13768, y:1907}}
             , {name: 'A4', coord: {x:13083, y:4438}}
-            //, {name: 'A5', coord: {x:2450, y:2536}, , shortMidRangeTarget: {isShortRange:false, serverIp : '127.0.0.1', antennaIndex: 1}}
-            //, {name: 'A6', coord: {x:2450, y:2536}} // 11 & 12 is for double
-            //, {name: 'A7', coord: {x:2450, y:2536}}
-            //, {name: 'A8', coord: {x:2450, y:2536}}
+            , {name: 'A5', coord: {x:2450, y:2536}, shortMidRangeTarget: {isShortRange:false, serverIp : '127.0.0.1', antennaIndex: 1}}
+            , {name: 'A6', coord: {x:2450, y:2536}, shortMidRangeTarget: {isShortRange:true,  serverIp : '127.0.0.1', antennaIndex: 11}}
+            , {name: 'A7', coord: {x:2450, y:2536}, shortMidRangeTarget: {isShortRange:true,  serverIp : '127.0.0.1', antennaIndex: 12}}
+            , {name: 'A8', coord: {x:2450, y:2536}, shortMidRangeTarget: {isShortRange:false, serverIp : '127.0.0.1', antennaIndex: 2}}
             ]
           }
         , { readerIp: '10.0.0.31'
           , antennaSpecs:
-            [ //{name: 'B1', coord: {x:2450, y:2450}}
-              {name: 'B2', coord: {x:12465, y:6941}}
+            [ {name: 'B1', coord: {x:2450, y:2536}, shortMidRangeTarget: {isShortRange:false, serverIp : '127.0.0.1', antennaIndex: 3}}
+            , {name: 'B2', coord: {x:12465, y:6941}}
             , {name: 'B3', coord: {x:9303, y:5025}}
             , {name: 'B4', coord: {x:10094, y:7692}}
             , {name: 'B5', coord: {x:10703, y:5025}}
             , {name: 'B6', coord: {x:7612, y:7967}}
             , {name: 'B7', coord: {x:12050, y:7939}}
-            //, {name: 'B8', coord: {x:10450, y:2536}}
+            , {name: 'B8', coord: {x:2450, y:2536}, shortMidRangeTarget: {isShortRange:false, serverIp : '127.0.0.1', antennaIndex: 4}}
             ]
           }
         , { readerIp: '10.0.0.32'
@@ -158,15 +158,226 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
             , {name: 'C4', coord: {x:4181, y:6236}}
             , {name: 'C5', coord: {x:6188, y:6827}}
             , {name: 'C6', coord: {x:3391, y:7949}}
-            //, {name: 'C7', coord: {x:10450, y:2536}}
-            //, {name: 'C8', coord: {x:10450, y:2536}}
+            , {name: 'C7', coord: {x:2450, y:2536}, shortMidRangeTarget: {isShortRange:false, serverIp : '127.0.0.1', antennaIndex: 5}}
+            , {name: 'C8', coord: {x:2450, y:2536}, shortMidRangeTarget: {isShortRange:false, serverIp : '127.0.0.1', antennaIndex: 6}}
             ]
           }
         ]
     , tagConfiguration: 
         []
     });
- 
+
+   var rotterdamOpening : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
+    scaleAndTranslate(1,0,0,
+    { name: 'Rotterdam Opening'
+    //, dimensions: {width: 14, height: 14 * 1686/3183}
+    , dimensions: {width: 17, height: 17 * 734/1365}
+    , scale: 50
+    , backgroundImage: 'floorPlans/Rotterdam floor plan - grid.png' // width="3183" height="1686"
+    //, backgroundImage: 'floorPlans/Antenne layout 3 - RFID Blueprint versie 3.jpg' // width="1365" height="734"
+    , readerAntennaSpecs:
+        [ { readerIp: '10.0.0.30'
+          , antennaSpecs:
+              [ { name: 'A1'
+                , coord:
+                    { x: 1.450000000000001
+                    , y: -2.464
+                    }
+                }
+              , { name: 'A2'
+                , coord:
+                    { x: 3.1950000000000003
+                    , y: -3.493
+                    }
+                }
+              , { name: 'A3'
+                , coord:
+                    { x: 4.768000000000001
+                    , y: -3.093
+                    }
+                }
+              , { name: 'A4'
+                , coord:
+                    { x: 4.083
+                    , y: -0.5620000000000003
+                    }
+                }
+              , { name: 'A5'
+                , coord:
+                    { x: 1.3973333740234375
+                    , y: -3.73069597069597
+                    }
+                , shortMidRangeTarget:
+                    { isShortRange: false
+                    , serverIp: '127.0.0.1'
+                    , antennaIndex: 1
+                    }
+                }
+              , { name: 'A6'
+                , coord:
+                    { x: 4.957333984375
+                    , y: 0.7693040293040297
+                    }
+                , shortMidRangeTarget:
+                    { isShortRange: true
+                    , serverIp: '127.0.0.1'
+                    , antennaIndex: 11
+                    }
+                }
+              , { name: 'A7'
+                , coord:
+                    { x: 5.737333984375
+                    , y: -0.47069597069597024
+                    }
+                , shortMidRangeTarget:
+                    { isShortRange: true
+                    , serverIp: '127.0.0.1'
+                    , antennaIndex: 12
+                    }
+                }
+              , { name: 'A8'
+                , coord:
+                    { x: 6.737333984375
+                    , y: -2.9106959706959703
+                    }
+                , shortMidRangeTarget:
+                    { isShortRange: false
+                    , serverIp: '127.0.0.1'
+                    , antennaIndex: 2
+                    }
+                }
+              ]
+          }
+        , { readerIp: '10.0.0.31'
+          , antennaSpecs:
+              [ { name: 'B1'
+                , coord:
+                    { x: 1.877333984375
+                    , y: 3.68930402930403
+                    }
+                , shortMidRangeTarget:
+                    { isShortRange: false
+                    , serverIp: '127.0.0.1'
+                    , antennaIndex: 3
+                    }
+                }
+              , { name: 'B2'
+                , coord:
+                    { x: 3.465
+                    , y: 1.9409999999999998
+                    }
+                }
+              , { name: 'B3'
+                , coord:
+                    { x: 0.3030000000000008
+                    , y: 0.025000000000000355
+                    }
+                }
+              , { name: 'B4'
+                , coord:
+                    { x: 1.0939999999999994
+                    , y: 2.692
+                    }
+                }
+              , { name: 'B5'
+                , coord:
+                    { x: 1.7029999999999994
+                    , y: 0.025000000000000355
+                    }
+                }
+              , { name: 'B6'
+                , coord:
+                    { x: -1.388
+                    , y: 2.9670000000000005
+                    }
+                }
+              , { name: 'B7'
+                , coord:
+                    { x: 3.0500000000000007
+                    , y: 2.939
+                    }
+                }
+              , { name: 'B8'
+                , coord:
+                    { x: 0.7373333740234375
+                    , y: 3.6693040293040298
+                    }
+                , shortMidRangeTarget:
+                    { isShortRange: false
+                    , serverIp: '127.0.0.1'
+                    , antennaIndex: 4
+                    }
+                }
+              ]
+          }
+        , { readerIp: '10.0.0.32'
+          , antennaSpecs:
+              [ { name: 'C1'
+                , coord:
+                    { x: 0.5240000000000009
+                    , y: -2.702
+                    }
+                }
+              , { name: 'C2'
+                , coord:
+                    { x: -1.6349999999999998
+                    , y: -0.04699999999999971
+                    }
+                }
+              , { name: 'C3'
+                , coord:
+                    { x: -1.436
+                    , y: 1.3849999999999998
+                    }
+                }
+              , { name: 'C4'
+                , coord:
+                    { x: -4.819
+                    , y: 1.2359999999999998
+                    }
+                }
+              , { name: 'C5'
+                , coord:
+                    { x: -2.8120000000000003
+                    , y: 1.827
+                    }
+                }
+              , { name: 'C6'
+                , coord:
+                    { x: -5.609
+                    , y: 2.949
+                    }
+                }
+              , { name: 'C7'
+                , coord:
+                    { x: -7.022666625976562
+                    , y: -1.0106959706959702
+                    }
+                , shortMidRangeTarget:
+                    { isShortRange: false
+                    , serverIp: '127.0.0.1'
+                    , antennaIndex: 5
+                    }
+                }
+              , { name: 'C8'
+                , coord:
+                    { x: -6.122666625976563
+                    , y: 3.20930402930403
+                    }
+                , shortMidRangeTarget:
+                    { isShortRange: false
+                    , serverIp: '127.0.0.1'
+                    , antennaIndex: 6
+                    }
+                }
+              ]
+          }
+        ]
+
+    , tagConfiguration: 
+        []
+    });
+  
   var rotterdam : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
     { name: 'Rotterdam'
     //, dimensions: {width: 14, height: 14 * 1686/3183}
@@ -395,7 +606,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
     , tagConfiguration: 
         []
     };
-  return [groningenHorizontaal, groningenSchuin, rotterdamOpening, rotterdam];
+  return [groningenHorizontaal, groningenSchuin, rotterdamOpening, rotterdamOpeningMM, rotterdam];
 }
 
 function scaleAndTranslate( scale : number, translationX : number, translationY : number
