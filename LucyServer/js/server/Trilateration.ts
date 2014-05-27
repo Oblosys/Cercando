@@ -61,13 +61,17 @@ function testGetDistance2dStaged() {
 }
 //testGetDistance2dStaged();
 
-//var d0 = 1;
-//var prd0 = -52;
-//var n = 0.5
+//prd0 is signal in d0 and n is medium (between 2 and 4)
+
+//var d0 = 1;     // Google: 1 * exp((-52-x)/(10*2)) from -30 to -80
+//var prd0 = -52; // Google: -52 - 10*2*log(x/1) from 0 to 5
+//var n = 2
 var d0 = 1/6000 * 0.7;
 var prd0 = 32;
 var n = 1
 
+
+  // Google: 1/6000*0.7*exp ((32-x) / (10*1)) from -30 to -80
 export function getDistance3d(rssi : number) {
   return d0 * Math.exp((prd0-rssi)/(10*n));
 }
