@@ -20,8 +20,7 @@ var uiState : Backbone.Model;
 
 module ClientCommon {
 
-  export var colors = ['yellow', 'gray', 'blue', 'green', 'purple', 'black', 'red', 'orange', 'darkgray',
-'lightblue'];
+  export var colors = ['yellow', 'lightblue', 'orange', 'gray', 'blue', 'green', 'purple', 'black', 'red', 'darkgray'];
   
   // d3 common code
   export function initFloorSVG() {
@@ -94,7 +93,7 @@ module ClientCommon {
                        .attr('transform', 'translate('+pos.x+','+pos.y+')');
     // 'g' element with translate is annoying, but nested svg creates clipping problems
    
-    var size = 15;
+    var size = 16;
     antennaSVG.append('rect').attr('class', 'antenna-shape')
       .attr('x', -size/2)
       .attr('y', -size/2)
