@@ -71,6 +71,8 @@ public class EventEmitter implements Runnable {
         for (int i=0; i<nrOfEventsToDrop; i++)
           eventQueue.remove(0);
       }
+      //Util.log("Read event on " + originatingIP + ": "+ event);
+      
       eventQueue.add(event);
       eventQueue.notify(); // Signal the consumer thread for this event emitter.
    }
