@@ -81,7 +81,6 @@ interface Object {
 declare var exports : any;
 if (typeof exports != 'undefined') {
   for (var decl in Shared) {
-    console.log(typeof decl);
     if (Shared.hasOwnProperty(decl))
       exports[decl] = Shared[decl];
   }
