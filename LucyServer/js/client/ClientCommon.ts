@@ -20,7 +20,8 @@ var uiState : Backbone.Model;
 
 module ClientCommon {
 
-  export var colors = ['yellow', 'lightblue', 'orange', 'gray', 'blue', 'green', 'purple', 'black', 'red', 'darkgray'];
+  export var colors = ['yellow', 'lightblue', 'orange', 'gray', 'blue', 'green', 'purple', 'black', 'red', 'darkgray'
+                      ,'white', 'lightgreen', 'teal', 'black', 'pink', 'lime'];
   
   // d3 common code
   export function initFloorSVG() {
@@ -240,7 +241,7 @@ module ClientCommon {
     var ix = _(tagConfiguration).pluck('epc').indexOf(epc);
     if (ix == -1) {
       //console.log('Tag with epc %s not found in allTagInfo',epc)
-      return {epc:epc, color:colors[parseInt(epc.charAt(epc.length-1))], testCoord:null}
+      return {epc:epc, color:colors[parseInt(epc.charAt(epc.length-1),16)], testCoord:null}
     } else {
       return tagConfiguration[ix];
     }
