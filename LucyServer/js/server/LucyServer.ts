@@ -355,7 +355,7 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
 
   var tag = _.findWhere(state.tagsData, {epc: readerEvent.epc});
   if (!tag) {
-    tag = { epc:readerEvent.epc, antennaRssis: [] }
+    tag = { epc:readerEvent.epc, antennaRssis: [], metaData: {name: ''} }
     util.log('Encountered new tag '+tag.epc);
     state.tagsData.push(tag);
   }

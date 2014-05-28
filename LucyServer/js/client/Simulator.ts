@@ -122,7 +122,7 @@ function generateTags(nrOfGeneratedVisitors : number) {
     _(_.range(nrOfGeneratedVisitors)).map((i) => {
       var coord = i==0 ? {x:0.0, y:0} : { x:ClientCommon.fromScreenX(Math.random()*0.8*floorWidth + 0.1*floorWidth)
                                         , y:ClientCommon.fromScreenY(Math.random()*0.8*floorHeight + 0.1*floorHeight) }
-      return {epc: util.padZero(31, i), antennaRssis: [], coordinate:{coord: coord, isRecent: true}};
+      return <Shared.TagData>{epc: util.padZero(31, i), antennaRssis: [], coordinate:{coord: coord, isRecent: true}, metaData: null};
     });
   _(tags).each((tag) => {
     
@@ -138,8 +138,7 @@ function generateTag(tag : Shared.TagData) {
   var tagSVG = d3.select('#' + ClientCommon.mkTagId(tag));
   var drag = d3.behavior.drag()
     .on("drag", function(d,i) {
-      $(this).attr('cx', d3.event.x)
-             .attr('cy', d3.event.y);
+      $(this).attr('transform', 'translate('+d3.event.x+','+d3.event.y+')');
       var x = ClientCommon.fromScreenX(d3.event.x);
       var y = ClientCommon.fromScreenY(d3.event.y);
       $.get('/query/set-tag/'+tag.epc+'/'+x+'/'+y, function() {}); // simply send all drag events to server (only meant for local connection)

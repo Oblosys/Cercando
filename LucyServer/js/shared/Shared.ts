@@ -38,8 +38,11 @@ module Shared {
                                ; tagConfiguration : TagConfiguration[]
                                ; antennaSpecs : Antenna[] }
   
+  export interface TagMetaData { name : string }
+  
   export interface TagData { epc : string; antennaRssis : AntennaRSSI[]
-                           ; coordinate? : { coord: {x : number; y : number}; isRecent : boolean } }[]
+                           ; coordinate? : { coord: {x : number; y : number}; isRecent : boolean } 
+                           ; metaData : TagMetaData }[]
   
   export interface ServerState {
     status : { isConnected : boolean; isSaving : boolean; webServerTime : string; readerServerTime : string }

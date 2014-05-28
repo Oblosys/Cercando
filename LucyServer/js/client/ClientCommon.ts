@@ -111,12 +111,19 @@ module ClientCommon {
     var trilaterationPlaneSVG = d3.select('#trilateration-plane');
     var tagInfo = getTagInfo(tag.epc);
     
-    trilaterationPlaneSVG.append('circle').attr('id', mkTagId(tag)).attr('class', 'tag-marker')
-      .style('stroke', 'white')
+    var markerSVG = trilaterationPlaneSVG.append('g').attr('id', mkTagId(tag)).attr('class', 'tag-marker')
+                       .attr('transform', 'translate('+ClientCommon.toScreenX(tag.coordinate ? tag.coordinate.coord.x : 0)+
+                                                   ','+ClientCommon.toScreenY(tag.coordinate ? tag.coordinate.coord.y : 0)+')');
+ 
+    markerSVG.append('circle')
       .style('fill', tagInfo.color)
       .attr('r', 6)
-      .attr('cx', ClientCommon.toScreenX(tag.coordinate ? tag.coordinate.coord.x : 0))
-      .attr('cy', ClientCommon.toScreenY(tag.coordinate ? tag.coordinate.coord.y : 0));
+      .attr('cx',0)
+      .attr('cy',0);
+    markerSVG.append('text')
+      .text(tag.metaData ? tag.metaData.name : '')
+      .attr('x',0)
+      .attr('y',15);
   }
   
   export function removeTagMarker(tag : Shared.TagData) {

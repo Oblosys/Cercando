@@ -149,7 +149,7 @@ function initExpress() {
   app.get('/query/set-all-tags', function(req, res) {
     util.log('setting all tags');
     allTags = <Shared.TagData[]>JSON.parse(req.query.allTags);
-    //util.log(util.showJSON(allTags));
+    util.log(util.showJSON(allTags));
     
     res.setHeader('content-type', 'text/plain');
     res.writeHead(204);
@@ -164,7 +164,7 @@ function initExpress() {
     if (tag != null) {
       tag.coordinate = {coord: newCoord, isRecent: true};
     } else {
-      allTags.push({epc: req.params.epc, coordinate: {coord: newCoord, isRecent: true}, antennaRssis: []});
+      allTags.push({epc: req.params.epc, coordinate: {coord: newCoord, isRecent: true}, antennaRssis: [], metaData: null});
     }
          
     //util.log(util.showJSON(allTags));

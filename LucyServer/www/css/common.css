@@ -63,6 +63,17 @@ body {
   stroke: #000;
 }
 
+.tag-marker circle {
+	stroke: black;
+}
+.tag-marker text {
+	font-family: Verdana;
+	font-size: 10px;
+	stroke: white;
+	fill: white;
+	text-anchor: middle;
+}
+
 .antenna-marker text {
 	-webkit-touch-callout: none;
   -webkit-user-select: none;

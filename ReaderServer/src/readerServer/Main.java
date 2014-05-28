@@ -15,7 +15,7 @@ import java.util.Vector;
 public class Main {
   /* Motorola FX9500 Reader IP assignments in Rotterdam:
    * Mac: C4:7D:CC:06:DC:EE  IP: 10.0.0.30
-   * Mac: C4:7D:CC:06:BA:05  IP: 10.0.0.31
+   * Mac: C4:7D:CC:06:BA:05  IP: 10.0.0.31 A
    * Mac: C4:7D:CC:06:BF:EB  IP: 10.0.0.32
    * Mac: 00:23:68:F1:54:C2  IP: 10.0.0.33 (Currently in Groningen)
    * */

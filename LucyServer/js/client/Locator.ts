@@ -206,8 +206,7 @@ function updateTags() {
       markerD3.style('stroke', tagData.coordinate.isRecent ? 'white' : 'red');
       markerD3.transition()
               .duration(refreshDelay)
-              .attr('cx',pos.x)
-              .attr('cy',pos.y);
+              .attr('transform', 'translate('+pos.x+','+pos.y+')');
     } else {
       util.error('No coordinate for tag '+tagData.epc);
       markerD3.style('display', 'none'); 
