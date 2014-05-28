@@ -20,7 +20,7 @@ var origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
 var scale = 80; // pixels per meter
 
 
-var refreshDelay = 500;
+var refreshDelay = 200;
 var trailLength = 30;
 var allTagTrails = {}; // Object that has epc keys for Shared.Coord[] values (can't easily enforce this in TypeScript)
 
