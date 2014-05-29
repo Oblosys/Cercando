@@ -123,7 +123,7 @@ module ClientCommon {
     markerSVG.append('text')
       .text(tag.metaData ? tag.metaData.name : '')
       .attr('x',0)
-      .attr('y',15);
+      .attr('y',17);
   }
   
   export function removeTagMarker(tag : Shared.TagData) {
