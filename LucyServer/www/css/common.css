@@ -63,8 +63,8 @@ body {
   stroke: #000;
 }
 
-.tag-marker circle {
-	stroke: black;
+.tag-marker {
+	stroke: black; /* Set stroke on marker instead of circle, for easy override */
 }
 .tag-marker text {
 	font-family: Verdana;
