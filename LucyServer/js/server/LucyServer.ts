@@ -106,8 +106,6 @@ function initExpress() {
     next();
   });
 
-  app.use(express.bodyParser()); 
-
   app.get('/query/version', function(req, res) {  
     child_pr.exec( "/Users/martijn/git/Cercando/scripts/generateGitInfo.sh" // TODO: get rid of absolute path
                  , {cwd: '../..'}
