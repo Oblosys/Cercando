@@ -107,7 +107,11 @@ export function incrementalTrilateration(epc : string, antennas : Shared.Antenna
     }
   });
 
-  var walkingSpeedKmHr = 10;
+  if (antennaCoords.length == 0) { // if there's no recent signals, return the old coordinate as nonrecent
+    return {coord: oldCoord, isRecent: false};
+  } 
+  
+  var walkingSpeedKmHr = 5;
   
   var oldCoordWasNull = oldCoord == null
   oldCoord = oldCoordWasNull ? {x: 0, y:0} : oldCoord;
