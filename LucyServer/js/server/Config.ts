@@ -350,8 +350,8 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                 }
               , { name: 'C7'
                 , coord:
-                    { x: -7.022666625976562
-                    , y: -1.0106959706959702
+                    { x: -6.122666625976563
+                    , y: 3.20930402930403
                     }
                 , shortMidRangeTarget:
                     { isShortRange: false
@@ -361,8 +361,8 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                 }
               , { name: 'C8'
                 , coord:
-                    { x: -6.122666625976563
-                    , y: 3.20930402930403
+                    { x: -7.022666625976562
+                    , y: -1.0106959706959702
                     }
                 , shortMidRangeTarget:
                     { isShortRange: false
