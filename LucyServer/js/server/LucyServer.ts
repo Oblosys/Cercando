@@ -315,17 +315,19 @@ function startSaving(filePath : string, cont : {success : () => void; error : (m
     cont.error('Invalid file path: "'+filePath+'"\nMay only contain letters, digits, spaces, and these characters: \'(\' \')\' \'-\' \'_\'');
   else {
     var fullFilename = saveDirectoryPath + '/' + filePath+'.csv';
-    outputFileStream = fs.createWriteStream(fullFilename);
-    outputFileStream.on('error', function(err : Error) {
-      util.log('Start-saving failed: ' + err.message);
-      cont.error(err.message);
-    });
-    outputFileStream.once('open', function(fd :  number) {
-      state.status.isSaving = true;
-      // Mimic the save format created by Motorola SessionOne app, but add the reader ip in an extra column (ip is not saved by SessionOne) 
-      outputFileStream.write('EPC, Time, Date, Antenna, RSSI, Channel index, Memory bank, PC, CRC, ReaderIp\n')
-      util.log('Started saving events to "'+fullFilename+'"');
-      cont.success();
+    mkUniqueFilePath(fullFilename, (uniqueFilePath) => {
+      outputFileStream = fs.createWriteStream(uniqueFilePath);
+      outputFileStream.on('error', function(err : Error) {
+        util.log('Start-saving failed: ' + err.message);
+        cont.error(err.message);
+      });
+      outputFileStream.once('open', function(fd :  number) {
+        state.status.isSaving = true;
+        // Mimic the save format created by Motorola SessionOne app, but add the reader ip in an extra column (ip is not saved by SessionOne) 
+        outputFileStream.write('EPC, Time, Date, Antenna, RSSI, Channel index, Memory bank, PC, CRC, ReaderIp\n')
+        util.log('Started saving events to "'+fullFilename+'"');
+        cont.success();
+      });
     });
   }
 }
@@ -518,4 +520,41 @@ function getAntennaNr(antennaId : Shared.AntennaId) {
 // Only allow letters, digits, and slashes
 function isSafeFilePath(filePath : string) : boolean {
   return /^[a-zA-Z0-9" "\(\)\-\_]+$/.test(filePath);
+}
+
+function mkUniqueFilePath(fullFilePath : string, success : (uniqueFilePath : string) => any) {
+  var pathNameArr = fullFilePath.match(/(.*)\/([^\/]*$)/); // split on last /
+  if (!pathNameArr || pathNameArr.length != 3) { // [fullFilePath, path, name]   
+  } else {
+    var filePath = pathNameArr[1];
+    var filenameExt = pathNameArr[2];
+    var nameExtArr = filenameExt.match(/(.*)\.([^\.]*$)/); // split on last .
+    var filename : string;
+    var ext : string;
+    if (nameExtArr && nameExtArr.length == 3) {
+      filename = nameExtArr[1];
+      ext = '.'+nameExtArr[2];
+    } else {
+      filename = filenameExt;
+      ext = '';
+    }
+    fs.readdir(pathNameArr[1], (err, files) => {
+      if (err) {
+        util.error('Error on readdir in mkUniqueFilename: ' + err);
+      } else {
+        util.log(files, filename, ext);
+        if (!(_(files).contains(filename + ext))) 
+          success(fullFilePath); // the suggested name does not already exist
+        else {
+          var filenameIndexed : string;
+          var i = 1;
+          do { // try a higher index until the name is not in the directory
+            filenameIndexed = filename + ' (' + i++ + ')' + ext;
+            util.log('filenameIndexed' + filenameIndexed);
+          } while (_(files).contains(filenameIndexed))
+          success( filePath + '/' + filenameIndexed);
+        }  
+      }
+    });
+  }
 }
