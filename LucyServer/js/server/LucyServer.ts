@@ -12,9 +12,14 @@
 // configuration constants
 
 var defaultServerPortNr = 8080; // port for the Lucy web server
-var remoteHostName = "lucy.oblomov.com";
+var remoteHostName = 'lucy.oblomov.com';
 var readerServerPortNr       = 8193;
 var presentationServerPortNr = 8199;
+var sqlServerIp = 'localhost';
+//var sqlServerIp = '10.0.0.20';
+var sqlServerUser = 'lucy';
+var sqlServerPassword = '';
+var sqlDbName = 'lucy_test';
 var reconnectInterval = 2000; // time in ms to wait before trying to reconnect to the reader server
 var useSmoother = true;
 var lucyDataDirectoryPath = process.env['HOME'] + '/lucyData';
@@ -37,6 +42,8 @@ import ServerCommon   = require('./ServerCommon');
 
 var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 
+var mysql = require('mysql'); // Don't have a TypeScript definition for mysql yet
+
 var app = express();
 
 // global state variables
@@ -52,6 +59,15 @@ var outputFileStream : fs.WriteStream; // for saving reader events
 var readerServerHostName : string;
 var serverPortNr : number;
 
+var db_config = {
+    host:sqlServerIp,
+    user: sqlServerUser,
+    password: sqlServerPassword,
+    database: sqlDbName,
+    connectTimeout: 5000
+};
+
+var dbConnectionPool = mysql.createPool(db_config);
 
 
 initServer();
@@ -356,8 +372,8 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   var tag = _.findWhere(state.tagsData, {epc: readerEvent.epc});
   if (!tag) {
     tag = { epc:readerEvent.epc, antennaRssis: [], metaData: {name: ''} }
-    util.log('Encountered new tag '+tag.epc);
     state.tagsData.push(tag);
+    tagDidEnter(tag);
   }
   
   state.status.readerServerTime = readerTimestamp.toString();
@@ -435,10 +451,10 @@ function positionAllTags() {
   var dt = previousPositioningTimestamp ? (nowTimestamp - previousPositioningTimestamp) / 1000 :  0
   previousPositioningTimestamp = nowTimestamp; 
 
-  util.log(state.tagsData.length + ' tags')
+  //util.log(state.tagsData.length + ' tags')
   // compute distance and age for each antennaRssi for each tag
   _(state.tagsData).each((tag) => {
-    util.log(tag.epc + ':' + tag.antennaRssis.length + ' signals');
+    //util.log(tag.epc + ':' + tag.antennaRssis.length + ' signals');
     _(tag.antennaRssis).each((antennaRssi) => {
       antennaRssi.distance = trilateration.getRssiDistance(tag.epc, allAntennas[antennaRssi.antNr].name, antennaRssi.value);
       antennaRssi.age = nowTimestamp - antennaRssi.timestamp.getTime(); 
@@ -455,7 +471,7 @@ function positionAllTags() {
       return shortMidRangeTarget != null && shared.isRecentAntennaRSSI(antennaRssi);
     });
     if (shortMidRangeRssi) {
-      util.log('short mid for tag '+tag.epc);
+      //util.log('short mid for tag '+tag.epc);
       tag.coordinate = {coord: allAntennas[shortMidRangeRssi.antNr].coord, isRecent:true};
     } else {
       var oldCoord = tag.coordinate ? tag.coordinate.coord : null;
@@ -479,9 +495,19 @@ function purgeOldTags() {
     var isTagRecent = tag.antennaRssis.length > 0;
     if (!isTagRecent) {
       util.log('Purging tag '+tag.epc);
+      tagDidExit(tag)
     } 
     return isTagRecent;
   });
+}
+
+function tagDidEnter(tag : Shared.TagData) {
+  util.log('Tag ' + tag.epc + ' entered the floor');
+  queryTagMetaData(tag);
+}
+
+function tagDidExit(tag : Shared.TagData) {
+  util.log('Tag ' + tag.epc + ' exited the floor');
 }
 
 function signalPresentationServer(serverIp : string, antennaIndex : number, epc : string) {
@@ -507,6 +533,85 @@ function signalPresentationServer(serverIp : string, antennaIndex : number, epc 
 
   presentationServerSocket.connect(presentationServerPortNr, serverIp);
 }
+
+function queryTagMetaData(tag : Shared.TagData) {
+  dbConnectionPool.getConnection(function(err : any, con : any){
+    if (err || !con) {
+      util.error('Error during metadata lookup for tag ' + tag.epc + ': Problem with database connection:\n' + err);
+    } else {
+      con.query('SELECT name FROM visitors WHERE epc="'+tag.epc+'"',function(err : any, rows : Shared.TagMetaData[]) {
+        if (err) {
+          util.error('Error during metadata lookup for tag ' + tag.epc + ': SQL error:\n' + err);
+        } else {
+          if (rows == null) {
+            util.error('Error during metadata lookup for tag ' + tag.epc + ': SQL response is null');
+          } else if (rows.length == 0) { // tag not found
+            util.log('Queried ' + tag.epc + ': tag not found in database');
+          } else if (rows.length == 1) { 
+            try { // surround metaData assignment with try to catch incompatibilities in table format
+              if (rows.length > 1) {
+                util.error('Error during metadata lookup for tag ' + tag.epc + ': Mutiple rows in result.\n' +
+                           'SQL result: ' + JSON.stringify(rows));
+              }
+              tag.metaData = { name: rows[0].name };
+              util.log('Queried metadata for tag ' + tag.epc + ': name is ' + tag.metaData);
+            } catch (e) {
+              util.error('Error during metadata lookup for tag ' + tag.epc + ': Problem with database table format.\n' +
+                         'SQL result: ' + JSON.stringify(rows) + '\nError: ' + e);
+            }
+          }
+        }
+      });
+      con.release();
+    }
+  });
+}
+
+
+/*
+function querySQL(conn : any, queryStr : string, tag : Shared.TagData) {
+  conn.query(queryStr, function(err : any, rows : any, fields : any) {
+    if (err) {
+      util.error('Error during lookup for epc ' + tag.epc + ': SQL error:\n' + err);
+    } else {
+      //util.log('SQL output for '+queryStr+' ('+rows.length+' lines)');
+      //util.log(JSON.stringify(rows));
+      if (rows.length == 1 && rows[0].name) {
+        conn.end();
+        var metaData : Shared.TagMetaData = rows[0];
+//        util.log(metaData.name);
+        tag.metaData = metaData;
+      } else {
+        util.error('Error during lookup for epc ' + tag.epc + ': incorrect SQL response:\n' + JSON.stringify(rows));
+      }
+    }
+  });  
+}
+
+function queryTagMetaData(tag : Shared.TagData) {
+  try {
+    util.log('d')
+    var conn = mysql.createConnection({host:sqlServerIp, user:sqlServerUser, password:sqlServerPassword});
+    util.log('e')
+    conn.connect((err : any) => {
+      if (err) { // connect failed
+        util.error('Error during lookup for epc ' + tag.epc + ': SQL connect to ' + sqlServerIp +
+                   ' with user ' + sqlServerUser + ' failed:\n' + err);
+      } else {
+        conn.query('USE '+sqlDbName, (err : any) => {
+          if (err) { // USE failed
+            util.error('Error during lookup for epc ' + tag.epc + ': SQL USE ' + sqlDbName + ' failed:\n' + err);
+          } else {
+            querySQL(conn,'SELECT name FROM visitors WHERE epc='+tag.epc, tag);
+          }
+        });
+      }
+    });
+  } catch (e) {
+    util.error('Error during lookup for epc ' + tag.epc + ': Problem with database connection:\n' + e);
+  }
+}
+*/
 
 // return the index in allAntennas for the antenna with id ant 
 function getAntennaNr(antennaId : Shared.AntennaId) {
