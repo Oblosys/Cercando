@@ -567,52 +567,6 @@ function queryTagMetaData(tag : Shared.TagData) {
   });
 }
 
-
-/*
-function querySQL(conn : any, queryStr : string, tag : Shared.TagData) {
-  conn.query(queryStr, function(err : any, rows : any, fields : any) {
-    if (err) {
-      util.error('Error during lookup for epc ' + tag.epc + ': SQL error:\n' + err);
-    } else {
-      //util.log('SQL output for '+queryStr+' ('+rows.length+' lines)');
-      //util.log(JSON.stringify(rows));
-      if (rows.length == 1 && rows[0].name) {
-        conn.end();
-        var metaData : Shared.TagMetaData = rows[0];
-//        util.log(metaData.name);
-        tag.metaData = metaData;
-      } else {
-        util.error('Error during lookup for epc ' + tag.epc + ': incorrect SQL response:\n' + JSON.stringify(rows));
-      }
-    }
-  });  
-}
-
-function queryTagMetaData(tag : Shared.TagData) {
-  try {
-    util.log('d')
-    var conn = mysql.createConnection({host:sqlServerIp, user:sqlServerUser, password:sqlServerPassword});
-    util.log('e')
-    conn.connect((err : any) => {
-      if (err) { // connect failed
-        util.error('Error during lookup for epc ' + tag.epc + ': SQL connect to ' + sqlServerIp +
-                   ' with user ' + sqlServerUser + ' failed:\n' + err);
-      } else {
-        conn.query('USE '+sqlDbName, (err : any) => {
-          if (err) { // USE failed
-            util.error('Error during lookup for epc ' + tag.epc + ': SQL USE ' + sqlDbName + ' failed:\n' + err);
-          } else {
-            querySQL(conn,'SELECT name FROM visitors WHERE epc='+tag.epc, tag);
-          }
-        });
-      }
-    });
-  } catch (e) {
-    util.error('Error during lookup for epc ' + tag.epc + ': Problem with database connection:\n' + e);
-  }
-}
-*/
-
 // return the index in allAntennas for the antenna with id ant 
 function getAntennaNr(antennaId : Shared.AntennaId) {
   for (var i = 0; i < allAntennas.length; i++) {
