@@ -1,6 +1,11 @@
 /// <reference path="../shared/Shared.ts" />
 
 var useIncrementalTrilateration = true;
+var use2dDistance = true;
+
+var meanVisitorHeight = 1.5;
+var antennaHeight = 3.0;
+
 
 import _        = require('underscore');
 import util     = require('oblo-util');
@@ -15,13 +20,16 @@ export function getPosition(epc : string, antennas : Shared.Antenna[], oldCoord 
 
 // Distance functions
 
+export function getRssiForDistance(dist : number) {
+  return getRssiForDistance3d(use2dDistance ? convert2dTo3d(dist) : dist);
+}
 
 
 // epc & antNr just for logging
-export function getRssiDistance(epc : string, antName : string, rssi : number) {
-  var dist3d = getDistance3d(rssi);
-  //var dist2d = convert3dTo2d(dist3d);
-  var dist2d = dist3d;//getDistance2dStaged(rssi);
+export function getDistanceForRssi(epc : string, antName : string, rssi : number) {
+  var dist3d = getDistanceForRssi3d(rssi);
+  return (use2dDistance ? convert3dTo2d(dist3d) : dist3d)
+  //var dist2d = dist3d;//getDistance2dStaged(rssi);
   
   // log specific tag
   //if (epc == '0000000000000000000000000370870' && antNr == 3) {
@@ -31,7 +39,7 @@ export function getRssiDistance(epc : string, antName : string, rssi : number) {
   //util.log(dist3d + ' ' +dist);
   
   //return dist ? dist : 0;
-  return dist2d;
+  //return dist2d;
 }
 
 
@@ -72,8 +80,13 @@ var n = 2
 
 
   // Google: 1/6000*0.7*exp ((32-x) / (10*1)) from -30 to -80
-export function getDistance3d(rssi : number) {
+export function getDistanceForRssi3d(rssi : number) {
   return d0 * Math.exp((prd0-rssi)/(10*n));
+}
+
+export function getRssiForDistance2d(dist2d : number) {
+  var dist3d = dist2d;
+  return getRssiForDistance3d(dist3d);  
 }
 
 export function getRssiForDistance3d(dist : number) {
@@ -86,9 +99,12 @@ export function getRssiForDistance3d(dist : number) {
   return prd0 - Math.log(dist/d0)*(10*n);
 }
 
+
+export function convert2dTo3d(dist2d : number) : number {
+  return Math.sqrt( util.square(dist2d) + util.square(antennaHeight - meanVisitorHeight));
+}
+
 export function convert3dTo2d(dist3d : number) : number {
-  var meanVisitorHeight = 1.5;
-  var antennaHeight = 2.7;
   var distSquared = util.square(dist3d) - util.square(antennaHeight - meanVisitorHeight); 
   var dist = distSquared > 0 ? Math.sqrt( distSquared ) : 0; // simply take zero if we're too close too the antenna
   return dist;

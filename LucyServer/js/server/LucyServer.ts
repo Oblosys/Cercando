@@ -396,11 +396,11 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
     var newAntennaRssi = {antNr: antNr, value: newRssi, timestamp: timestamp};
     //if (readerEvent.epc == '0000000000000000000000000503968' && readerEvent.ant == 1) {
     //  util.log(new Date().getSeconds() + ' ' + readerEvent.epc + ' ant '+readerEvent.ant + ' rawRssi: '+readerEvent.rssi.toFixed(1) + ' dist: '+
-    //          trilateration.getRssiDistance(readerEvent.epc, ''+readerEvent.ant, readerEvent.rssi));
+    //          trilateration.getDistanceForRssi(readerEvent.epc, ''+readerEvent.ant, readerEvent.rssi));
     //}
     
     updateAntennaRssi(newAntennaRssi, tag.antennaRssis);
-    //trilateration.getRssiDistance(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI);
+    //trilateration.getDistanceForRssi(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI);
     //util.log(tagsState);
     if (allAntennas[antNr].shortMidRangeTarget) {
       var shortMidRangeTarget = allAntennas[antNr].shortMidRangeTarget;
@@ -434,7 +434,7 @@ function filtered(epc : string, ant : number, rssi : number, timestamp : Date, p
   var newRssi = rssi * alpha + previousRssi * (1.0 - alpha);
   //if (epc == '0000000000000000000000000503968' && ant == 1) {
   //  util.log(new Date().getSeconds() + ' ' + epc + ' ant '+ant + ' prevRssi: '+previousRssi.toFixed(1) + ' rawRssi: '+rssi.toFixed(1) + ' newDist: '+
-  //           trilateration.getRssiDistance(epc, ''+ant, newRssi).toFixed(1) + ' newRssi: '+newRssi.toFixed(1));
+  //           trilateration.getDistanceForRssi(epc, ''+ant, newRssi).toFixed(1) + ' newRssi: '+newRssi.toFixed(1));
   //}
   
   //util.log(util.padZero(3,dT) + JSON.stringify(previousRssi) );
@@ -456,7 +456,7 @@ function positionAllTags() {
   _(state.tagsData).each((tag) => {
     //util.log(tag.epc + ':' + tag.antennaRssis.length + ' signals');
     _(tag.antennaRssis).each((antennaRssi) => {
-      antennaRssi.distance = trilateration.getRssiDistance(tag.epc, allAntennas[antennaRssi.antNr].name, antennaRssi.value);
+      antennaRssi.distance = trilateration.getDistanceForRssi(tag.epc, allAntennas[antennaRssi.antNr].name, antennaRssi.value);
       antennaRssi.age = nowTimestamp - antennaRssi.timestamp.getTime(); 
       return antennaRssi.distance;
     });

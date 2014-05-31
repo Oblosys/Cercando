@@ -317,5 +317,5 @@ function pointToRssi(antennaIx : number, p : Shared.Coord) : number {
   if (dist > shared.getAntennaMaxRange(allAntennas[antennaIx]))
     return null;
   else
-    return trilateration.getRssiForDistance3d(dist);
+    return trilateration.getRssiForDistance(dist);
 }
