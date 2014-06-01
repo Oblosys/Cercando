@@ -109,14 +109,13 @@ module ClientCommon {
 
   export function createTagMarker(tag : Shared.TagData) {
     var trilaterationPlaneSVG = d3.select('#trilateration-plane');
-    var tagInfo = getTagInfo(tag.epc);
     
     var markerSVG = trilaterationPlaneSVG.append('g').attr('id', mkTagId(tag)).attr('class', 'tag-marker')
+                       .style('fill', getTagColor(tag))
                        .attr('transform', 'translate('+ClientCommon.toScreenX(tag.coordinate ? tag.coordinate.coord.x : 0)+
                                                    ','+ClientCommon.toScreenY(tag.coordinate ? tag.coordinate.coord.y : 0)+')');
  
     markerSVG.append('circle')
-      .style('fill', tagInfo.color)
       .attr('r', 6)
       .attr('cx',0)
       .attr('cy',0);
@@ -136,7 +135,7 @@ module ClientCommon {
     var antNr = antennaRssi.antNr;
     var pos = ClientCommon.toScreen(allAntennas[antNr].coord);
     rssiPlaneSVG.append('circle').attr('id', mkSignalId(antennaRssi, tag)).attr('class', 'signal-marker')
-              .style('stroke', getTagInfo(tag.epc).color)
+              .style('stroke', getTagColor(tag))
               .style('fill', 'transparent')
               .attr('cx', pos.x)
               .attr('cy', pos.y);
@@ -157,6 +156,7 @@ module ClientCommon {
       dashArray = ''+(10-staleIndex)+','+staleIndex;
     }
     var signal = d3.select('#'+mkSignalId(antennaRssi, tag));
+    signal.style('stroke', getTagColor(tag));
     signal.transition()
           .duration(refreshDelay)
           .style('stroke-dasharray', dashArray)
@@ -174,10 +174,9 @@ module ClientCommon {
     $('#tags-data').append('<tr id="' + mkDataRowId(tag) + '" class="data-row"><td class="tag-label">'+tag.epc.slice(-7)+'</td>' +
                              util.replicate(allAntennas.length, '<td class="ant-rssi">&nbsp;</td>').join('') +
                            '</tr>');
-    var color = getTagInfo(tag.epc).color;
     //$('.tag-rssis:eq('+tagNr+') .tag-label').text(tagData.epc);
     var $tagLabel = $('#'+mkDataRowId(tag));
-    $tagLabel.css('color', color);
+    $tagLabel.css('color', getTagColor(tag));
 
   }
   
@@ -188,7 +187,7 @@ module ClientCommon {
   export function createTrail(tag : Shared.TagData) {
     allTagTrails[tag.epc] = [];
   
-    var color = getTagInfo(tag.epc).color;
+    var color = getTagColor(tag);
     var visitorTrail = d3.select('#trail-plane')
       .append('path')
       .attr('id', mkTrailId(tag))
@@ -307,6 +306,10 @@ module ClientCommon {
       return fullId.substring(prefixPlusSep.length);
     }
   } 
+  
+  export function getTagColor(tag : Shared.TagData) {
+    return tag.metaData && tag.metaData.color ? tag.metaData.color : getTagInfo(tag.epc).color;
+  }
   
   export function showTime(date : Date) {
     return util.padZero(2, date.getHours()) + ":" + util.padZero(2, date.getMinutes()) + ":" + util.padZero(2, date.getSeconds()) 

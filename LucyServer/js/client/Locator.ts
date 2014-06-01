@@ -170,7 +170,6 @@ function updateTags() {
     }).join('');
   $('#unknown-antennas').html(unknownAntennasHtml);
   _.map(serverState.tagsData, (tagData) => {
-    //util.log(tagRssis.epc + '(' + tagNr + ':' + tagColors[tagNr] + ')' + tagRssis.rssis);
     var tagNr = getTagNr(tagData.epc);
     
     for (var i=0; i < tagData.antennaRssis.length; i++) {
@@ -204,6 +203,7 @@ function updateTags() {
       var pos = ClientCommon.toScreen(tagData.coordinate.coord);
       markerD3.style('display', 'block');
       markerD3.style('stroke', tagData.coordinate.isRecent ? 'white' : 'red');
+      markerD3.style('fill', ClientCommon.getTagColor(tagData));
       markerD3.transition()
               .duration(refreshDelay)
               .attr('transform', 'translate('+pos.x+','+pos.y+')');
