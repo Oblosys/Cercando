@@ -38,7 +38,7 @@ module Shared {
                                ; tagConfiguration : TagConfiguration[]
                                ; antennaSpecs : Antenna[] }
   
-  export interface TagMetaData { name : string }
+  export interface TagMetaData { name : string; color : string }
   
   export interface TagData { epc : string; antennaRssis : AntennaRSSI[]
                            ; coordinate? : { coord: {x : number; y : number}; isRecent : boolean } 

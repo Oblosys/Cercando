@@ -371,7 +371,7 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
 
   var tag = _.findWhere(state.tagsData, {epc: readerEvent.epc});
   if (!tag) {
-    tag = { epc:readerEvent.epc, antennaRssis: [], metaData: {name: ''} }
+    tag = { epc:readerEvent.epc, antennaRssis: [], metaData: null }
     state.tagsData.push(tag);
     tagDidEnter(tag);
   }
@@ -539,7 +539,7 @@ function queryTagMetaData(tag : Shared.TagData) {
     if (err || !con) {
       util.error('Error during metadata lookup for tag ' + tag.epc + ': Problem with database connection:\n' + err);
     } else {
-      con.query('SELECT name FROM visitors WHERE epc="'+tag.epc+'"',function(err : any, rows : Shared.TagMetaData[]) {
+      con.query('SELECT * FROM visitors WHERE epc="'+tag.epc+'"',function(err : any, rows : Shared.TagMetaData[]) {
         if (err) {
           util.error('Error during metadata lookup for tag ' + tag.epc + ': SQL error:\n' + err);
         } else {
@@ -553,8 +553,9 @@ function queryTagMetaData(tag : Shared.TagData) {
                 util.error('Error during metadata lookup for tag ' + tag.epc + ': Mutiple rows in result.\n' +
                            'SQL result: ' + JSON.stringify(rows));
               }
-              tag.metaData = { name: rows[0].name };
-              util.log('Queried metadata for tag ' + tag.epc + ': name is ' + tag.metaData);
+              tag.metaData = { name: rows[0].name, color: rows[0].color };
+              util.log('Queried metadata for tag ' + tag.epc + ': name is ' + tag.metaData.name +
+                       (tag.metaData.color ? ' color: '+ tag.metaData.color : '') );
             } catch (e) {
               util.error('Error during metadata lookup for tag ' + tag.epc + ': Problem with database table format.\n' +
                          'SQL result: ' + JSON.stringify(rows) + '\nError: ' + e);
