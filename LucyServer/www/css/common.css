@@ -97,6 +97,7 @@ body {
 }
 .antenna-max-range {
   stroke: black;
+  stroke-opacity: 0.3;
   fill: transparent;
 }
 .antenna-max-range-background.short-range {
@@ -111,7 +112,7 @@ body {
 }
 .antenna-max-range-background.long-range {
   stroke: none;
-  fill: red;
+  fill: transparent;
   fill-opacity: 0.3;
 }
 .antenna-label {

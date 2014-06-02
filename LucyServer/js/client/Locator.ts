@@ -31,7 +31,7 @@ var tagConfiguration : Shared.TagConfiguration[];
 
 var UIState = Backbone.Model.extend({
   defaults: {
-    showMaxAntennaRanges: false,
+    showMaxAntennaRanges: true,
     showSignals: true,
     showTrails: true,
     showTagSetup: true
@@ -44,7 +44,6 @@ var uiState : Backbone.Model = new UIState();
 
 function resetClientState() {
   util.log('Resetting client state');
-  uiState.set('showMaxAntennaRanges', false);
   uiState.trigger('change'); // reflect current values in UI, even when they are not different from defaults (and don't fire change  event)
   serverState.tagsData = [];
   allTagTrails = {};
@@ -179,13 +178,13 @@ function updateTags() {
     //$('#'+ClientCommon.mkDataRowId(tagData)+' .ant-rssi').html('');
     //$('#'+ClientCommon.mkDataRowId(tagData)+' .ant-rssi').css('background-color', 'transparent');
     var strongestAntennaNr = _(tagData.antennaRssis).max((antennaRssi) => {return antennaRssi.value;}).antNr;
-util.log(tagData.epc);
       
+    $('#'+ClientCommon.mkAntennaRangeBackgroundId(strongestAntennaNr)).css('fill', ClientCommon.getTagColor(tagData));
     // display strongest signal range for certain epc
-    if (tagData.epc == '05355d0000000000017be8') {//'000000000000000000000000000000')
-      util.log(tagData.epc);
-      $('#'+ClientCommon.mkAntennaRangeBackgroundId(strongestAntennaNr)).css('fill', 'white');
-    }
+    //if (tagData.epc == '05355d0000000000017be8') {//'000000000000000000000000000000')
+    //  util.log(tagData.epc);
+    //  
+    //}
     //
     
     for (var i=0; i < tagData.antennaRssis.length; i++) {
