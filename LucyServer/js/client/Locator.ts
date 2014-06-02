@@ -169,8 +169,24 @@ function updateTags() {
       return '<div id="unknown-antenna">' + unknownAntenna.readerIp + '-' + unknownAntenna.antennaNr + '</div>';
     }).join('');
   $('#unknown-antennas').html(unknownAntennasHtml);
+ 
+  // only necessary when displaying strongest signal range for certain epc
+  $('.antenna-max-range-background').css('fill', '');
+
   _.map(serverState.tagsData, (tagData) => {
     var tagNr = getTagNr(tagData.epc);
+    
+    //$('#'+ClientCommon.mkDataRowId(tagData)+' .ant-rssi').html('');
+    //$('#'+ClientCommon.mkDataRowId(tagData)+' .ant-rssi').css('background-color', 'transparent');
+    var strongestAntennaNr = _(tagData.antennaRssis).max((antennaRssi) => {return antennaRssi.value;}).antNr;
+util.log(tagData.epc);
+      
+    // display strongest signal range for certain epc
+    if (tagData.epc == '05355d0000000000017be8') {//'000000000000000000000000000000')
+      util.log(tagData.epc);
+      $('#'+ClientCommon.mkAntennaRangeBackgroundId(strongestAntennaNr)).css('fill', 'white');
+    }
+    //
     
     for (var i=0; i < tagData.antennaRssis.length; i++) {
       var antRssi = tagData.antennaRssis[i];
@@ -182,13 +198,14 @@ function updateTags() {
         
       // show in table
       if (rssi) {
-        $('#'+ClientCommon.mkDataRowId(tagData)+' .ant-rssi:eq('+antNr+')').html('<span class="dist-label">' + dist.toFixed(1) + 'm</span>' +
-                                                                 '<span class="rssi-label">(' + rssi.toFixed(1) + ')</span>');
+        var $dataCell = $('#'+ClientCommon.mkDataRowId(tagData)+' .ant-rssi:eq('+antNr+')');
+        $dataCell.html('<span class="dist-label">' + dist.toFixed(1) + 'm</span>' +
+                       '<span class="rssi-label">(' + rssi.toFixed(1) + ')</span>');
+        $dataCell.css('background-color', antNr == strongestAntennaNr ? '#333' : 'transparent')
         $('#'+ClientCommon.mkDataRowId(tagData)+' .dist-label').css('color', isSignalRecent ? 'white' : 'red');
         $('#'+ClientCommon.mkDataRowId(tagData)+' .rssi-label').css('color', isSignalRecent ? '#bbb' : 'red');
       }
-      //util.log(tagNr + '-' + ant +' '+ rssi);
-
+      
       var signal = d3.select('#'+ClientCommon.mkSignalId(antRssi, tagData));
       if (signal.empty())
         ClientCommon.createSignalMarker(antRssi, tagData);
