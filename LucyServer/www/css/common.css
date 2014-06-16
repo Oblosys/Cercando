@@ -112,7 +112,7 @@ body {
 }
 .antenna-max-range-background.long-range {
   stroke: none;
-  fill: transparent;
+  fill: red;
   fill-opacity: 0.3;
 }
 .antenna-label {
