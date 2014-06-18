@@ -63,14 +63,17 @@ body {
   stroke: #000;
 }
 
+#floor text {
+	stroke-width: 0px;
+	font-family: Verdana;
+  font-size: 10px;
+  fill: white;
+}
+
 .tag-marker {
 	stroke: black; /* Set stroke on marker instead of circle, for easy override */
 }
 .tag-marker text {
-	font-family: Verdana;
-	font-size: 10px;
-	stroke: white;
-	fill: white;
 	text-anchor: middle;
 }
 
@@ -116,9 +119,6 @@ body {
   fill-opacity: 0.3;
 }
 .antenna-label {
-	font-family: verdana;
-	font-size: 10px;
-	fill: white;
 }
 
 table#tags-data {
