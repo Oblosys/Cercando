@@ -12,8 +12,8 @@
 // configuration constants
 
 var defaultServerPortNr = 8080; // port for the Lucy web server
-//var remoteHostName = 'lucy.oblomov.com';
-var remoteHostName = '10.0.0.215';
+var remoteHostName = 'lucy.oblomov.com';
+//var remoteHostName = '10.0.0.24';
 var readerServerPortNr       = 8193;
 var presentationServerPortNr = 8199;
 //var sqlServerIp = 'localhost';
