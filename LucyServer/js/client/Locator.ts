@@ -172,22 +172,15 @@ function updateTags() {
   $('#unknown-antennas').html(unknownAntennasHtml);
  
   // only necessary when displaying strongest signal range for certain epc
-  $('.antenna-max-range-background').css('fill', '');
+  $('.antenna-max-range-background').css('fill', ''); // remove background overrides coming from strongest signals
 
   _.map(serverState.tagsData, (tagData) => {
     var tagNr = getTagNr(tagData.epc);
     
-    //$('#'+ClientCommon.mkDataRowId(tagData)+' .ant-rssi').html('');
-    //$('#'+ClientCommon.mkDataRowId(tagData)+' .ant-rssi').css('background-color', 'transparent');
     var strongestAntennaNr = _(tagData.antennaRssis).max((antennaRssi) => {return antennaRssi.value;}).antNr;
-      
+    
+    // override background fill for strongest signal
     $('#'+ClientCommon.mkAntennaRangeBackgroundId(strongestAntennaNr)).css('fill', ClientCommon.getTagColor(tagData));
-    // display strongest signal range for certain epc
-    //if (tagData.epc == '05355d0000000000017be8') {//'000000000000000000000000000000')
-    //  util.log(tagData.epc);
-    //  
-    //}
-    //
     
     for (var i=0; i < tagData.antennaRssis.length; i++) {
       var antRssi = tagData.antennaRssis[i];
