@@ -49,6 +49,8 @@ function resetClientState() {
   allTagTrails = {};
   d3.selectAll('#trail-plane *').remove();
   d3.selectAll('#antenna-plane *').remove();
+  d3.selectAll('#antenna-range-plane *').remove();
+  d3.selectAll('#antenna-range-background-plane *').remove();
   d3.selectAll('#tag-setup-plane *').remove();
   d3.selectAll('#rssi-plane *').remove();
   d3.selectAll('#trilateration-plane *').remove();
