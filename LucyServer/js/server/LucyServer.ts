@@ -54,7 +54,7 @@ var app = express();
 // global state variables
 
 var state : Shared.ServerState
-var previousPositioningTimestamp : number; // timestamp in milleseconds for the last time all tag positions were computed
+var previousPositioningTimestamp : number; // timestamp in milliseconds for the last time all tag positions were computed
 var allAntennaLayouts : Shared.AntennaLayout[];
 var allAntennas : Shared.Antenna[];
 
