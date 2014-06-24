@@ -101,7 +101,7 @@ body {
 
 .strongest-antenna-range {
   stroke: none;
-  fill-opacity: 0.6;  
+  fill-opacity: 0.4;  
 	fill: transparent; /* overridden with style attr to show strongest antenna range for each tag */
 }
 
