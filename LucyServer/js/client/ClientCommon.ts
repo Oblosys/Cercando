@@ -40,7 +40,7 @@ module ClientCommon {
       .attr('height', floorHeight);
       
     floorSVG.append('g').attr('id', 'trail-plane');
-    floorSVG.append('g').attr('id', 'antenna-range-background-plane');
+    floorSVG.append('g').attr('id', 'strongest-antenna-range-plane');
     floorSVG.append('g').attr('id', 'antenna-range-plane');
     floorSVG.append('g').attr('id', 'antenna-plane');
     floorSVG.append('g').attr('id', 'tag-setup-plane');
@@ -71,16 +71,20 @@ module ClientCommon {
   export function createAntennaMarkers() {
     var antennaPlaneSVG = d3.select('#antenna-plane');
     var rangePlaneSVG = d3.select('#antenna-range-plane');
-    var rangeBackgroundPlaneSVG = d3.select('#antenna-range-background-plane');
-    _.each(allAntennas, (ant, i) => createAntennaMarker(antennaPlaneSVG, rangePlaneSVG, rangeBackgroundPlaneSVG, ant, i));
+    var strongestRangePlaneSVG = d3.select('#strongest-antenna-range-plane');
+    _.each(allAntennas, (ant, i) => createAntennaMarker(antennaPlaneSVG, rangePlaneSVG, strongestRangePlaneSVG, ant, i));
   }
   
-  export function createAntennaMarker(planeSVG : D3.Selection, rangePlaneSVG : D3.Selection, rangeBackgroundPlaneSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
+  export function createAntennaMarker(planeSVG : D3.Selection, rangePlaneSVG : D3.Selection, strongestRangePlaneSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
     var pos = ClientCommon.toScreen(antenna.coord);
     var antennaClass = (antenna.shortMidRangeTarget ? (antenna.shortMidRangeTarget.isShortRange ? 'short' : 'mid') :'long') +
                        '-range';
 
     // styling is done with css (unfortunately, r is not a css attribute)
+    strongestRangePlaneSVG.append('circle').attr('id', mkStrongestAntennaRangeId(antennaNr)).attr('class', 'strongest-antenna-range '+antennaClass)
+      .attr('r', Shared.getAntennaMaxRange(antenna)*scale)
+      .attr('cx', pos.x)
+      .attr('cy', pos.y);
     rangePlaneSVG.append('circle').attr('id', mkAntennaRangeId(antennaNr)).attr('class', 'antenna-max-range '+antennaClass)
       .attr('r', Shared.getAntennaMaxRange(antenna)*scale)
       .attr('cx', pos.x)
@@ -265,8 +269,8 @@ module ClientCommon {
     return mkId('antenna-range', ''+nr)
   }
   
-  export function mkAntennaRangeBackgroundId(nr : number) {
-    return mkId('antenna-range-background', ''+nr)
+  export function mkStrongestAntennaRangeId(nr : number) {
+    return mkId('strongest-antenna-range', ''+nr)
   }
   
   export function mkTagId(tag : Shared.TagData) {

@@ -108,7 +108,7 @@ function setAntennasDragHandler() {
       $(this).attr('transform', 'translate('+d3.event.x+','+d3.event.y+')');
       d3.select('#'+ClientCommon.mkAntennaRangeId(antennaNr)).attr('cx', d3.event.x)
                                                              .attr('cy', d3.event.y);
-      d3.select('#'+ClientCommon.mkAntennaRangeBackgroundId(antennaNr)).attr('cx', d3.event.x)
+      d3.select('#'+ClientCommon.mkStrongestAntennaRangeId(antennaNr)).attr('cx', d3.event.x)
                                                                        .attr('cy', d3.event.y);
       var x = ClientCommon.fromScreenX(d3.event.x);
       var y = ClientCommon.fromScreenY(d3.event.y);

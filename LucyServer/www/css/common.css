@@ -99,6 +99,12 @@ body {
   fill: blue;
 }
 
+.strongest-antenna-range {
+  stroke: none;
+  fill-opacity: 0.6;  
+	fill: transparent; /* overridden with style attr to show strongest antenna range for each tag */
+}
+
 .antenna-max-range {
   stroke: black;
   stroke-opacity: 0.3;

@@ -50,7 +50,7 @@ function resetClientState() {
   d3.selectAll('#trail-plane *').remove();
   d3.selectAll('#antenna-plane *').remove();
   d3.selectAll('#antenna-range-plane *').remove();
-  d3.selectAll('#antenna-range-background-plane *').remove();
+  d3.selectAll('#strongest-antenna-range *').remove();
   d3.selectAll('#tag-setup-plane *').remove();
   d3.selectAll('#rssi-plane *').remove();
   d3.selectAll('#trilateration-plane *').remove();
@@ -68,6 +68,7 @@ function initialize() {
 
   ClientCommon.initFloorSVG();
   
+  uiState.set('showMaxAntennaRanges', false);
   initLayoutSelector(); // initLayoutSelector calls selectLayout, which finishes client init and starts refresh interval
 }
 
@@ -171,16 +172,16 @@ function updateTags() {
     }).join('');
   $('#unknown-antennas').html(unknownAntennasHtml);
  
-  // only necessary when displaying strongest signal range for certain epc
-  $('.antenna-max-range-background').css('fill', ''); // remove background overrides coming from strongest signals
+  $('.strongest-antenna-range').css('fill', '').css('stroke', 'none'); // remove background overrides coming from strongest signals
 
   _.map(serverState.tagsData, (tagData) => {
     var tagNr = getTagNr(tagData.epc);
     
     var strongestAntennaNr = _(tagData.antennaRssis).max((antennaRssi) => {return antennaRssi.value;}).antNr;
-    
     // override background fill for strongest signal
-    $('#'+ClientCommon.mkAntennaRangeBackgroundId(strongestAntennaNr)).css('fill', ClientCommon.getTagColor(tagData));
+    var $strongestAntennaRange = $('#'+ClientCommon.mkStrongestAntennaRangeId(strongestAntennaNr));
+    $strongestAntennaRange.css('fill', ClientCommon.getTagColor(tagData));
+    $strongestAntennaRange.css('stroke', 'white');
     
     for (var i=0; i < tagData.antennaRssis.length; i++) {
       var antRssi = tagData.antennaRssis[i];
