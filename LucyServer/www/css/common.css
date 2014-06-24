@@ -98,23 +98,20 @@ body {
 .long-range .antenna-shape {
   fill: blue;
 }
+
 .antenna-max-range {
   stroke: black;
   stroke-opacity: 0.3;
-  fill: transparent;
 }
-.antenna-max-range-background.short-range {
-  stroke: none;
+.antenna-max-range.short-range {
   fill: purple;
   fill-opacity: 0.3;
 }
-.antenna-max-range-background.mid-range {
-  stroke: none;
+.antenna-max-range.mid-range {
   fill: green;
   fill-opacity: 0.3;
 }
-.antenna-max-range-background.long-range {
-  stroke: none;
+.antenna-max-range.long-range {
   fill: red;
   fill-opacity: 0.3;
 }

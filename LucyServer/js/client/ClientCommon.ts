@@ -81,10 +81,6 @@ module ClientCommon {
                        '-range';
 
     // styling is done with css (unfortunately, r is not a css attribute)
-    rangeBackgroundPlaneSVG.append('circle').attr('id', mkAntennaRangeBackgroundId(antennaNr)).attr('class', 'antenna-max-range-background '+antennaClass)
-      .attr('r', Shared.getAntennaMaxRange(antenna)*scale)
-      .attr('cx', pos.x)
-      .attr('cy', pos.y);
     rangePlaneSVG.append('circle').attr('id', mkAntennaRangeId(antennaNr)).attr('class', 'antenna-max-range '+antennaClass)
       .attr('r', Shared.getAntennaMaxRange(antenna)*scale)
       .attr('cx', pos.x)
