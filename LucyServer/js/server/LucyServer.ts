@@ -16,11 +16,15 @@ var remoteHostName = 'lucy.oblomov.com';
 //var remoteHostName = '10.0.0.24';
 var readerServerPortNr       = 8193;
 var presentationServerPortNr = 8199;
-var sqlServerIp = 'localhost';
-//var sqlServerIp = '10.0.0.20';
-var sqlServerUser = 'lucy';
-var sqlServerPassword = '';
-var sqlDbName = 'lucy_test';
+
+var db_config = {
+    host:'10.0.0.20', // replaced by 'localhost' when remoteReader paramater is given
+    user: 'lucy',
+    password: '',
+    database: 'lucy_test',
+    connectTimeout: 5000
+};
+
 var reconnectInterval = 2000; // time in ms to wait before trying to reconnect to the reader server
 var useSmoother = true;
 var lucyDataDirectoryPath = process.env['HOME'] + '/lucyData';
@@ -60,15 +64,7 @@ var outputFileStream : fs.WriteStream; // for saving reader events
 var readerServerHostName : string;
 var serverPortNr : number;
 
-var db_config = {
-    host:sqlServerIp,
-    user: sqlServerUser,
-    password: sqlServerPassword,
-    database: sqlDbName,
-    connectTimeout: 5000
-};
-
-var dbConnectionPool = mysql.createPool(db_config);
+var dbConnectionPool : any;
 
 
 initServer();
@@ -81,9 +77,12 @@ function initServer() {
   if (process.argv[2] == 'remoteReader' || portArg && process.argv[3] == 'remoteReader') {
     // use remoteReader to connect to reader server on lucy.oblomov.com instead of localhost 
     readerServerHostName = remoteHostName;
+    db_config.host = 'localhost';
   } else {
     readerServerHostName = "localhost";
   }
+  dbConnectionPool = mysql.createPool(db_config);
+  
   util.log('\n\n\nStarting Lucy server on port ' + serverPortNr + ', using reader server on ' + readerServerHostName + '\n\n');
   
   resetServerState();
