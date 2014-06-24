@@ -31,8 +31,8 @@ var tagConfiguration : Shared.TagConfiguration[];
 
 var UIState = Backbone.Model.extend({
   defaults: {
-    showStrongestAntennaRanges: true,
-    showMaxAntennaRanges: true,
+    showMaxAntennaRanges: false,
+    showTagZones: true,
     showSignals: true,
     showTrails: true,
     showTagSetup: true
@@ -51,7 +51,7 @@ function resetClientState() {
   d3.selectAll('#trail-plane *').remove();
   d3.selectAll('#antenna-plane *').remove();
   d3.selectAll('#antenna-range-plane *').remove();
-  d3.selectAll('#strongest-antenna-range *').remove();
+  d3.selectAll('#tag-zone *').remove();
   d3.selectAll('#tag-setup-plane *').remove();
   d3.selectAll('#rssi-plane *').remove();
   d3.selectAll('#trilateration-plane *').remove();
@@ -69,16 +69,15 @@ function initialize() {
 
   ClientCommon.initFloorSVG();
   
-  uiState.set('showMaxAntennaRanges', false);
   initLayoutSelector(); // initLayoutSelector calls selectLayout, which finishes client init and starts refresh interval
 }
 
 function initSelectorButtons() {
   
-  $('#show-strongest-ranges-selector .select-button:eq(0)').on('click', () => {uiState.set('showStrongestAntennaRanges', true)});
-  $('#show-strongest-ranges-selector .select-button:eq(1)').on('click', () => {uiState.set('showStrongestAntennaRanges', false)});
   $('#show-ranges-selector .select-button:eq(0)').on('click', () => {uiState.set('showMaxAntennaRanges', true)});
   $('#show-ranges-selector .select-button:eq(1)').on('click', () => {uiState.set('showMaxAntennaRanges', false)});
+  $('#show-tag-zones-selector .select-button:eq(0)').on('click', () => {uiState.set('showTagZones', true)});
+  $('#show-tag-zones-selector .select-button:eq(1)').on('click', () => {uiState.set('showTagZones', false)});
   $('#show-signals-selector .select-button:eq(0)').on('click', () => {uiState.set('showSignals', true)});
   $('#show-signals-selector .select-button:eq(1)').on('click', () => {uiState.set('showSignals', false)});
   $('#show-trails-selector .select-button:eq(0)').on('click', () => {uiState.set('showTrails', true)});
@@ -89,14 +88,14 @@ function initSelectorButtons() {
 
 function handleUIStateChange(m : Backbone.Model, newValue : any) {
  // util.log('handleUIStateChange', m, newValue); // note that m and newValue not set on trigger('change')
-  var showStrongestAntennaRanges = uiState.get('showStrongestAntennaRanges');
-  util.setAttr($('#show-strongest-ranges-selector .select-button:eq(0)'),'selected', showStrongestAntennaRanges);
-  util.setAttr($('#show-strongest-ranges-selector .select-button:eq(1)'),'selected', !showStrongestAntennaRanges);
-  $('#strongest-antenna-range-plane').attr('visibility', showStrongestAntennaRanges ? 'visible' : 'hidden');
   var showMaxAntennaRanges = uiState.get('showMaxAntennaRanges');
   util.setAttr($('#show-ranges-selector .select-button:eq(0)'),'selected', showMaxAntennaRanges);
   util.setAttr($('#show-ranges-selector .select-button:eq(1)'),'selected', !showMaxAntennaRanges);
   $('#antenna-range-plane').attr('visibility', showMaxAntennaRanges ? 'visible' : 'hidden');
+  var showTagZones = uiState.get('showTagZones');
+  util.setAttr($('#show-tag-zones-selector .select-button:eq(0)'),'selected', showTagZones);
+  util.setAttr($('#show-tag-zones-selector .select-button:eq(1)'),'selected', !showTagZones);
+  $('#tag-zone-plane').attr('visibility', showTagZones ? 'visible' : 'hidden');
   var showSignals = uiState.get('showSignals');
   util.setAttr($('#show-signals-selector .select-button:eq(0)'),'selected', showSignals);
   util.setAttr($('#show-signals-selector .select-button:eq(1)'),'selected', !showSignals);
@@ -179,16 +178,17 @@ function updateTags() {
     }).join('');
   $('#unknown-antennas').html(unknownAntennasHtml);
  
-  $('.strongest-antenna-range').css('fill', '').css('stroke', 'none'); // remove background overrides coming from strongest signals
+  $('.tag-zone').css('fill', '').css('stroke', 'none'); // remove background overrides coming from strongest signals
 
   _.map(serverState.tagsData, (tagData) => {
     var tagNr = getTagNr(tagData.epc);
     
+    // Mark the most-likely zone this tag is located in, based on the strongest antenna signal
     var strongestAntennaNr = _(tagData.antennaRssis).max((antennaRssi) => {return antennaRssi.value;}).antNr;
-    // override background fill for strongest signal
-    var $strongestAntennaRange = $('#'+ClientCommon.mkStrongestAntennaRangeId(strongestAntennaNr));
-    $strongestAntennaRange.css('fill', ClientCommon.getTagColor(tagData));
-    $strongestAntennaRange.css('stroke', 'white');
+
+    var $tagZone = $('#'+ClientCommon.mkTagZoneId(strongestAntennaNr));
+    $tagZone.css('fill', ClientCommon.getTagColor(tagData)); // override fill
+    $tagZone.css('stroke', 'white'); // override stroke
     
     for (var i=0; i < tagData.antennaRssis.length; i++) {
       var antRssi = tagData.antennaRssis[i];

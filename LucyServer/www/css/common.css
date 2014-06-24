@@ -99,7 +99,7 @@ body {
   fill: blue;
 }
 
-.strongest-antenna-range {
+.tag-zone {
   stroke: none;
   fill-opacity: 0.4;  
 	fill: transparent; /* overridden with style attr to show strongest antenna range for each tag */

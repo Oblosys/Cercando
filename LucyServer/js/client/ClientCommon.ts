@@ -40,7 +40,7 @@ module ClientCommon {
       .attr('height', floorHeight);
       
     floorSVG.append('g').attr('id', 'trail-plane');
-    floorSVG.append('g').attr('id', 'strongest-antenna-range-plane');
+    floorSVG.append('g').attr('id', 'tag-zone-plane');
     floorSVG.append('g').attr('id', 'antenna-range-plane');
     floorSVG.append('g').attr('id', 'antenna-plane');
     floorSVG.append('g').attr('id', 'tag-setup-plane');
@@ -71,17 +71,17 @@ module ClientCommon {
   export function createAntennaMarkers() {
     var antennaPlaneSVG = d3.select('#antenna-plane');
     var rangePlaneSVG = d3.select('#antenna-range-plane');
-    var strongestRangePlaneSVG = d3.select('#strongest-antenna-range-plane');
-    _.each(allAntennas, (ant, i) => createAntennaMarker(antennaPlaneSVG, rangePlaneSVG, strongestRangePlaneSVG, ant, i));
+    var tagZonePlaneSVG = d3.select('#tag-zone-plane');
+    _.each(allAntennas, (ant, i) => createAntennaMarker(antennaPlaneSVG, rangePlaneSVG, tagZonePlaneSVG, ant, i));
   }
   
-  export function createAntennaMarker(planeSVG : D3.Selection, rangePlaneSVG : D3.Selection, strongestRangePlaneSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
+  export function createAntennaMarker(planeSVG : D3.Selection, rangePlaneSVG : D3.Selection, tagZonePlaneSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
     var pos = ClientCommon.toScreen(antenna.coord);
     var antennaClass = (antenna.shortMidRangeTarget ? (antenna.shortMidRangeTarget.isShortRange ? 'short' : 'mid') :'long') +
                        '-range';
 
     // styling is done with css (unfortunately, r is not a css attribute)
-    strongestRangePlaneSVG.append('circle').attr('id', mkStrongestAntennaRangeId(antennaNr)).attr('class', 'strongest-antenna-range '+antennaClass)
+    tagZonePlaneSVG.append('circle').attr('id', mkTagZoneId(antennaNr)).attr('class', 'tag-zone '+antennaClass)
       .attr('r', Shared.getAntennaMaxRange(antenna)*scale)
       .attr('cx', pos.x)
       .attr('cy', pos.y);
@@ -269,8 +269,8 @@ module ClientCommon {
     return mkId('antenna-range', ''+nr)
   }
   
-  export function mkStrongestAntennaRangeId(nr : number) {
-    return mkId('strongest-antenna-range', ''+nr)
+  export function mkTagZoneId(nr : number) {
+    return mkId('tag-zone', ''+nr)
   }
   
   export function mkTagId(tag : Shared.TagData) {
