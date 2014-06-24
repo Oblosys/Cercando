@@ -31,6 +31,7 @@ var tagConfiguration : Shared.TagConfiguration[];
 
 var UIState = Backbone.Model.extend({
   defaults: {
+    showStrongestAntennaRanges: true,
     showMaxAntennaRanges: true,
     showSignals: true,
     showTrails: true,
@@ -73,6 +74,9 @@ function initialize() {
 }
 
 function initSelectorButtons() {
+  
+  $('#show-strongest-ranges-selector .select-button:eq(0)').on('click', () => {uiState.set('showStrongestAntennaRanges', true)});
+  $('#show-strongest-ranges-selector .select-button:eq(1)').on('click', () => {uiState.set('showStrongestAntennaRanges', false)});
   $('#show-ranges-selector .select-button:eq(0)').on('click', () => {uiState.set('showMaxAntennaRanges', true)});
   $('#show-ranges-selector .select-button:eq(1)').on('click', () => {uiState.set('showMaxAntennaRanges', false)});
   $('#show-signals-selector .select-button:eq(0)').on('click', () => {uiState.set('showSignals', true)});
@@ -85,11 +89,14 @@ function initSelectorButtons() {
 
 function handleUIStateChange(m : Backbone.Model, newValue : any) {
  // util.log('handleUIStateChange', m, newValue); // note that m and newValue not set on trigger('change')
+  var showStrongestAntennaRanges = uiState.get('showStrongestAntennaRanges');
+  util.setAttr($('#show-strongest-ranges-selector .select-button:eq(0)'),'selected', showStrongestAntennaRanges);
+  util.setAttr($('#show-strongest-ranges-selector .select-button:eq(1)'),'selected', !showStrongestAntennaRanges);
+  $('#strongest-antenna-range-plane').attr('visibility', showStrongestAntennaRanges ? 'visible' : 'hidden');
   var showMaxAntennaRanges = uiState.get('showMaxAntennaRanges');
   util.setAttr($('#show-ranges-selector .select-button:eq(0)'),'selected', showMaxAntennaRanges);
   util.setAttr($('#show-ranges-selector .select-button:eq(1)'),'selected', !showMaxAntennaRanges);
   $('#antenna-range-plane').attr('visibility', showMaxAntennaRanges ? 'visible' : 'hidden');
-  $('#antenna-range-background-plane').attr('visibility', showMaxAntennaRanges ? 'visible' : 'hidden');
   var showSignals = uiState.get('showSignals');
   util.setAttr($('#show-signals-selector .select-button:eq(0)'),'selected', showSignals);
   util.setAttr($('#show-signals-selector .select-button:eq(1)'),'selected', !showSignals);
