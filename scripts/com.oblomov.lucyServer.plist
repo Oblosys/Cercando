@@ -18,3 +18,7 @@
     <string>martijn</string>
 </dict>
 </plist>
+<!-- For installation, create a root link to this file with:
+sudo ln -s /Users/martijn/git/Cercando/scripts/com.oblomov.lucyServer.plist /Library/LaunchDaemons/
+sudo chown root /Library/LaunchDaemons/com.oblomov.lucyServer.plist
+-->
