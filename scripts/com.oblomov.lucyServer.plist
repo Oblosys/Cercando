@@ -7,9 +7,14 @@
     <key>ProgramArguments</key>
     <array>
         <string>/Users/martijn/git/Cercando/scripts/restartLucyServer.sh</string>
-        <string>remoteReader</string>
     </array>
     <key>KeepAlive</key>
-    <true/>   
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/Users/martijn/lucyData/logs/lucyServer.log</string>
+    <key>StandardErrorPath</key>
+    <string>Users/martijn/lucyData/logs/lucyServer.log</string>
+    <key>UserName</key>
+    <string>martijn</string>
 </dict>
 </plist>
