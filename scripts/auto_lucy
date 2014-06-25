@@ -1,0 +1,5 @@
+# To be copied to /etc/
+# and activated by adding the following line (without #) to /etc/auto_master:
+# /mnt/LucySynology      auto_lucy
+
+web -fstype=afp afp://admin:admin@10.0.0.20/web
