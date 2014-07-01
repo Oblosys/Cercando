@@ -3,22 +3,22 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.oblomov.lucyServer</string>
+    <string>com.oblomov.readerServer</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/martijn/git/Cercando/scripts/startLucyServer.sh</string>
+        <string>/Users/martijn/git/Cercando/scripts/startReaderServer.sh</string>
     </array>
     <key>KeepAlive</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>/Users/martijn/lucyData/logs/lucyServer.log</string>
+    <string>/Users/martijn/lucyData/logs/readerServer.log</string>
     <key>StandardErrorPath</key>
-    <string>Users/martijn/lucyData/logs/lucyServer.log</string>
+    <string>Users/martijn/lucyData/logs/readerServer.log</string>
     <key>UserName</key>
     <string>martijn</string>
 </dict>
 </plist>
 <!-- For installation, create a root copy of this file in /Library/LaunchDaemons/ with:
-sudo cp /Users/martijn/git/Cercando/scripts/com.oblomov.lucyServer.plist /Library/LaunchDaemons/
-sudo launchctl load /Library/LaunchDaemons/com.oblomov.lucyServer.plist
+sudo cp /Users/martijn/git/Cercando/scripts/com.oblomov.readerServer.plist /Library/LaunchDaemons/
+sudo launchctl load /Library/LaunchDaemons/com.oblomov.readerServer.plist
 -->
