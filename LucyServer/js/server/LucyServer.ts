@@ -83,7 +83,8 @@ function initServer() {
   }
   dbConnectionPool = mysql.createPool(db_config);
   
-  util.log('\n\n\nStarting Lucy server on port ' + serverPortNr + ', using reader server on ' + readerServerHostName + '\n\n');
+  util.log('\n\n');
+  logTs('Starting Lucy server on port ' + serverPortNr + ', using reader server on ' + readerServerHostName + '\n\n');
   
   resetServerState();
   initExpress();
@@ -617,4 +618,10 @@ function mkUniqueFilePath(fullFilePath : string, success : (uniqueFilePath : str
       }
     });
   }
+}
+
+function logTs(msg : string) {
+  var date = new Date();
+  util.log( util.padZero(4, date.getFullYear()) + '-' + util.padZero(2, date.getMonth()+1) + '-' + util.padZero(2, date.getDate())
+          + ' ' + util.showTime(date) + ': ' + msg);
 }
