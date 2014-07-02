@@ -45,7 +45,7 @@ module Shared {
                            ; metaData : TagMetaData }[]
   
   export interface ServerState {
-    status : { isConnected : boolean; isSaving : boolean; webServerTime : string; readerServerTime : string }
+    status : { isConnected : boolean; isSaving : boolean; webServerTime : string }
     selectedAntennaLayoutNr : number
     tagsData : TagData[]
     unknownAntennaIds : AntennaId[]

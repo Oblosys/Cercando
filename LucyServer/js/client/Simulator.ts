@@ -149,9 +149,6 @@ function generateTag(tag : Shared.TagData) {
 function updateLabels() {
   $('#client-time-label').text(ClientCommon.showTime(new Date()));
   $('#server-time-label').text(ClientCommon.showTime(new Date(serverState.status.webServerTime)));
-  if (serverState.status.readerServerTime)
-    $('#reader-time-label').text(ClientCommon.showTime(new Date(serverState.status.readerServerTime)));
-  $('#reader-time-label').css('color', serverState.status.isConnected ? 'white' : 'grey');
 
   $('#connection-label').text(serverState.status.isConnected ? 'Connected' : 'Not connected');
   $('#connection-label').css('color', serverState.status.isConnected ? 'lime' : 'red');

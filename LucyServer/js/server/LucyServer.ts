@@ -430,9 +430,7 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
     state.tagsData.push(tag);
     tagDidEnter(tag);
   }
-  
-  //state.status.readerServerTime = readerTimestamp.toString();
-  
+    
   //TODO Reader time is not in sync with server. For now, just use server time.
   var timestamp = new Date(); // use current time as timestamp.
   
