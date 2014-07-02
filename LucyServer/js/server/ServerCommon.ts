@@ -5,8 +5,7 @@ import util     = require('oblo-util');
 
 var Shared = require('../shared/Shared.js');
  
-export interface ReaderEvent { readerIp : string; ant : number; epc : string; rssi : number
-                             ; firstSeen : string; lastSeen : string }
+export interface ReaderEvent { readerIp : string; ant : number; epc : string; rssi : number; timestamp : string }
 
 export function mkReaderAntennas(readerAntennaSpecs : Shared.ReaderAntennaSpec[]) : Shared.Antenna[] {
   var antennas = _.map(readerAntennaSpecs, (readerAntennaSpec) => {return mkAntennas(readerAntennaSpec.readerIp, readerAntennaSpec.antennaSpecs);});

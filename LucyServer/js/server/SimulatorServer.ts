@@ -304,8 +304,7 @@ function sendReaderEvents(readerEvents : ServerCommon.ReaderEvent[]) {
 
 function createReaderEvent(readerIp : string, epc : string, ant : number, rssi : number)  : ServerCommon.ReaderEvent {
   var timestamp = new Date().toString();
-  return { readerIp : readerIp, ant: ant, epc: epc, rssi : rssi
-         , firstSeen: timestamp, lastSeen : timestamp };
+  return { readerIp : readerIp, ant: ant, epc: epc, rssi : rssi, timestamp: timestamp };
 }
 
 // antennaIx is index in allAntennas, not the antenna number

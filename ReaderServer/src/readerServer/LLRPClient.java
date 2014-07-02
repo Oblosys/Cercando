@@ -1,4 +1,6 @@
 package readerServer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -122,6 +124,8 @@ public class LLRPClient implements LLRPEndpoint {
         (ROReportTriggerType.Upon_N_Tags_Or_End_Of_ROSpec));
     roReportSpec.setN(new UnsignedShort(1)); // only unique tag/antenna pairs are counted, so we need to keep this 1
                                              // (if N > nrOfAntennas, one tag will never trigger a read event)
+                                             // NOTE: also need to keep this 1 to prevent batch processing that 
+                                             //       would require firstSeen and lastSeen info (see comment in messageReceived(), below)
     TagReportContentSelector reportContent =
         new TagReportContentSelector();
     // Select which fields we want in the report.
@@ -262,18 +266,27 @@ public class LLRPClient implements LLRPEndpoint {
         
         for (TagReportData tag : tags) {
         	String epcVerbose = tag.getEPCParameter().toString();
-          String firstSeenVerbose = tag.getFirstSeenTimestampUTC().toString();
-          String lastSeenVerbose = tag.getLastSeenTimestampUTC().toString();
-        	CharSequence epcStr = epcVerbose.subSequence(15, epcVerbose.length());
-          CharSequence firstSeenStr = firstSeenVerbose.subSequence(37, firstSeenVerbose.length());
-          CharSequence lastSeenStr = lastSeenVerbose.subSequence(36, lastSeenVerbose.length());
+          //String firstSeenVerbose = tag.getFirstSeenTimestampUTC().toString();
+          //String lastSeenVerbose = tag.getLastSeenTimestampUTC().toString();
+          CharSequence epcStr = epcVerbose.subSequence(15, epcVerbose.length());
+          //CharSequence firstSeenStr = firstSeenVerbose.subSequence(37, firstSeenVerbose.length());
+          //CharSequence lastSeenStr = lastSeenVerbose.subSequence(36, lastSeenVerbose.length());
+          
+          // Instead of firstSeen and lastSeen, we simply send a single reader-server timestamp.
+          // The reason is that the readers cannot sync their clocks with a time server, and programmatically
+          // setting the clock is not possible with LLRP (or not documented at least). Reader-server time will be
+          // good enough as long as the network lag between the reader and the server is low.
+          // NOTE: In order for the reader-server timestamp to work, we need to prevent batch processing by keeping
+          // Upon_N_Tags_Or_End_Of_ROSpec = 1 in the ROSpec.
+          
+          DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+
         	String json =
         	  "{\"readerIp\":\"" + readerIP + "\"" +
             ",\"ant\":" + tag.getAntennaID().getAntennaID().toString() +
             ",\"epc\":\"" + epcStr + "\"" +
             ",\"rssi\":" + tag.getPeakRSSI().getPeakRSSI().toString() +
-            ",\"firstSeen\":\"" + firstSeenStr + "\"" +
-            ",\"lastSeen\":\"" + lastSeenStr + "\"" +
+            ",\"timestamp\":\"" + dateFormat.format(newTimestamp) + "\"" +
             "}";
         	sendLine(json);
             //System.out.println(tag.getEPCParameter());

@@ -361,18 +361,19 @@ function outputStreamWriteHeader(outputStream : fs.WriteStream) {
 function outputStreamWriteReaderEvent(outputStream : fs.WriteStream, readerEvent : ServerCommon.ReaderEvent) {
   var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
 
-  var readerTimestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
-  // take the time in between firstSeen and lastSeen.
-    var date = months[readerTimestamp.getMonth()]+'-'+readerTimestamp.getDate()+'-'+readerTimestamp.getFullYear();
-    var time = readerTimestamp.getHours()+':'+util.padZero(2,readerTimestamp.getMinutes())+':'+
-      util.padZero(2,readerTimestamp.getSeconds())+':'+util.padZero(4,readerTimestamp.getMilliseconds()*10);
+  var readerTimestamp = new Date(new Date(readerEvent.timestamp).getTime());
+  var date = months[readerTimestamp.getMonth()]+'-'+readerTimestamp.getDate()+'-'+readerTimestamp.getFullYear();
+  var time = readerTimestamp.getHours() + ':' + util.padZero(2,readerTimestamp.getMinutes()) + ':'
+           + util.padZero(2,readerTimestamp.getSeconds()) + ':' + util.padZero(3,readerTimestamp.getMilliseconds());
 
-    // Mimic the save format created by Motorola SessionOne app, but add the reader ip in an extra column (ip is not saved by SessionOne) 
+    // Mimic the save format created by Motorola SessionOne app, but add the reader ip in an extra column (ip is not saved by SessionOne)
+    // NOTE: we write the time in milliseconds (3 digits) rather than SessionOne's silly 4 digit tenths of milliseconds. 
+    console.log('\'0'+readerEvent.epc+', '+time+', '+date+', '+readerEvent.ant+', '+readerEvent.rssi+', , , , , '+readerEvent.readerIp+'\n');
     outputStream.write('\'0'+readerEvent.epc+', '+time+', '+date+', '+readerEvent.ant+', '+readerEvent.rssi+', , , , , '+readerEvent.readerIp+'\n');
 }
 
 function getEventLogFilePath() : string {
-  var logLength = 60 / 30; // logLength should be a divisor of 60
+  var logLength = 60 / 4; // logLength should be a divisor of 60
   var now = new Date();
   var filePath = autoSaveDirectoryPath + '/' 
                + util.padZero(4, now.getFullYear()) + '-' + util.padZero(2, now.getMonth()+1) + '-' + util.padZero(2, now.getDate()) + '/'
@@ -427,8 +428,7 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
     tagDidEnter(tag);
   }
     
-  //TODO Reader time is not in sync with server. For now, just use server time.
-  var timestamp = new Date(); // use current time as timestamp.
+  var timestamp = new Date(readerEvent.timestamp);
   
   var antennaId : Shared.AntennaId = {readerIp: readerEvent.readerIp, antennaNr: readerEvent.ant };
   var antNr = getAntennaNr(antennaId);
