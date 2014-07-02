@@ -28,7 +28,8 @@ var db_config = {
 var reconnectInterval = 2000; // time in ms to wait before trying to reconnect to the reader server
 var useSmoother = true;
 var lucyDataDirectoryPath = process.env['HOME'] + '/lucyData';
-var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
+var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents/save';
+var autoSaveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents/autoSave';
 
 import http     = require('http');
 import express  = require('express');
@@ -59,7 +60,9 @@ var allAntennaLayouts : Shared.AntennaLayout[];
 var allAntennas : Shared.Antenna[];
 
 var readerServerSocket : net.Socket;
-var outputFileStream : fs.WriteStream; // for saving reader events
+var eventLogFilePath : string; // Based on current time
+var eventLogFileStream : fs.WriteStream;
+var outputFileStream : fs.WriteStream; // for explicitly saving reader events
 
 var readerServerHostName : string;
 var serverPortNr : number;
@@ -320,7 +323,7 @@ function readerServerConnected(readerServerSocket : net.Socket) {
           util.error('JSON parse error in line:\n"'+showInvisibles(line)+'"', e);
         }
         if (readerEvent)
-          processReaderEvent(readerEvent);
+          processReaderServerEvent(readerEvent);
       }
     }
     lineBuffer += lastLine;
@@ -341,7 +344,7 @@ function startSaving(filePath : string, cont : {success : () => void; error : (m
       outputFileStream.once('open', function(fd :  number) {
         state.status.isSaving = true;
         // Mimic the save format created by Motorola SessionOne app, but add the reader ip in an extra column (ip is not saved by SessionOne) 
-        outputFileStream.write('EPC, Time, Date, Antenna, RSSI, Channel index, Memory bank, PC, CRC, ReaderIp\n')
+        outputStreamWriteHeader(outputFileStream);
         util.log('Started saving events to "'+fullFilename+'"');
         cont.success();
       });
@@ -355,19 +358,70 @@ function stopSaving() {
   state.status.isSaving = false;
 }
 
-function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
+function outputStreamWriteHeader(outputStream : fs.WriteStream) {
+  outputStream.write('EPC, Time, Date, Antenna, RSSI, Channel index, Memory bank, PC, CRC, ReaderIp\n')
+}
+
+function outputStreamWriteReaderEvent(outputStream : fs.WriteStream, readerEvent : ServerCommon.ReaderEvent) {
   var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
 
   var readerTimestamp = new Date((new Date(readerEvent.firstSeen).getTime() + new Date(readerEvent.lastSeen).getTime())/2);
   // take the time in between firstSeen and lastSeen.
-  //util.log('Reader event: ' + JSON.stringify(readerEvent));
-  if (outputFileStream) {
     var date = months[readerTimestamp.getMonth()]+'-'+readerTimestamp.getDate()+'-'+readerTimestamp.getFullYear();
     var time = readerTimestamp.getHours()+':'+util.padZero(2,readerTimestamp.getMinutes())+':'+
       util.padZero(2,readerTimestamp.getSeconds())+':'+util.padZero(4,readerTimestamp.getMilliseconds()*10);
 
     // Mimic the save format created by Motorola SessionOne app, but add the reader ip in an extra column (ip is not saved by SessionOne) 
-    outputFileStream.write('\'0'+readerEvent.epc+', '+time+', '+date+', '+readerEvent.ant+', '+readerEvent.rssi+', , , , , '+readerEvent.readerIp+'\n');
+    outputStream.write('\'0'+readerEvent.epc+', '+time+', '+date+', '+readerEvent.ant+', '+readerEvent.rssi+', , , , , '+readerEvent.readerIp+'\n');
+}
+
+function getEventLogFilePath() : string {
+  var logLength = 60 / 30; // logLength should be a divisor of 60
+  var now = new Date();
+  var filePath = autoSaveDirectoryPath + '/' 
+               + util.padZero(4, now.getFullYear()) + '-' + util.padZero(2, now.getMonth()+1) + '-' + util.padZero(2, now.getDate()) + '/'
+               + 'readerEvents_' +
+               + util.padZero(4, now.getFullYear()) + '-' + util.padZero(2, now.getMonth()+1) + '-' + util.padZero(2, now.getDate()) + '_'
+               + util.padZero(2, now.getHours()) + '.' + util.padZero(2, Math.floor(Math.floor(now.getMinutes() / logLength) * logLength) )
+               + '.csv';
+  return filePath;
+}
+
+function logReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
+  var desiredEventLogFilePath = getEventLogFilePath(); // TODO: using current time may cause filename to be more recent than timestamp in event
+  if (eventLogFileStream && eventLogFilePath != desiredEventLogFilePath) {
+    logTs('Closing file auto-save file:\n' + eventLogFilePath);
+    eventLogFileStream.end()
+    eventLogFileStream = null;
+    eventLogFilePath = '';
+  }
+  if (!eventLogFileStream) {
+    logTs('Opening file new auto-save file:\n' + desiredEventLogFilePath);
+    
+    if (!fs.existsSync( path.dirname(desiredEventLogFilePath)) ) {
+      fs.mkdirSync( path.dirname(desiredEventLogFilePath) );
+    } 
+    
+    eventLogFilePath = desiredEventLogFilePath;
+    var logFileWasAlreadyCreated = fs.existsSync( desiredEventLogFilePath); // only happens if the server was interrupted during this log period
+    eventLogFileStream = fs.createWriteStream(eventLogFilePath, {flags: 'a'}); // 'a': append if file exists  
+    
+    if (!logFileWasAlreadyCreated) // don't add header if the file already existed
+      outputStreamWriteHeader(eventLogFileStream);
+  }
+  outputStreamWriteReaderEvent(eventLogFileStream, readerEvent);
+}
+
+// Process ReaderEvent coming from a reader server (not from a replay)
+function processReaderServerEvent(readerEvent : ServerCommon.ReaderEvent) {
+  logReaderEvent(readerEvent);
+  processReaderEvent(readerEvent);
+}
+
+// Process ReaderEvent, possibly coming from a replay
+function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
+  //util.log('Reader event: ' + JSON.stringify(readerEvent));
+  if (outputFileStream) {
   }
 
   var tag = _.findWhere(state.tagsData, {epc: readerEvent.epc});
@@ -377,7 +431,7 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
     tagDidEnter(tag);
   }
   
-  state.status.readerServerTime = readerTimestamp.toString();
+  //state.status.readerServerTime = readerTimestamp.toString();
   
   //TODO Reader time is not in sync with server. For now, just use server time.
   var timestamp = new Date(); // use current time as timestamp.
