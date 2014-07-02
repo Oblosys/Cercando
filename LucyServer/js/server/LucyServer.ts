@@ -296,13 +296,9 @@ function readerServerConnected(readerServerSocket : net.Socket) {
     var chunk : string = buffer.toString('utf8');
     //util.log('CHUNK:\n'+showInvisibles(chunk));
   
-    // Lines from the socket are separated by '\0\ufffd'. Because sometimes the chuncks are split in the middle of \0\ufffd:
-    // e.g.: Chunk i : '.....\0', Chunk i+1 : '\ufffd.......', we remove a possible trailing '\0' and replace a possible initial
-    // '\ufffd' with '\0\ufffd'.
-    chunk = chunk.replace(/\0$/,'').replace(/^\ufffd/, '\0\ufffd');    
-  
-    // After this, we can split on '\0\ufffd'
-    var lines = chunk.split('\0\ufffd'); 
+    chunk = chunk.replace(/\0/g,''); // Remove \0 characters added by Java  
+    
+    var lines = chunk.split('\n'); // reader events are terminated by a newline 
     // lines.length will be at least 1
     
     var lastLine = _.last(lines);

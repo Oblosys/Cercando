@@ -90,7 +90,7 @@ public class EventEmitter implements Runnable {
         while (!eventQueue.isEmpty()) {
           String event = eventQueue.elementAt(0);
           eventQueue.remove(0);
-          socketOut.writeUTF(event);
+          socketOut.writeChars(event+"\n");
           //Util.log("Sending "+event+" to "+originatingIP + " remaining: "+eventQueue.size());
         }
       } catch (InterruptedException e) {
