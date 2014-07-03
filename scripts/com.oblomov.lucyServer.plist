@@ -13,7 +13,7 @@
     <key>StandardOutPath</key>
     <string>/Users/martijn/lucyData/logs/lucyServer.log</string>
     <key>StandardErrorPath</key>
-    <string>Users/martijn/lucyData/logs/lucyServer.log</string>
+    <string>/Users/martijn/lucyData/logs/lucyServer.log</string>
     <key>UserName</key>
     <string>martijn</string>
 </dict>
