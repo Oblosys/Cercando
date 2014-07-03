@@ -366,10 +366,11 @@ function outputStreamWriteReaderEvent(outputStream : fs.WriteStream, readerEvent
   var time = readerTimestamp.getHours() + ':' + util.padZero(2,readerTimestamp.getMinutes()) + ':'
            + util.padZero(2,readerTimestamp.getSeconds()) + ':' + util.padZero(3,readerTimestamp.getMilliseconds());
 
-    // Mimic the save format created by Motorola SessionOne app, but add the reader ip in an extra column (ip is not saved by SessionOne)
-    // NOTE: we write the time in milliseconds (3 digits) rather than SessionOne's silly 4 digit tenths of milliseconds. 
-    console.log('\'0'+readerEvent.epc+', '+time+', '+date+', '+readerEvent.ant+', '+readerEvent.rssi+', , , , , '+readerEvent.readerIp+'\n');
-    outputStream.write('\'0'+readerEvent.epc+', '+time+', '+date+', '+readerEvent.ant+', '+readerEvent.rssi+', , , , , '+readerEvent.readerIp+'\n');
+  // Mimic the save format created by Motorola SessionOne app, but add the reader ip in an extra column (ip is not saved by SessionOne)
+  // NOTE: we write the time in milliseconds (3 digits) rather than SessionOne's silly 4 digit tenths of milliseconds. 
+  var eventStr = '\'0'+readerEvent.epc+', '+time+', '+date+', '+readerEvent.ant+', '+readerEvent.rssi+', , , , , '+readerEvent.readerIp;  
+  //console.log(eventStr);
+  outputStream.write(eventStr + '\n');
 }
 
 function getEventLogFilePath() : string {
