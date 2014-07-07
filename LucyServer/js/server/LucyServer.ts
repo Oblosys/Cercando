@@ -216,9 +216,10 @@ function initExpress() {
     res.setHeader('content-type', 'application/json');
     logTs('Getting replay directory structure')
     var replayInfo : Shared.ReplayInfo =
-      { months: [ { monthNr: 7, days: [ { dayNr: 1, times: ['10.45', '11.00'] }, { dayNr: 2, times: ['11.45', '12.00'] } ] }
-                , { monthNr: 8, days: [ { dayNr: 3, times: ['13.45', '14.00'] }, { dayNr: 4, times: ['14.45', '15.00'] } ] }
-                ] }
+      { contents: getRecursiveDirContents(saveDirectoryPath) }; 
+      //{ contents: [ { name: '7', contents: [ { name: '1', contents: [{name: '10.45', contents: []}, {name: '11.00', contents: []}] }, { name: '2', contents: [{name: '11.45', contents: []}, {name: '12.00', contents: []}] } ] }
+      //          , { name: '8', contents: [ { name: '3', contents: [{name: '13.45', contents: []}, {name: '14.00', contents: []}] }, { name: '4', contents: [{name: '14.45', contents: []}, {name: '15.00', contents: []}] } ] }
+      //          ] }
     res.send(JSON.stringify(replayInfo));
   });
 
@@ -438,11 +439,9 @@ function logReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   outputStreamWriteReaderEvent(eventLogFileStream, readerEvent);
 }
 
-interface DirEntry { name : string; contents : DirEntry[] }
-
 // Recursively get the directory trees starting at pth
 // TODO: should be async, since we're running on the web server
-function getRecursiveDirContents(pth : string) : DirEntry[] {
+function getRecursiveDirContents(pth : string) : Shared.DirEntry[] {
   var names = fs.readdirSync(pth);
     
   var entries = _(names).map(name => {

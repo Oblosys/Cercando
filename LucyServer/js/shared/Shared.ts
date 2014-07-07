@@ -38,8 +38,10 @@ module Shared {
                                ; tagConfiguration : TagConfiguration[]
                                ; antennaSpecs : Antenna[] }
   
-  export interface ReplayInfo { months : { monthNr : number; days : { dayNr : number; times : string[] }[] }[] }
+  export interface ReplayInfo { contents : DirEntry[] }
   
+  export interface DirEntry { name : string; contents : DirEntry[] }
+
   export interface TagMetaData { name : string; color : string }
   
   export interface TagData { epc : string; antennaRssis : AntennaRSSI[]

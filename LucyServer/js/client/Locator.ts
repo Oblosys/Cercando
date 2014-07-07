@@ -96,7 +96,7 @@ function initReplaySelectors() {
     util.log('New replay info ' + JSON.stringify(replayInfo));
     
     $('#replay-month-selector').empty();
-    _(replayInfo.months).chain().pluck('monthNr').each((monthNr) => {
+    _(replayInfo.contents).chain().pluck('name').each((monthNr) => {
       $('#replay-month-selector').append('<option value="'+monthNr+'">'+monthNr+'</option>');
     });
     handleSelectReplayMonth(); 
@@ -104,13 +104,13 @@ function initReplaySelectors() {
 }
 
 function handleSelectReplayMonth() {
-  var selectedMonthNr = parseInt($('#replay-month-selector').val());
+  var selectedMonthNr = $('#replay-month-selector').val();
   console.log('Select replay month: ' + selectedMonthNr);
-  var selectedMonth = _(replayInfo.months).findWhere({monthNr: selectedMonthNr});
+  var selectedMonth = _(replayInfo.contents).findWhere({name: selectedMonthNr});
   
   if (selectedMonth) {
     $('#replay-day-selector').empty();
-    _(selectedMonth.days).chain().pluck('dayNr').each((dayNr) => {
+    _(selectedMonth.contents).chain().pluck('name').each((dayNr) => {
       $('#replay-day-selector').append('<option value="'+dayNr+'">'+dayNr+'</option>');
     });
     handleSelectReplayDay();
@@ -120,18 +120,18 @@ function handleSelectReplayMonth() {
 }
 
 function handleSelectReplayDay() {
-  var selectedMonthNr = parseInt($('#replay-month-selector').val());
-  var selectedMonth = _(replayInfo.months).findWhere({monthNr: selectedMonthNr});
+  var selectedMonthNr = $('#replay-month-selector').val();
+  var selectedMonth = _(replayInfo.contents).findWhere({name: selectedMonthNr});
   
   if (selectedMonth) {
-    var selectedDayNr = parseInt($('#replay-day-selector').val());
+    var selectedDayNr = $('#replay-day-selector').val();
     console.log('Select replay day: ' + $('#replay-day-selector').val());
-    var selectedDay = selectedMonth ? _(selectedMonth.days).findWhere({dayNr: selectedDayNr}) : undefined;
+    var selectedDay = selectedMonth ? _(selectedMonth.contents).findWhere({name: selectedDayNr}) : undefined;
     
     if (selectedDay) {
       $('#replay-time-selector').empty();
-      _.each(selectedDay.times, (time) => {
-        $('#replay-time-selector').append('<option value="'+time+'">'+time+'</option>');
+      _.each(selectedDay.contents, (time) => {
+        $('#replay-time-selector').append('<option value="'+time+'">'+time.name+'</option>');
       });
     } else {
       util.error('handleSelectReplayDay: selected day for nr '+selectedDayNr+' is undefined');
