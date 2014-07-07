@@ -95,49 +95,79 @@ function initReplaySelectors() {
     
     util.log('New replay info ' + JSON.stringify(replayInfo));
     
-    $('#replay-level-2-selector').empty();
-    _(replayInfo.contents).chain().pluck('name').each((level2name) => {
-      $('#replay-level-2-selector').append('<option value="'+level2name+'">'+level2name+'</option>');
+    $('#replay-level-1-selector').empty();
+    _(replayInfo.contents).chain().pluck('name').each((level1Name) => {
+      $('#replay-level-1-selector').append('<option value="'+level1Name+'">'+level1Name+'</option>');
     });
-    handleSelectReplayLevel2(); 
+    handleSelectReplayLevel1(); 
   });
 }
 
-function handleSelectReplayLevel2() {
-  var selectedLevel2Name = $('#replay-level-2-selector').val();
-  console.log('Select replay level 2 name: ' + selectedLevel2Name);
-  var selectedLevel2Entry = _(replayInfo.contents).findWhere({name: selectedLevel2Name});
+function handleSelectReplayLevel1() {
+  var selectedLevel1Name = $('#replay-level-1-selector').val();
+  console.log('Select replay level 2 name: ' + selectedLevel1Name);
+  var selectedLevel1Entry = _(replayInfo.contents).findWhere({name: selectedLevel1Name});
   
-  if (selectedLevel2Entry) {
-    $('#replay-level-3-selector').empty();
-    _(selectedLevel2Entry.contents).chain().pluck('name').each(level3Name => {
-      $('#replay-level-3-selector').append('<option value="'+level3Name+'">'+level3Name+'</option>');
+  if (selectedLevel1Entry) {
+    $('#replay-level-2-selector').empty();
+    _(selectedLevel1Entry.contents).chain().pluck('name').each(level2Name => {
+      $('#replay-level-2-selector').append('<option value="'+level2Name+'">'+level2Name+'</option>');
     });
-    handleSelectReplayLevel3();
+    handleSelectReplayLevel2();
   } else {
-    util.error('handleSelectReplayLevel2: selected month for nr '+selectedLevel2Name+' is undefined');
+    util.error('handleSelectReplayLevel1: selected level 1 entry for name '+selectedLevel1Name+' is undefined');
+  }
+}
+
+function handleSelectReplayLevel2() {
+  var selectedLevel1Name = $('#replay-level-1-selector').val();
+  var selectedLevel1Entry = _(replayInfo.contents).findWhere({name: selectedLevel1Name});
+  
+  if (selectedLevel1Entry) {
+    var selectedLevel2Name = $('#replay-level-2-selector').val();
+    console.log('Select replay level 2 name: ' + $('#replay-level-2-selector').val());
+    var selectedLevel2Entry = selectedLevel1Entry ? _(selectedLevel1Entry.contents).findWhere({name: selectedLevel2Name}) : undefined;
+    
+    if (selectedLevel2Entry) {
+      $('#replay-level-3-selector').empty();
+      _(selectedLevel2Entry.contents).chain().pluck('name').each(level3Name => {
+        $('#replay-level-3-selector').append('<option value="'+level3Name+'">'+level3Name+'</option>');
+      });
+      handleSelectReplayLevel3();
+    } else {
+      util.error('handleSelectReplayLevel2: selected level 2 entry for name '+selectedLevel2Name+' is undefined');
+    }
+  } else {
+    util.error('handleSelectReplayLevel2: selected level 1 entry for name '+selectedLevel1Name+' is undefined');
   }
 }
 
 function handleSelectReplayLevel3() {
-  var selectedLevel2Name = $('#replay-level-2-selector').val();
-  var selectedLevel2Entry = _(replayInfo.contents).findWhere({name: selectedLevel2Name});
+  var selectedLevel1Name = $('#replay-level-1-selector').val();
+  var selectedLevel1Entry = _(replayInfo.contents).findWhere({name: selectedLevel1Name});
   
-  if (selectedLevel2Entry) {
-    var selectedLevel3Name = $('#replay-level-3-selector').val();
-    console.log('Select replay level 3 name: ' + $('#replay-level-3-selector').val());
-    var selectedLevel3Entry = selectedLevel2Entry ? _(selectedLevel2Entry.contents).findWhere({name: selectedLevel3Name}) : undefined;
+  if (selectedLevel1Entry) {
+    var selectedLevel2Name = $('#replay-level-2-selector').val();
+    console.log('Select replay level 2 name: ' + $('#replay-level-2-selector').val());
+    var selectedLevel2Entry = selectedLevel1Entry ? _(selectedLevel1Entry.contents).findWhere({name: selectedLevel2Name}) : undefined;
     
-    if (selectedLevel3Entry) {
-      $('#replay-level-4-selector').empty();
-      _(selectedLevel3Entry.contents).chain().pluck('name').each(level4Name => {
-        $('#replay-level-4-selector').append('<option value="'+level4Name+'">'+level4Name+'</option>');
-      });
+    if (selectedLevel2Entry) {
+      var selectedLevel3Name = $('#replay-level-3-selector').val();
+      var selectedLevel3Entry = selectedLevel2Entry ? _(selectedLevel2Entry.contents).findWhere({name: selectedLevel3Name}) : undefined;
+ 
+      if (selectedLevel3Entry) {
+        $('#replay-level-4-selector').empty();
+        _(selectedLevel3Entry.contents).chain().pluck('name').each(level4Name => {
+          $('#replay-level-4-selector').append('<option value="'+level4Name+'">'+level4Name+'</option>');
+        });
+      } else {
+        util.error('handleSelectReplayLevel3: selected level 3 entry for name '+selectedLevel3Name+' is undefined');
+      }      
     } else {
-      util.error('handleSelectReplayLevel3: selected level 3 entry for name '+selectedLevel3Name+' is undefined');
+      util.error('handleSelectReplayLevel2: selected level 2 entry for name '+selectedLevel2Name+' is undefined');
     }
   } else {
-    util.error('handleSelectReplayLevel3: selected level 2 entry for name '+selectedLevel2Name+' is undefined');
+    util.error('handleSelectReplayLevel2: selected level 1 entry for name '+selectedLevel1Name+' is undefined');
   }
 }
 
