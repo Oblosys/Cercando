@@ -436,6 +436,26 @@ function logReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   outputStreamWriteReaderEvent(eventLogFileStream, readerEvent);
 }
 
+interface DirEntry { name : string; contents : DirEntry[] }
+
+// Recursively get the directory trees starting at pth
+// TODO: should be async, since we're running on the web server
+function getRecursiveDirContents(pth : string) : DirEntry[] {
+  var names = fs.readdirSync(pth);
+    
+  var entries = _(names).map(name => {
+      var contents = [];
+      if (fs.statSync(path.join(pth, name)).isDirectory()) {
+        contents = getRecursiveDirContents(path.join(pth, name));
+      } else {
+        name = path.basename(name, '.csv'); // Drop .csv extension (other extensions should not exist, so we leave them to show the error)
+      }
+      return { name: name, contents:  contents };
+    });
+  
+  return entries;  
+}
+
 // Process ReaderEvent coming from a reader server (not from a replay)
 function processReaderServerEvent(readerEvent : ServerCommon.ReaderEvent) {
   logReaderEvent(readerEvent);
