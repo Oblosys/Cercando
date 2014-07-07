@@ -58,6 +58,7 @@ function resetClientState() {
   ClientCommon.initDataRows()
   ClientCommon.createTagSetup();
   ClientCommon.createAntennaMarkers();
+  initReplaySelectors();
 }
 
 function initialize() {
@@ -84,6 +85,61 @@ function initSelectorButtons() {
   $('#show-trails-selector .select-button:eq(1)').on('click', () => {uiState.set('showTrails', false)});
   $('#show-tag-setup-selector .select-button:eq(0)').on('click', () => {uiState.set('showTagSetup', true)});
   $('#show-tag-setup-selector .select-button:eq(1)').on('click', () => {uiState.set('showTagSetup', false)});
+}
+
+var replayInfo : Shared.ReplayInfo; // TODO: move
+
+function initReplaySelectors() {
+  $.getJSON( "query/replay-info", function(newReplayInfo : Shared.ReplayInfo) {
+    replayInfo = newReplayInfo;
+    
+    util.log('New replay info ' + JSON.stringify(replayInfo));
+    
+    $('#replay-month-selector').empty();
+    _(replayInfo.months).chain().pluck('monthNr').each((monthNr) => {
+      $('#replay-month-selector').append('<option value="'+monthNr+'">'+monthNr+'</option>');
+    });
+    handleSelectReplayMonth(); 
+  });
+}
+
+function handleSelectReplayMonth() {
+  var selectedMonthNr = parseInt($('#replay-month-selector').val());
+  console.log('Select replay month: ' + selectedMonthNr);
+  var selectedMonth = _(replayInfo.months).findWhere({monthNr: selectedMonthNr});
+  
+  if (selectedMonth) {
+    $('#replay-day-selector').empty();
+    _(selectedMonth.days).chain().pluck('dayNr').each((dayNr) => {
+      $('#replay-day-selector').append('<option value="'+dayNr+'">'+dayNr+'</option>');
+    });
+    handleSelectReplayDay();
+  } else {
+    util.error('handleSelectReplayMonth: selected month for nr '+selectedMonthNr+' is undefined');
+  }
+}
+
+function handleSelectReplayDay() {
+  var selectedMonthNr = parseInt($('#replay-month-selector').val());
+  var selectedMonth = _(replayInfo.months).findWhere({monthNr: selectedMonthNr});
+  
+  if (selectedMonth) {
+    var selectedDayNr = parseInt($('#replay-day-selector').val());
+    console.log('Select replay day: ' + $('#replay-day-selector').val());
+    var selectedDay = selectedMonth ? _(selectedMonth.days).findWhere({dayNr: selectedDayNr}) : undefined;
+    
+    if (selectedDay) {
+      $('#replay-time-selector').empty();
+      _.each(selectedDay.times, (time) => {
+        $('#replay-time-selector').append('<option value="'+time+'">'+time+'</option>');
+      });
+    } else {
+      util.error('handleSelectReplayDay: selected day for nr '+selectedDayNr+' is undefined');
+    }
+  } else {
+    util.error('handleSelectReplayDay: selected month for nr '+selectedMonthNr+' is undefined');
+  }
+
 }
 
 function handleUIStateChange(m : Backbone.Model, newValue : any) {

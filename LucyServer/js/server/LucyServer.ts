@@ -210,6 +210,32 @@ function initExpress() {
     res.end();
   });
 
+  app.get('/query/replay-info', function(req, res) {  
+    util.log('Sending replay info to client. (' + new Date() + ')');
+    res.setHeader('content-type', 'application/json');
+    var replayInfo : Shared.ReplayInfo =
+      { months: [ { monthNr: 7, days: [ { dayNr: 1, times: ['10.45', '11.00'] }, { dayNr: 2, times: ['11.45', '12.00'] } ] }
+                , { monthNr: 8, days: [ { dayNr: 3, times: ['13.45', '14.00'] }, { dayNr: 4, times: ['14.45', '15.00'] } ] }
+                ] }
+    res.send(JSON.stringify(replayInfo));
+  });
+
+  app.get('/query/start-replay', function(req, res) {
+    util.log('Start-replay request for filename ' + req.query.filename);
+    
+    var cont = { 
+      success: function () {
+        res.setHeader('content-type', 'text/plain');
+        res.writeHead(204);
+        res.end();
+      },
+      error: function(message : string) {
+        res.send(403, { error: message });
+      }
+    };
+    // start replay
+  });
+  
   app.get('/query/test', function(req, res) {  
     util.log('test');
     res.setHeader('content-type', 'text/plain');
