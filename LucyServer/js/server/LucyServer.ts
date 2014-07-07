@@ -72,7 +72,7 @@ var serverPortNr : number;
 var dbConnectionPool : any;
 
 
-initServer();
+//initServer();
 
 function initServer() {
   // usage: LucyServer [portNr] [remoteReader]
@@ -444,7 +444,7 @@ function logReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
 // Recursively get the directory trees starting at pth
 // TODO: should be async, since we're running on the web server
 function getRecursiveDirContents(pth : string) : Shared.DirEntry[] {
-  var names = fs.readdirSync(pth);
+  var names = _(fs.readdirSync(pth)).filter(name => {return _.head(name) != '.'}); // filter out names starting with '.'
     
   var entries = _(names).map(name => {
       var contents = [];
