@@ -72,7 +72,7 @@ var serverPortNr : number;
 var dbConnectionPool : any;
 
 
-//initServer();
+initServer();
 
 function initServer() {
   // usage: LucyServer [portNr] [remoteReader]
@@ -124,7 +124,9 @@ function initExpress() {
   //app.use(express.logger()); 
   app.use(function(req : express.Request, res : express.Response, next : Function) { // logger only seems to report in GMT, so we log by hand
     var now = new Date();
-    util.log('\nRQ: ' + util.showDate(now) + ' ' + util.showTime(now) + ' (' + req.ip + ', "' + req.headers['user-agent'].slice(0,20) + '..") path:' + req.path);
+    var userAgent = req.headers['user-agent'] ? '"' + req.headers['user-agent'].slice(0,20) + '.."' : '<Unknown user agent>';
+    util.log('\nRQ: ' + util.showDate(now) + ' ' + util.showTime(now) + 
+             ' (' + req.ip + ', ' + userAgent +') path:' + req.path);
     next();
   });
 
