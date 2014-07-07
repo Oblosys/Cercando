@@ -595,7 +595,6 @@ function positionAllTags() {
 function purgeOldTags() {
   state.tagsData = _(state.tagsData).filter((tag) => {
     tag.antennaRssis = _(tag.antennaRssis).filter(antennaRssi => {
-      util.log('antennaRssi.age ' + antennaRssi.age);
       var isAncient = antennaRssi.age > shared.ancientAgeMs;
       if (isAncient) {
         util.log('Purging signal for antenna ' + antennaRssi.antNr + ' for tag ' +tag.epc);
