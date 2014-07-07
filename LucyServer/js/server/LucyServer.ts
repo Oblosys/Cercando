@@ -28,8 +28,9 @@ var db_config = {
 var reconnectInterval = 2000; // time in ms to wait before trying to reconnect to the reader server
 var useSmoother = true;
 var lucyDataDirectoryPath = process.env['HOME'] + '/lucyData';
-var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents/save';
-var autoSaveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents/autoSave';
+var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
+var userSaveDirectoryPath = saveDirectoryPath + '/userSave';
+var autoSaveDirectoryPath = saveDirectoryPath + '/autoSave';
 
 import http     = require('http');
 import express  = require('express');
@@ -213,6 +214,7 @@ function initExpress() {
   app.get('/query/replay-info', function(req, res) {  
     util.log('Sending replay info to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
+    logTs('Getting replay directory structure')
     var replayInfo : Shared.ReplayInfo =
       { months: [ { monthNr: 7, days: [ { dayNr: 1, times: ['10.45', '11.00'] }, { dayNr: 2, times: ['11.45', '12.00'] } ] }
                 , { monthNr: 8, days: [ { dayNr: 3, times: ['13.45', '14.00'] }, { dayNr: 4, times: ['14.45', '15.00'] } ] }
@@ -356,7 +358,7 @@ function startSaving(filePath : string, cont : {success : () => void; error : (m
   if (!isSafeFilePath(filePath))
     cont.error('Invalid file path: "'+filePath+'"\nMay only contain letters, digits, spaces, and these characters: \'(\' \')\' \'-\' \'_\'');
   else {
-    var fullFilename = saveDirectoryPath + '/' + filePath+'.csv';
+    var fullFilename = userSaveDirectoryPath + '/' + filePath+'.csv';
     mkUniqueFilePath(fullFilename, (uniqueFilePath) => {
       outputFileStream = fs.createWriteStream(uniqueFilePath);
       outputFileStream.on('error', function(err : Error) {
