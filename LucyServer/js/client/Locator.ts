@@ -95,51 +95,50 @@ function initReplaySelectors() {
     
     util.log('New replay info ' + JSON.stringify(replayInfo));
     
-    $('#replay-month-selector').empty();
-    _(replayInfo.contents).chain().pluck('name').each((monthNr) => {
-      $('#replay-month-selector').append('<option value="'+monthNr+'">'+monthNr+'</option>');
+    $('#replay-level-2-selector').empty();
+    _(replayInfo.contents).chain().pluck('name').each((level2name) => {
+      $('#replay-level-2-selector').append('<option value="'+level2name+'">'+level2name+'</option>');
     });
-    handleSelectReplayMonth(); 
+    handleSelectReplayLevel2(); 
   });
 }
 
-function handleSelectReplayMonth() {
-  var selectedMonthNr = $('#replay-month-selector').val();
-  console.log('Select replay month: ' + selectedMonthNr);
-  var selectedMonth = _(replayInfo.contents).findWhere({name: selectedMonthNr});
+function handleSelectReplayLevel2() {
+  var selectedLevel2Name = $('#replay-level-2-selector').val();
+  console.log('Select replay level 2 name: ' + selectedLevel2Name);
+  var selectedLevel2Entry = _(replayInfo.contents).findWhere({name: selectedLevel2Name});
   
-  if (selectedMonth) {
-    $('#replay-day-selector').empty();
-    _(selectedMonth.contents).chain().pluck('name').each((dayNr) => {
-      $('#replay-day-selector').append('<option value="'+dayNr+'">'+dayNr+'</option>');
+  if (selectedLevel2Entry) {
+    $('#replay-level-3-selector').empty();
+    _(selectedLevel2Entry.contents).chain().pluck('name').each(level3Name => {
+      $('#replay-level-3-selector').append('<option value="'+level3Name+'">'+level3Name+'</option>');
     });
-    handleSelectReplayDay();
+    handleSelectReplayLevel3();
   } else {
-    util.error('handleSelectReplayMonth: selected month for nr '+selectedMonthNr+' is undefined');
+    util.error('handleSelectReplayLevel2: selected month for nr '+selectedLevel2Name+' is undefined');
   }
 }
 
-function handleSelectReplayDay() {
-  var selectedMonthNr = $('#replay-month-selector').val();
-  var selectedMonth = _(replayInfo.contents).findWhere({name: selectedMonthNr});
+function handleSelectReplayLevel3() {
+  var selectedLevel2Name = $('#replay-level-2-selector').val();
+  var selectedLevel2Entry = _(replayInfo.contents).findWhere({name: selectedLevel2Name});
   
-  if (selectedMonth) {
-    var selectedDayNr = $('#replay-day-selector').val();
-    console.log('Select replay day: ' + $('#replay-day-selector').val());
-    var selectedDay = selectedMonth ? _(selectedMonth.contents).findWhere({name: selectedDayNr}) : undefined;
+  if (selectedLevel2Entry) {
+    var selectedLevel3Name = $('#replay-level-3-selector').val();
+    console.log('Select replay level 3 name: ' + $('#replay-level-3-selector').val());
+    var selectedLevel3Entry = selectedLevel2Entry ? _(selectedLevel2Entry.contents).findWhere({name: selectedLevel3Name}) : undefined;
     
-    if (selectedDay) {
-      $('#replay-time-selector').empty();
-      _.each(selectedDay.contents, (time) => {
-        $('#replay-time-selector').append('<option value="'+time+'">'+time.name+'</option>');
+    if (selectedLevel3Entry) {
+      $('#replay-level-4-selector').empty();
+      _(selectedLevel3Entry.contents).chain().pluck('name').each(level4Name => {
+        $('#replay-level-4-selector').append('<option value="'+level4Name+'">'+level4Name+'</option>');
       });
     } else {
-      util.error('handleSelectReplayDay: selected day for nr '+selectedDayNr+' is undefined');
+      util.error('handleSelectReplayLevel3: selected level 3 entry for name '+selectedLevel3Name+' is undefined');
     }
   } else {
-    util.error('handleSelectReplayDay: selected month for nr '+selectedMonthNr+' is undefined');
+    util.error('handleSelectReplayLevel3: selected level 2 entry for name '+selectedLevel2Name+' is undefined');
   }
-
 }
 
 function handleUIStateChange(m : Backbone.Model, newValue : any) {
