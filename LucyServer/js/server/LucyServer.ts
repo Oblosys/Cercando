@@ -56,7 +56,8 @@ var app = express();
 // global state variables
 
 var state : Shared.ServerState
-var previousPositioningTimestamp : number; // timestamp in milliseconds for the last time all tag positions were computed
+var latestReaderEventTimeMs : number;   // time in milliseconds of the latest reader event (may be in the past for replays)
+var previousPositioningTimeMs : number; // contains the value of latestReaderEventTimeMs at the previous moment of positioning 
 var allAntennaLayouts : Shared.AntennaLayout[];
 var allAntennas : Shared.Antenna[];
 
@@ -477,8 +478,11 @@ function processReaderServerEvent(readerEvent : ServerCommon.ReaderEvent) {
 
 // Process ReaderEvent, possibly coming from a replay
 function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
+  var timestamp = new Date(readerEvent.timestamp);
+  latestReaderEventTimeMs = timestamp.getTime();
   //util.log('Reader event: ' + JSON.stringify(readerEvent));
   if (outputFileStream) {
+    outputStreamWriteReaderEvent(outputFileStream, readerEvent);
   }
 
   var tag = _.findWhere(state.tagsData, {epc: readerEvent.epc});
@@ -488,7 +492,6 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
     tagDidEnter(tag);
   }
     
-  var timestamp = new Date(readerEvent.timestamp);
   
   var antennaId : Shared.AntennaId = {readerIp: readerEvent.readerIp, antennaNr: readerEvent.ant };
   var antNr = getAntennaNr(antennaId);
@@ -554,11 +557,10 @@ function filtered(epc : string, ant : number, rssi : number, timestamp : Date, p
 
 
 
-// trilaterate all tags and age and distance for each rssi value
+// trilaterate all tags and set age and distance for each rssi value
 function positionAllTags() {
-  var nowTimestamp = new Date().getTime();
-  var dt = previousPositioningTimestamp ? (nowTimestamp - previousPositioningTimestamp) / 1000 :  0
-  previousPositioningTimestamp = nowTimestamp; 
+  var dt = previousPositioningTimeMs ? (latestReaderEventTimeMs - previousPositioningTimeMs) / 1000 :  0
+  previousPositioningTimeMs = latestReaderEventTimeMs; 
 
   //util.log(state.tagsData.length + ' tags')
   // compute distance and age for each antennaRssi for each tag
@@ -566,7 +568,7 @@ function positionAllTags() {
     //util.log(tag.epc + ':' + tag.antennaRssis.length + ' signals');
     _(tag.antennaRssis).each((antennaRssi) => {
       antennaRssi.distance = trilateration.getDistanceForRssi(tag.epc, allAntennas[antennaRssi.antNr].name, antennaRssi.value);
-      antennaRssi.age = nowTimestamp - antennaRssi.timestamp.getTime(); 
+      antennaRssi.age = latestReaderEventTimeMs - antennaRssi.timestamp.getTime(); 
       return antennaRssi.distance;
     });
   });
@@ -592,7 +594,8 @@ function positionAllTags() {
 // remove all tags that only have timestamps larger than ancientAge
 function purgeOldTags() {
   state.tagsData = _(state.tagsData).filter((tag) => {
-    tag.antennaRssis = _(tag.antennaRssis).filter((antennaRssi) => {
+    tag.antennaRssis = _(tag.antennaRssis).filter(antennaRssi => {
+      util.log('antennaRssi.age ' + antennaRssi.age);
       var isAncient = antennaRssi.age > shared.ancientAgeMs;
       if (isAncient) {
         util.log('Purging signal for antenna ' + antennaRssi.antNr + ' for tag ' +tag.epc);
