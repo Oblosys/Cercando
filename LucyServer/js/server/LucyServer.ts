@@ -141,7 +141,7 @@ function initExpress() {
     //util.log('Sending tag data to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
     
-    state.status.webServerTime = new Date().toString();
+    state.status.readerServerTime = ''+new Date(latestReaderEventTimeMs);
     positionAllTags();
     
     res.send(JSON.stringify(state));

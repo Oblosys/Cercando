@@ -256,7 +256,7 @@ function addRemoveSVGElements(oldTagsData : Shared.TagData[], currentTagsData : 
 
 function updateLabels() {
   $('#client-time-label').text(ClientCommon.showTime(new Date()));
-  $('#server-time-label').text(ClientCommon.showTime(new Date(serverState.status.webServerTime)));
+  $('#reader-time-label').text(ClientCommon.showTime(new Date(serverState.status.readerServerTime)));
   
   $('#connection-label').text(serverState.status.isConnected ? 'Connected' : 'Not connected');
   $('#connection-label').css('color', serverState.status.isConnected ? 'lime' : 'red');
