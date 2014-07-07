@@ -218,12 +218,13 @@ function initExpress() {
     var replayInfo : Shared.ReplayInfo =
       { contents: getRecursiveDirContents(saveDirectoryPath) }; 
       //{ contents: [ { name: '7', contents: [ { name: '1', contents: [{name: '10.45', contents: []}, {name: '11.00', contents: []}] }, { name: '2', contents: [{name: '11.45', contents: []}, {name: '12.00', contents: []}] } ] }
-      //          , { name: '8', contents: [ { name: '3', contents: [{name: '13.45', contents: []}, {name: '14.00', contents: []}] }, { name: '4', contents: [{name: '14.45', contents: []}, {name: '15.00', contents: []}] } ] }
-      //          ] }
+      //            , { name: '8', contents: [ { name: '3', contents: [{name: '13.45', contents: []}, {name: '14.00', contents: []}] }, { name: '4', contents: [{name: '14.45', contents: []}, {name: '15.00', contents: []}] } ] }
+      //            ] }
     res.send(JSON.stringify(replayInfo));
   });
 
   app.get('/query/start-replay', function(req, res) {
+    var fileName = req.query.filename + '.csv';
     util.log('Start-replay request for filename ' + req.query.filename);
     
     var cont = { 
@@ -236,7 +237,7 @@ function initExpress() {
         res.send(403, { error: message });
       }
     };
-    // start replay
+    startReplay(decodeURI(req.query.filename), cont);
   });
   
   app.get('/query/test', function(req, res) {  
@@ -456,6 +457,17 @@ function getRecursiveDirContents(pth : string) : Shared.DirEntry[] {
   
   return entries;  
 }
+
+function startReplay(filePath : string, cont : {success : () => void; error : (message : string) => void}) {
+  if (!isSafeFilePath(filePath.replace(/[\/,\.]/g,''))) // first remove / and ., which are allowed in replay file paths
+    // This is safe as long as we only open the file within the server and try to parse it as csv, when csv can be downloaded we need stricter
+    // safety precautions.
+    cont.error('Invalid file path: "'+filePath+'"\nMay only contain letters, digits, spaces, and these characters: \'(\' \')\' \'-\' \'_\'  \'/\'  \'.\'');
+  else {
+    cont.success();
+  }
+}
+
 
 // Process ReaderEvent coming from a reader server (not from a replay)
 function processReaderServerEvent(readerEvent : ServerCommon.ReaderEvent) {

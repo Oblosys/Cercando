@@ -170,6 +170,18 @@ function handleSelectReplayLevel3() {
     util.error('handleSelectReplayLevel2: selected level 1 entry for name '+selectedLevel1Name+' is undefined');
   }
 }
+function handleStartReplayButton() {
+  var filename = encodeURI( $('#replay-level-1-selector').val() + '/' + $('#replay-level-2-selector').val() + '/' 
+                          + $('#replay-level-3-selector').val() + '/' + $('#replay-level-4-selector').val() );
+  util.log('Request start replay for ' + filename);
+  $.get('/query/start-replay', {filename: filename}, function() {
+      util.log('Started replay.');
+    }).fail(function(data : JQueryXHR) {
+      console.log(data);
+      alert('Start replay failed:\n'+JSON.parse(data.responseText).error);
+    });
+
+}
 
 function handleUIStateChange(m : Backbone.Model, newValue : any) {
  // util.log('handleUIStateChange', m, newValue); // note that m and newValue not set on trigger('change')
