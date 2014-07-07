@@ -146,14 +146,6 @@ function generateTag(tag : Shared.TagData) {
   tagSVG.attr('r', 8).call(drag);
 }
 
-function updateLabels() {
-  $('#client-time-label').text(ClientCommon.showTime(new Date()));
-  $('#server-time-label').text(ClientCommon.showTime(new Date(serverState.status.webServerTime)));
-
-  $('#connection-label').text(serverState.status.isConnected ? 'Connected' : 'Not connected');
-  $('#connection-label').css('color', serverState.status.isConnected ? 'lime' : 'red');
-}
-
 function selectLayout(layoutNr : number) {
   util.log('Selecting layout '+layoutNr);
   (<HTMLSelectElement>$('#layout-selector').get(0)).selectedIndex = layoutNr;
