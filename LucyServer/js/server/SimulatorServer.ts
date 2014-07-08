@@ -299,7 +299,7 @@ function emitEvents() {
 
 function sendReaderEvents(readerEvents : ServerCommon.ReaderEvent[]) {
   if (clientSocket)
-    _(readerEvents).forEach((e) => {clientSocket.write('\0\ufffd'+JSON.stringify(e));});
+    _(readerEvents).forEach((e) => {clientSocket.write('\n'+JSON.stringify(e));});
 }
 
 function createReaderEvent(readerIp : string, epc : string, ant : number, rssi : number)  : ServerCommon.ReaderEvent {
