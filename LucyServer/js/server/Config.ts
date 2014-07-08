@@ -220,7 +220,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                     }
                 , shortMidRangeTarget:
                     { isShortRange: true
-                    , serverIp: '10.0.0.26'
+                    , serverIp: '127.0.0.1'
                     , antennaIndex: 1
                     }
                 }
@@ -231,7 +231,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                     }
                 , shortMidRangeTarget:
                     { isShortRange: true
-                    , serverIp: '10.0.0.26'
+                    , serverIp: '127.0.0.1'
                     , antennaIndex: 2
                     }
                 }
