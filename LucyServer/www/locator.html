@@ -48,13 +48,12 @@
         <div id="floor"></div>
 
         <div id="copyright">&copy; 2014 <a href="http://www.oblomov.com">Oblomov&nbsp;Systems</a></div>
+	      <input type="button" id="start-replay-button" onclick="handleStartReplayButton()" value="Start replay"></input>
+	      <select onchange="handleSelectReplayLevel1();" id="replay-level-1-selector" class="replay-level-selector"><option>&nbsp;</option></select>
+	      <select onchange="handleSelectReplayLevel2();" id="replay-level-2-selector" class="replay-level-selector"><option>&nbsp;</option></select>
+	      <select onchange="handleSelectReplayLevel3();" id="replay-level-3-selector" class="replay-level-selector"><option>&nbsp;</option></select>
+	      <select id="replay-level-4-selector" class="replay-level-selector"><option>&nbsp;</option></select>
       </div><br/>
-      <select onchange="handleSelectReplayLevel1();" id="replay-level-1-selector"><option>&nbsp;</option></select>
-      <select onchange="handleSelectReplayLevel2();" id="replay-level-2-selector"><option>&nbsp;</option></select>
-      <select onchange="handleSelectReplayLevel3();" id="replay-level-3-selector"><option>&nbsp;</option></select>
-      <select id="replay-level-4-selector"><option>&nbsp;</option></select>
-      <input type="button" id="start-replay-button" onclick="handleStartReplayButton()" value="Start replay"></input>
-      <br/>
       
       <table id="tags-data">
         <tr><td></td><td>Ant 1</td><td>Ant 2</td><td>Ant 3</td><td>Ant 4</td></tr>

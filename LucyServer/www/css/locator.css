@@ -8,3 +8,14 @@
 #unknown-antenna {
   color: red;
 }
+
+#start-replay-button {
+  float: left;
+  margin-top: 5px;
+  margin-right: 10px;	
+}
+
+.replay-level-selector {
+	float: left;
+  margin-top: 6px;
+}
