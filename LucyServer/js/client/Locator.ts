@@ -93,7 +93,7 @@ function initReplaySelectors() {
   $.getJSON( "query/replay-info", function(newReplayInfo : Shared.ReplayInfo) {
     replayInfo = newReplayInfo;
     
-    util.log('New replay info ' + JSON.stringify(replayInfo));
+    util.log('New replay info ' + util.showJSON(replayInfo));
     
     $('#replay-level-1-selector').empty();
     _(replayInfo.contents).chain().pluck('name').each((level1Name) => {
@@ -113,10 +113,8 @@ function handleSelectReplayLevel1() {
     _(selectedLevel1Entry.contents).chain().pluck('name').each(level2Name => {
       $('#replay-level-2-selector').append('<option value="'+level2Name+'">'+level2Name+'</option>');
     });
-    handleSelectReplayLevel2();
-  } else {
-    util.error('handleSelectReplayLevel1: selected level 1 entry for name '+selectedLevel1Name+' is undefined');
   }
+  handleSelectReplayLevel2();
 }
 
 function handleSelectReplayLevel2() {
@@ -124,23 +122,18 @@ function handleSelectReplayLevel2() {
   var selectedLevel1Entry = _(replayInfo.contents).findWhere({name: selectedLevel1Name});
   
   $('#replay-level-3-selector').empty();
-  
   if (selectedLevel1Entry) {
     var selectedLevel2Name = $('#replay-level-2-selector').val();
     console.log('Select replay level 2 name: ' + $('#replay-level-2-selector').val());
-    var selectedLevel2Entry = selectedLevel1Entry ? _(selectedLevel1Entry.contents).findWhere({name: selectedLevel2Name}) : undefined;
+    var selectedLevel2Entry = selectedLevel1Entry && _(selectedLevel1Entry.contents).findWhere({name: selectedLevel2Name});
     
     if (selectedLevel2Entry) {
       _(selectedLevel2Entry.contents).chain().pluck('name').each(level3Name => {
         $('#replay-level-3-selector').append('<option value="'+level3Name+'">'+level3Name+'</option>');
       });
-      handleSelectReplayLevel3();
-    } else {
-      util.error('handleSelectReplayLevel2: selected level 2 entry for name '+selectedLevel2Name+' is undefined');
     }
-  } else {
-    util.error('handleSelectReplayLevel2: selected level 1 entry for name '+selectedLevel1Name+' is undefined');
   }
+  handleSelectReplayLevel3();
 }
 
 function handleSelectReplayLevel3() {
@@ -148,34 +141,31 @@ function handleSelectReplayLevel3() {
   var selectedLevel1Entry = _(replayInfo.contents).findWhere({name: selectedLevel1Name});
   
   $('#replay-level-4-selector').empty();
-  
   if (selectedLevel1Entry) {
     var selectedLevel2Name = $('#replay-level-2-selector').val();
     console.log('Select replay level 2 name: ' + $('#replay-level-2-selector').val());
-    var selectedLevel2Entry = selectedLevel1Entry ? _(selectedLevel1Entry.contents).findWhere({name: selectedLevel2Name}) : undefined;
+    var selectedLevel2Entry = selectedLevel1Entry && _(selectedLevel1Entry.contents).findWhere({name: selectedLevel2Name});
     
     if (selectedLevel2Entry) {
       var selectedLevel3Name = $('#replay-level-3-selector').val();
-      var selectedLevel3Entry = selectedLevel2Entry ? _(selectedLevel2Entry.contents).findWhere({name: selectedLevel3Name}) : undefined;
+      var selectedLevel3Entry = selectedLevel2Entry && _(selectedLevel2Entry.contents).findWhere({name: selectedLevel3Name});
  
       if (selectedLevel3Entry) {
         _(selectedLevel3Entry.contents).chain().pluck('name').each(level4Name => {
           $('#replay-level-4-selector').append('<option value="'+level4Name+'">'+level4Name+'</option>');
         });
-      } else {
-        util.error('handleSelectReplayLevel3: selected level 3 entry for name '+selectedLevel3Name+' is undefined');
       }      
-    } else {
-      util.error('handleSelectReplayLevel2: selected level 2 entry for name '+selectedLevel2Name+' is undefined');
     }
-  } else {
-    util.error('handleSelectReplayLevel2: selected level 1 entry for name '+selectedLevel1Name+' is undefined');
   }
 }
 function handleStartReplayButton() {
-  var filename = encodeURI( $('#replay-level-1-selector').val() + '/' + $('#replay-level-2-selector').val() + '/' 
-                          + $('#replay-level-3-selector').val() + '/' + $('#replay-level-4-selector').val() );
+  var filename = encodeURI( $('#replay-level-1-selector').val() +
+                            (!$('#replay-level-2-selector').val() ? '' : '/' + $('#replay-level-2-selector').val() + 
+                            (!$('#replay-level-3-selector').val() ? '' : '/' + $('#replay-level-3-selector').val() +
+                            (!$('#replay-level-4-selector').val() ? '' : '/' + $('#replay-level-4-selector').val()))) 
+                          );
   util.log('Request start replay for ' + filename);
+  return;
   $.get('/query/start-replay', {filename: filename}, function() {
       util.log('Started replay.');
     }).fail(function(data : JQueryXHR) {
