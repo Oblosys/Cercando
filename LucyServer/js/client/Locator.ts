@@ -105,11 +105,11 @@ function initReplaySelectors() {
 
 function handleSelectReplayLevel1() {
   var selectedLevel1Name = $('#replay-level-1-selector').val();
-  console.log('Select replay level 2 name: ' + selectedLevel1Name);
+  console.log('Select replay level 1 name: ' + selectedLevel1Name);
   var selectedLevel1Entry = _(replayInfo.contents).findWhere({name: selectedLevel1Name});
   
+  $('#replay-level-2-selector').empty();
   if (selectedLevel1Entry) {
-    $('#replay-level-2-selector').empty();
     _(selectedLevel1Entry.contents).chain().pluck('name').each(level2Name => {
       $('#replay-level-2-selector').append('<option value="'+level2Name+'">'+level2Name+'</option>');
     });
@@ -123,13 +123,14 @@ function handleSelectReplayLevel2() {
   var selectedLevel1Name = $('#replay-level-1-selector').val();
   var selectedLevel1Entry = _(replayInfo.contents).findWhere({name: selectedLevel1Name});
   
+  $('#replay-level-3-selector').empty();
+  
   if (selectedLevel1Entry) {
     var selectedLevel2Name = $('#replay-level-2-selector').val();
     console.log('Select replay level 2 name: ' + $('#replay-level-2-selector').val());
     var selectedLevel2Entry = selectedLevel1Entry ? _(selectedLevel1Entry.contents).findWhere({name: selectedLevel2Name}) : undefined;
     
     if (selectedLevel2Entry) {
-      $('#replay-level-3-selector').empty();
       _(selectedLevel2Entry.contents).chain().pluck('name').each(level3Name => {
         $('#replay-level-3-selector').append('<option value="'+level3Name+'">'+level3Name+'</option>');
       });
@@ -146,6 +147,8 @@ function handleSelectReplayLevel3() {
   var selectedLevel1Name = $('#replay-level-1-selector').val();
   var selectedLevel1Entry = _(replayInfo.contents).findWhere({name: selectedLevel1Name});
   
+  $('#replay-level-4-selector').empty();
+  
   if (selectedLevel1Entry) {
     var selectedLevel2Name = $('#replay-level-2-selector').val();
     console.log('Select replay level 2 name: ' + $('#replay-level-2-selector').val());
@@ -156,7 +159,6 @@ function handleSelectReplayLevel3() {
       var selectedLevel3Entry = selectedLevel2Entry ? _(selectedLevel2Entry.contents).findWhere({name: selectedLevel3Name}) : undefined;
  
       if (selectedLevel3Entry) {
-        $('#replay-level-4-selector').empty();
         _(selectedLevel3Entry.contents).chain().pluck('name').each(level4Name => {
           $('#replay-level-4-selector').append('<option value="'+level4Name+'">'+level4Name+'</option>');
         });
