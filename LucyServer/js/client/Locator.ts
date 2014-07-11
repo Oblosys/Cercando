@@ -28,6 +28,7 @@ var refreshInterval : number; // setInterval() returns a number
 var serverState : Shared.ServerState;
 var allAntennas : Shared.Antenna[];
 var tagConfiguration : Shared.TagConfiguration[];
+var replayInfo : Shared.ReplayInfo; // directory structure of lucyData/savedReaderEvents/
 
 var UIState = Backbone.Model.extend({
   defaults: {
@@ -86,8 +87,6 @@ function initSelectorButtons() {
   $('#show-tag-setup-selector .select-button:eq(0)').on('click', () => {uiState.set('showTagSetup', true)});
   $('#show-tag-setup-selector .select-button:eq(1)').on('click', () => {uiState.set('showTagSetup', false)});
 }
-
-var replayInfo : Shared.ReplayInfo; // TODO: move
 
 function initReplaySelectors() {
   $.getJSON( "query/replay-info", function(newReplayInfo : Shared.ReplayInfo) {
@@ -158,6 +157,7 @@ function handleSelectReplayLevel3() {
     }
   }
 }
+
 function handleStartReplayButton() {
   var filename = encodeURI( $('#replay-level-1-selector').val() +
                             (!$('#replay-level-2-selector').val() ? '' : '/' + $('#replay-level-2-selector').val() + 
