@@ -447,19 +447,24 @@ function logReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
 // Recursively get the directory trees starting at pth
 // TODO: should be async, since we're running on the web server
 function getRecursiveDirContents(pth : string) : Shared.DirEntry[] {
-  var names = _(fs.readdirSync(pth)).filter(name => {return _.head(name) != '.'}); // filter out names starting with '.'
+  try {
+    var names = _(fs.readdirSync(pth)).filter(name => {return _.head(name) != '.'}); // filter out names starting with '.'
     
-  var entries = _(names).map(name => {
-      var contents = [];
-      if (fs.statSync(path.join(pth, name)).isDirectory()) {
-        contents = getRecursiveDirContents(path.join(pth, name));
-      } else {
-        name = path.basename(name, '.csv'); // Drop .csv extension (other extensions should not exist, so we leave them to show the error)
-      }
-      return { name: name, contents:  contents };
-    });
-  
-  return entries;  
+    var entries = _(names).map(name => {
+        var contents = [];
+        if (fs.statSync(path.join(pth, name)).isDirectory()) {
+          contents = getRecursiveDirContents(path.join(pth, name));
+        } else {
+          name = path.basename(name, '.csv'); // Drop .csv extension (other extensions should not exist, so we leave them to show the error)
+        }
+        return { name: name, contents:  contents };
+      });
+    
+    return entries;
+   } catch (e) {
+     util.error('getRecursiveDirContents: Error reading directory ' + pth + '\n' + e);
+     return [];
+   }  
 }
 
 function startReplay(filePath : string, cont : {success : () => void; error : (message : string) => void}) {
