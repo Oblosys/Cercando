@@ -577,9 +577,9 @@ function parseReplayEventCSV(csvLine : string) : ServerCommon.ReaderEvent {
     var date = new Date(values[2]);  
     var timestamp =  
       util.padZero(4, date.getFullYear()) + '-' + util.padZero(2, date.getMonth()+1) + '-' + util.padZero(2, date.getDate()) +
-      ' ' + values[1].slice(1);
+      ' ' + values[1];
     return {readerIp: values[9], ant: parseInt(values[3]), epc: ''+values[0].slice(2), rssi: parseInt(values[4]), timestamp: timestamp};
-  } // epc slice(1) to drop the "'0" in front of the epc (added by SessionOne), date and time slice(1) is to remove leading space
+  } // epc slice(2) to drop the "'0" in front of the epc (added by SessionOne)
   return null;
 }
 
