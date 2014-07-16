@@ -605,7 +605,7 @@ function purgeOldTags() {
     tag.antennaRssis = _(tag.antennaRssis).filter(antennaRssi => {
       var isAncient = antennaRssi.age > shared.ancientAgeMs;
       if (isAncient) {
-        util.log('Purging signal for antenna ' + antennaRssi.antNr + ' for tag ' +tag.epc);
+        //util.log('Purging signal for antenna ' + antennaRssi.antNr + ' for tag ' +tag.epc);
       } else {
         //util.log('Not purging signal for antenna ' + antennaRssi.antNr + ' for tag ' +tag.epc + ' age: '+antennaRssi.age);
       }
