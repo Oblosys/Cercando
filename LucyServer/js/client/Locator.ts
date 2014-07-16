@@ -257,7 +257,7 @@ function addRemoveSVGElements(oldTagsData : Shared.TagData[], currentTagsData : 
 
 function updateLabels() {
   $('#event-source-label').text(serverState.status.replayFileName ? 'REPLAY' : 'LIVE FEED');
-  $('#replay-filename-label').text(serverState.status.replayFileName ? 'Replaying ' + serverState.status.replayFileName : '');
+  $('#replay-filename-label').text(serverState.status.replayFileName ? 'Replaying: ' + serverState.status.replayFileName : '');
   $('#client-time-label').text(ClientCommon.showTime(new Date()));
   $('#reader-time-label').text(ClientCommon.showTime(new Date(serverState.status.readerServerTime)));
   
