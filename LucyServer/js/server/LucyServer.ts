@@ -500,6 +500,7 @@ function startReplay(filePath : string, cont : {success : () => void; error : (m
       util.log(err);
       cont.error(err);
     } else {
+      stopReplay();
       lineReader.open(replayFilePath, (reader : any) => {
         replayFileReader = reader;
         if (!replayFileReader.hasNextLine()) {
