@@ -12,7 +12,13 @@
 #start-replay-button {
   float: left;
   margin-top: 5px;
-  margin-right: 10px;	
+  margin-right: 10px; 
+}
+
+#stop-replay-button {
+  float: left;
+  margin-top: 5px;
+  margin-right: 10px; 
 }
 
 .replay-level-selector {

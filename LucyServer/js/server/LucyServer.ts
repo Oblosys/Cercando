@@ -246,6 +246,16 @@ function initExpress() {
     };
     startReplay(decodeURI(req.query.filename), cont);
   });
+
+  app.get('/query/stop-replay', function(req, res) {
+    util.log('Stop-replay request');
+    stopReplay();
+    res.setHeader('content-type', 'text/plain');
+    res.writeHead(204);
+    res.end();
+  });
+
+
   
   app.get('/query/test', function(req, res) {  
     util.log('test');
@@ -498,7 +508,7 @@ function startReplay(filePath : string, cont : {success : () => void; error : (m
           cont.error(err);
         } else {
           reader.nextLine(function(line : string) { // drop header
-            //state.tagsData = [];
+            state.tagsData = [];
             readReplayEvent();
             //put name in server state
           });
@@ -508,8 +518,17 @@ function startReplay(filePath : string, cont : {success : () => void; error : (m
   }
 }
 
+function stopReplay() {
+  if (replayFileReader) {
+    replayFileReader.nextLine = ((line : string) => {}); // read-line is crap, we need to disable nextLine to prevent uncatchable exceptions on close
+    replayFileReader.close();
+    replayFileReader = null;
+    state.tagsData = [];
+  }
+}
+
 function readReplayEvent() {
-  if (replayFileReader.hasNextLine()) {
+  if (replayFileReader && replayFileReader.hasNextLine()) { // need to null check replayFileReader as it may have been closed by stopReplay()
     replayFileReader.nextLine(function(line : string) {
       //util.log('Read replay line: ' + line);
       var replayEvent = parseReplayEventCSV(line);

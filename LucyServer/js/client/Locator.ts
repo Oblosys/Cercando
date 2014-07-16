@@ -177,6 +177,13 @@ function handleStartReplayButton() {
     });
 }
 
+function handleStopReplayButton() {
+  util.log('Request stop replay');
+  $.get('/query/stop-replay', function() {
+      util.log('Stopped replay.');
+    }); // Assume that stop won't fail
+}
+
 function handleUIStateChange(m : Backbone.Model, newValue : any) {
  // util.log('handleUIStateChange', m, newValue); // note that m and newValue not set on trigger('change')
   var showMaxAntennaRanges = uiState.get('showMaxAntennaRanges');
@@ -429,7 +436,7 @@ function handleSaveButton() {
       util.setAttr($('#save-button'), 'disabled', false);
     });
   } else {
-    $.get('/query/stop-saving', {filename: filename}, function() {
+    $.get('/query/stop-saving', function() {
       util.log('Stopped saving events.');
       $('#save-button').val('Start saving');
     }); // Assume that stop won't fail
