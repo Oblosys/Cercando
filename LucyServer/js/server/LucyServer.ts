@@ -527,7 +527,8 @@ function stopReplay() {
   }
   state.tagsData = [];
   state.status.replayFileName = null;
-  // clear name in state and reset all vars
+  replayStartClockTime = null;
+  replayStartEventTime = null;
 }
 
 function readReplayEvent() {
@@ -541,7 +542,7 @@ function readReplayEvent() {
         var replayEventTime = new Date(replayEvent.timestamp).getTime();
         if (!replayStartClockTime) { // This means we're reading the first event
           replayStartClockTime = new Date().getTime();
-          replayStartEventTime = replayEventTime ;
+          replayStartEventTime = replayEventTime;
           util.log('Replay first event timestamp: ' + new Date(replayEventTime));
           state.tagsData = [];
           // put name in server state
