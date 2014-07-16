@@ -485,7 +485,7 @@ var replayFileReader : any;
 var replayStartClockTime : number; // TODO explain + mention ms
 var replayStartEventTime : number;
 
-// filePath is relative to saveDirectoryPath and does not have .csv extension
+// filePath is relative to saveDirectoryPath and without .csv extension
 function startReplay(filePath : string, cont : {success : () => void; error : (message : string) => void}) {
   util.log('Start-replay request for filename ' + filePath);
   if (!isSafeFilePath(filePath.replace(/[\/,\.]/g,''))) { // first remove / and ., which are allowed in replay file paths
@@ -511,7 +511,7 @@ function startReplay(filePath : string, cont : {success : () => void; error : (m
           reader.nextLine(function(line : string) { // drop header
             state.tagsData = [];
             readReplayEvent();
-            //put name in server state
+            state.status.replayFileName = filePath;
           });
         }
       });
@@ -526,6 +526,7 @@ function stopReplay() {
     replayFileReader = null;
   }
   state.tagsData = [];
+  state.status.replayFileName = null;
   // clear name in state and reset all vars
 }
 

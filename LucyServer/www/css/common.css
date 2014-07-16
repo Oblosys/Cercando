@@ -63,6 +63,12 @@ body {
   stroke: #000;
 }
 
+#floor #event-source-label { /* need #floor to make this rule more specific than #floor text */
+  font-size: 20px;
+  fill: red;
+  text-anchor: end;
+}
+
 #floor text {
 	stroke-width: 0px;
 	font-family: Verdana;

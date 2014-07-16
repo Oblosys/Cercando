@@ -25,3 +25,8 @@
 	float: left;
   margin-top: 6px;
 }
+
+#replay-filename-label {
+	float: left;
+	clear: left;
+}

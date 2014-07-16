@@ -47,6 +47,7 @@ module ClientCommon {
     floorSVG.append('g').attr('id', 'rssi-plane');
     floorSVG.append('g').attr('id', 'trilateration-plane');
     floorSVG.append('g').attr('id', 'visitor-plane');
+    floorSVG.append('text').attr('id', 'event-source-label'); // positioned in resizeFloor()
   }
   
   export function resizeFloor(dim : {width : number; height : number}) {
@@ -56,7 +57,8 @@ module ClientCommon {
   
     d3.select('#floor > svg').attr('width', floorWidth).attr('height', floorHeight);
     d3.select('#floor-background-rect').attr('width', floorWidth).attr('height', floorHeight);
-    d3.select('#floor-background-image').attr('width', floorWidth).attr('height', floorHeight);  
+    d3.select('#floor-background-image').attr('width', floorWidth).attr('height', floorHeight);
+    d3.select('#event-source-label').attr('x', floorWidth - 10).attr('y', floorHeight - 33);
   }
   
   export function setBackgroundImage(backgroundImage : string) {
