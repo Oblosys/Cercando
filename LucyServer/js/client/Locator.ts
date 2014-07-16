@@ -98,6 +98,7 @@ function initReplaySelectors() {
     _(replayInfo.contents).chain().pluck('name').each((level1Name) => {
       $('#replay-level-1-selector').append('<option value="'+level1Name+'">'+level1Name+'</option>');
     });
+    (<HTMLSelectElement>document.getElementById('replay-level-1-selector')).selectedIndex = replayInfo.contents.length - 1;
     handleSelectReplayLevel1(); 
   });
 }
@@ -112,6 +113,7 @@ function handleSelectReplayLevel1() {
     _(selectedLevel1Entry.contents).chain().pluck('name').each(level2Name => {
       $('#replay-level-2-selector').append('<option value="'+level2Name+'">'+level2Name+'</option>');
     });
+    (<HTMLSelectElement>document.getElementById('replay-level-2-selector')).selectedIndex = selectedLevel1Entry.contents.length - 1;
   }
   handleSelectReplayLevel2();
 }
@@ -129,6 +131,7 @@ function handleSelectReplayLevel2() {
     if (selectedLevel2Entry) {
       _(selectedLevel2Entry.contents).chain().pluck('name').each(level3Name => {
         $('#replay-level-3-selector').append('<option value="'+level3Name+'">'+level3Name+'</option>');
+        (<HTMLSelectElement>document.getElementById('replay-level-3-selector')).selectedIndex = selectedLevel2Entry.contents.length - 1;
       });
     }
   }
@@ -153,6 +156,7 @@ function handleSelectReplayLevel3() {
         _(selectedLevel3Entry.contents).chain().pluck('name').each(level4Name => {
           $('#replay-level-4-selector').append('<option value="'+level4Name+'">'+level4Name+'</option>');
         });
+        (<HTMLSelectElement>document.getElementById('replay-level-3-selector')).selectedIndex = selectedLevel2Entry.contents.length - 1;
       }      
     }
   }
