@@ -49,8 +49,10 @@ import ServerCommon   = require('./ServerCommon');
 
 var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 
-var mysql = require('mysql'); // Don't have a TypeScript definition for mysql yet
+// Libraries without TypeScript definitions:
 
+var mysql      = require('mysql');
+var nodefs     = require('node-fs'); // for recursive dir creation
 var app = express();
 
 // global state variables
@@ -411,7 +413,8 @@ function getEventLogFilePath() : string {
   var logLength = 60 / 4; // logLength should be a divisor of 60
   var now = new Date();
   var filePath = autoSaveDirectoryPath + '/' 
-               + util.padZero(4, now.getFullYear()) + '-' + util.padZero(2, now.getMonth()+1) + '-' + util.padZero(2, now.getDate()) + '/'
+               + util.padZero(4, now.getFullYear()) + '-' + util.padZero(2, now.getMonth()+1) + '/'
+               + util.padZero(2, now.getDate()) + '/'
                + 'readerEvents_' +
                + util.padZero(4, now.getFullYear()) + '-' + util.padZero(2, now.getMonth()+1) + '-' + util.padZero(2, now.getDate()) + '_'
                + util.padZero(2, now.getHours()) + '.' + util.padZero(2, Math.floor(Math.floor(now.getMinutes() / logLength) * logLength) )
@@ -431,7 +434,7 @@ function logReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
     logTs('Opening file new auto-save file:\n' + desiredEventLogFilePath);
     
     if (!fs.existsSync( path.dirname(desiredEventLogFilePath)) ) {
-      fs.mkdirSync( path.dirname(desiredEventLogFilePath) );
+      nodefs.mkdirSync( path.dirname(desiredEventLogFilePath), '0755', true); // 0755: rwxr-xr-x, true: recursive
     } 
     
     eventLogFilePath = desiredEventLogFilePath;
