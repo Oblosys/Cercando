@@ -169,14 +169,12 @@ function handleStartReplayButton() {
                             (!$('#replay-level-4-selector').val() ? '' : '/' + $('#replay-level-4-selector').val()))) 
                           );
   util.log('Request start replay for ' + filename);
-  return;
   $.get('/query/start-replay', {filename: filename}, function() {
       util.log('Started replay.');
     }).fail(function(data : JQueryXHR) {
       console.log(data);
       alert('Start replay failed:\n'+JSON.parse(data.responseText).error);
     });
-
 }
 
 function handleUIStateChange(m : Backbone.Model, newValue : any) {

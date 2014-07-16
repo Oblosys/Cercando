@@ -52,6 +52,7 @@ var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and
 // Libraries without TypeScript definitions:
 
 var mysql      = require('mysql');
+var lineReader = require('line-reader');
 var nodefs     = require('node-fs'); // for recursive dir creation
 var app = express();
 
@@ -67,6 +68,7 @@ var readerServerSocket : net.Socket;
 var eventLogFilePath : string; // Based on current time
 var eventLogFileStream : fs.WriteStream;
 var outputFileStream : fs.WriteStream; // for explicitly saving reader events
+var replayFileStream : fs.ReadStream; // if this is non-null, a replay is taking place
 
 var readerServerHostName : string;
 var serverPortNr : number;
@@ -231,7 +233,6 @@ function initExpress() {
 
   app.get('/query/start-replay', function(req, res) {
     var fileName = req.query.filename + '.csv';
-    util.log('Start-replay request for filename ' + req.query.filename);
     
     var cont = { 
       success: function () {
@@ -433,7 +434,7 @@ function logReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   if (!eventLogFileStream) {
     logTs('Opening file new auto-save file:\n' + desiredEventLogFilePath);
     
-    if (!fs.existsSync( path.dirname(desiredEventLogFilePath)) ) {
+    if (!fs.existsSync( path.dirname(desiredEventLogFilePath)) ) { // if directory doesn't exist, recursively create all directories on path
       nodefs.mkdirSync( path.dirname(desiredEventLogFilePath), '0755', true); // 0755: rwxr-xr-x, true: recursive
     } 
     
@@ -470,21 +471,103 @@ function getRecursiveDirContents(pth : string) : Shared.DirEntry[] {
    }  
 }
 
+var replayFileReader : any;
+var replayStartClockTime : number; // TODO explain + mention ms
+var replayStartEventTime : number;
+
+// filePath is relative to saveDirectoryPath and does not have .csv extension
 function startReplay(filePath : string, cont : {success : () => void; error : (message : string) => void}) {
-  if (!isSafeFilePath(filePath.replace(/[\/,\.]/g,''))) // first remove / and ., which are allowed in replay file paths
+  util.log('Start-replay request for filename ' + filePath);
+  if (!isSafeFilePath(filePath.replace(/[\/,\.]/g,''))) { // first remove / and ., which are allowed in replay file paths
     // This is safe as long as we only open the file within the server and try to parse it as csv, when csv can be downloaded we need stricter
     // safety precautions.
     cont.error('Invalid file path: "'+filePath+'"\nMay only contain letters, digits, spaces, and these characters: \'(\' \')\' \'-\' \'_\'  \'/\'  \'.\'');
-  else {
-    cont.success();
+  } else {
+    var replayFilePath = saveDirectoryPath + '/' + filePath + '.csv';
+
+    if (!fs.existsSync( replayFilePath )) { // read-line is badly designed and doesn't allow catching errors on open
+      var err = 'Error: Replay file does not exist: '+ replayFilePath;
+      util.log(err);
+      cont.error(err);
+    } else {
+      lineReader.open(replayFilePath, (reader : any) => {
+        replayFileReader = reader;
+        if (!replayFileReader.hasNextLine()) {
+          var err = 'Error: Replay file is empty:' + replayFilePath;
+          util.log(err);
+          cont.error(err);
+        } else {
+          reader.nextLine(function(line : string) { // drop header
+            //state.tagsData = [];
+            readReplayEvent();
+            //put name in server state
+          });
+        }
+      });
+    }
   }
 }
 
+function readReplayEvent() {
+  if (replayFileReader.hasNextLine()) {
+    replayFileReader.nextLine(function(line : string) {
+      //util.log('Read replay line: ' + line);
+      var replayEvent = parseReplayEventCSV(line);
+      if (!replayEvent) { // TODO: Buggy read-line sometimes corrupts a line. It happens only very rarely, so we simply skip the line for now.
+        readReplayEvent();        
+      } else { 
+        var replayEventTime = new Date(replayEvent.timestamp).getTime();
+        if (!replayStartClockTime) { // This means we're reading the first event
+          replayStartClockTime = new Date().getTime();
+          replayStartEventTime = replayEventTime ;
+          util.log('Replay first event timestamp: ' + new Date(replayEventTime));
+          state.tagsData = [];
+          // put name in server state
+        }
+        
+        var replayEventRelativeTime = new Date(replayEvent.timestamp).getTime() - replayStartEventTime;
+        var replayEventClockTime = replayStartClockTime + replayEventRelativeTime;
+        var eventDelay = util.clip(0, Number.MAX_VALUE, replayEventClockTime - new Date().getTime());
+        //util.log(replayEventRelativeTime + '  ' + eventDelay);
+  
+        //util.log('Emit event: ' + JSON.stringify(replayEvent));
+        processReaderEvent(replayEvent);
+        
+        setTimeout(() => {
+          readReplayEvent();
+        }, eventDelay);
+      }      
+    });
+  } else {
+    replayFileReader = null;
+    // clear name in state and reset all vars
+  }
+}
+
+// NOTE: we assume the fields do not contain commas, so every comma is a separator
+function parseReplayEventCSV(csvLine : string) : ServerCommon.ReaderEvent {
+  var values = _(csvLine.split(',')).map(rawField => {return rawField.replace(/^ /,'')});
+  
+  if (values.length < 10) {
+    util.error('Error: csv line has not enough fields:\n' + csvLine);
+    // close replay
+  } else {
+    var date = new Date(values[2]);  
+    var timestamp =  
+      util.padZero(4, date.getFullYear()) + '-' + util.padZero(2, date.getMonth()+1) + '-' + util.padZero(2, date.getDate()) +
+      ' ' + values[1].slice(1);
+    return {readerIp: values[9], ant: parseInt(values[3]), epc: ''+values[0].slice(2), rssi: parseInt(values[4]), timestamp: timestamp};
+  } // epc slice(1) to drop the "'0" in front of the epc (added by SessionOne), date and time slice(1) is to remove leading space
+  return null;
+}
 
 // Process ReaderEvent coming from a reader server (not from a replay)
 function processReaderServerEvent(readerEvent : ServerCommon.ReaderEvent) {
+  //util.log('Reader event: ' + JSON.stringify(readerEvent));
   logReaderEvent(readerEvent);
-  processReaderEvent(readerEvent);
+  if (!replayFileReader) {
+    processReaderEvent(readerEvent);
+  }
 }
 
 // Process ReaderEvent, possibly coming from a replay
