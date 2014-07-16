@@ -524,8 +524,9 @@ function stopReplay() {
     replayFileReader.nextLine = ((line : string) => {}); // read-line is crap, we need to disable nextLine to prevent uncatchable exceptions on close
     replayFileReader.close();
     replayFileReader = null;
-    state.tagsData = [];
   }
+  state.tagsData = [];
+  // clear name in state and reset all vars
 }
 
 function readReplayEvent() {
@@ -559,8 +560,7 @@ function readReplayEvent() {
       }      
     });
   } else {
-    replayFileReader = null;
-    // clear name in state and reset all vars
+    stopReplay();
   }
 }
 
