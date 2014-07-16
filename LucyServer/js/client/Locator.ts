@@ -156,7 +156,7 @@ function handleSelectReplayLevel3() {
         _(selectedLevel3Entry.contents).chain().pluck('name').each(level4Name => {
           $('#replay-level-4-selector').append('<option value="'+level4Name+'">'+level4Name+'</option>');
         });
-        (<HTMLSelectElement>document.getElementById('replay-level-3-selector')).selectedIndex = selectedLevel2Entry.contents.length - 1;
+        (<HTMLSelectElement>document.getElementById('replay-level-4-selector')).selectedIndex = selectedLevel3Entry.contents.length - 1;
       }      
     }
   }
