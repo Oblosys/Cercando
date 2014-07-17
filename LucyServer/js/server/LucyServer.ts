@@ -570,8 +570,8 @@ function readReplayEvent() {
 function parseReplayEventCSV(csvLine : string) : ServerCommon.ReaderEvent {
   var values = _(csvLine.split(',')).map(rawField => {return rawField.replace(/^ /,'')});
   
-  if (values.length < 10) {
-    util.error('Error: csv line has not enough fields:\n' + csvLine);
+  if (values.length != 10) {
+    util.error('Error: csv line has incorrect nr. of fields:\n' + csvLine);
     // close replay
   } else {
     var date = new Date(values[2]);  
