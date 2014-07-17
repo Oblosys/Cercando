@@ -259,7 +259,7 @@ function updateLabels() {
   $('#event-source-label').text(serverState.status.replayFileName ? 'REPLAY' : 'LIVE FEED');
   $('#replay-filename-label').text(serverState.status.replayFileName ? 'Replaying: ' + serverState.status.replayFileName : '');
   $('#client-time-label').text(ClientCommon.showTime(new Date()));
-  $('#reader-time-label').text(ClientCommon.showTime(new Date(serverState.status.readerServerTime)));
+  $('#reader-time-label').text(serverState.status.readerServerTime ? ClientCommon.showTime(new Date(serverState.status.readerServerTime)): '--:--:--');
   
   $('#connection-label').text(serverState.status.isConnected ? 'Connected' : 'Not connected');
   $('#connection-label').css('color', serverState.status.isConnected ? 'lime' : 'red');
