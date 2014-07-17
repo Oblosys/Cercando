@@ -572,15 +572,28 @@ function parseReplayEventCSV(csvLine : string) : ServerCommon.ReaderEvent {
   
   if (values.length != 10) {
     util.error('Error: csv line has incorrect nr. of fields:\n' + csvLine);
-    // close replay
+    return null;
   } else {
-    var date = new Date(values[2]);  
-    var timestamp =  
-      util.padZero(4, date.getFullYear()) + '-' + util.padZero(2, date.getMonth()+1) + '-' + util.padZero(2, date.getDate()) +
-      ' ' + values[1];
-    return {readerIp: values[9], ant: parseInt(values[3]), epc: ''+values[0].slice(2), rssi: parseInt(values[4]), timestamp: timestamp};
+    // check format of fields to prevent damage by read-line
+    if (!(   /^'[0-9a-zA-Z]+$/.test(values[0])                  // [ "'005355d0000000000017c48" 
+          && /^\d\d:\d\d:\d\d:\d\d\d$/.test(values[1])          // , "14:24:13:098" 
+          && /^[a-z][a-z][a-z]\-\d+\-\d\d\d\d$/.test(values[2]) // , "jul-8-2014"
+          && /^\d+$/.test(values[3])                            // , "2"
+          && /^\-\d+$/.test(values[4])                          // , "-60"
+          && /^$/.test(values[5]) && /^$/.test(values[6]) && /^$/.test(values[7]) && /^$/.test(values[8]) // , "", "", "", "" 
+          && /^\d+\.\d+\.\d+\.\d+$/.test(values[9])             // , "10.0.0.32" ]
+          && (values[0].length == 24 || values[0].length == 33)
+         )) {
+      util.error('Error: csv line has an incorrect fields:\n' + csvLine);
+      return null;
+    } else {
+      var date = new Date(values[2]);  
+      var timestamp =  
+        util.padZero(4, date.getFullYear()) + '-' + util.padZero(2, date.getMonth()+1) + '-' + util.padZero(2, date.getDate()) +
+        ' ' + values[1];
+      return {readerIp: values[9], ant: parseInt(values[3]), epc: ''+values[0].slice(2), rssi: parseInt(values[4]), timestamp: timestamp};
+    }
   } // epc slice(2) to drop the "'0" in front of the epc (added by SessionOne)
-  return null;
 }
 
 // Process ReaderEvent coming from a reader server (not from a replay)
