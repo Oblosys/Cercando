@@ -719,10 +719,10 @@ function positionAllTags() {
       var shortMidRangeTarget = allAntennas[antennaRssi.antNr].shortMidRangeTarget;
       return shortMidRangeTarget != null && shared.isRecentAntennaRSSI(antennaRssi);
     });
-    if (shortMidRangeRssi) {
+    if (shortMidRangeRssi && shortMidRangeRssi.value > shared.shortMidRagneRssiThreshold) {
       //util.log('short mid for tag '+tag.epc);
       tag.coordinate = {coord: allAntennas[shortMidRangeRssi.antNr].coord, isRecent:true};
-    } else {
+    } else { // TODO: don't use short/mid-range antennas for trilateration
       var oldCoord = tag.coordinate ? tag.coordinate.coord : null;
       tag.coordinate = trilateration.getPosition(tag.epc, allAntennas, oldCoord, dt, tag.antennaRssis);
     }

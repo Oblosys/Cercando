@@ -5,6 +5,8 @@ module Shared {
   export var maxAntennaRangeMid = 0.5;
   export var maxAntennaRangeLong = 1.5;
 
+  export var shortMidRagneRssiThreshold = -50; // TODO: Maybe we need separate values for short and mid 
+
   export var staleAgeMs = 2000;
   export var ancientAgeMs = 5000;
   
