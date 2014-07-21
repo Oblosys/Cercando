@@ -173,7 +173,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
     //, dimensions: {width: 14, height: 14 * 1686/3183}
     , dimensions: {width: 17, height: 17 * 734/1365}
     , scale: 50
-    , backgroundImage: 'floorPlans/Rotterdam floor plan - grid.png' // width="3183" height="1686"
+    , backgroundImage: 'floorPlans/Blueprint Lucy Rotterdam v2.0.png' // width="3183" height="1686"
     //, backgroundImage: 'floorPlans/Antenne layout 3 - RFID Blueprint versie 3.jpg' // width="1365" height="734"
     , readerAntennaSpecs:
         [ { readerIp: '10.0.0.30'
