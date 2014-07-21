@@ -215,8 +215,8 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                 }
               , { name: 'A6'
                 , coord:
-                    { x: 4.957333984375
-                    , y: 0.7693040293040297
+                    { x: 4.9236669921875
+                    , y: 0.6796372812571547
                     }
                 , shortMidRangeTarget:
                     { isShortRange: true
@@ -226,8 +226,8 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                 }
               , { name: 'A7'
                 , coord:
-                    { x: 5.737333984375
-                    , y: -0.47069597069597024
+                    { x: 5.6036669921875
+                    , y: -0.6203627187428452
                     }
                 , shortMidRangeTarget:
                     { isShortRange: true
@@ -237,8 +237,8 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                 }
               , { name: 'A8'
                 , coord:
-                    { x: 6.737333984375
-                    , y: -2.9106959706959703
+                    { x: 5.8036669921875
+                    , y: -2.606029222649095
                     }
                 , shortMidRangeTarget:
                     { isShortRange: false
@@ -252,8 +252,8 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
           , antennaSpecs:
               [ { name: 'B1'
                 , coord:
-                    { x: 1.877333984375
-                    , y: 3.68930402930403
+                    { x: 2.2836669921875
+                    , y: 3.4196372812571547
                     }
                 , shortMidRangeTarget:
                     { isShortRange: false
@@ -299,8 +299,8 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                 }
               , { name: 'B8'
                 , coord:
-                    { x: 0.7373333740234375
-                    , y: 3.6693040293040298
+                    { x: 1.2436669921875
+                    , y: 3.4396372812571547
                     }
                 , shortMidRangeTarget:
                     { isShortRange: false
@@ -350,8 +350,8 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                 }
               , { name: 'C7'
                 , coord:
-                    { x: -6.122666625976563
-                    , y: 3.20930402930403
+                    { x: -6.0763333129882815
+                    , y: 3.219637281257155
                     }
                 , shortMidRangeTarget:
                     { isShortRange: false
@@ -361,8 +361,8 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                 }
               , { name: 'C8'
                 , coord:
-                    { x: -7.022666625976562
-                    , y: -1.0106959706959702
+                    { x: -6.88066650390625
+                    , y: -0.010695970695970232
                     }
                 , shortMidRangeTarget:
                     { isShortRange: false
