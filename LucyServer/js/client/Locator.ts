@@ -92,7 +92,7 @@ function initReplaySelectors() {
   $.getJSON( "query/replay-info", function(newReplayInfo : Shared.ReplayInfo) {
     replayInfo = newReplayInfo;
     
-    util.log('New replay info ' + util.showJSON(replayInfo));
+    //util.log('New replay info ' + util.showJSON(replayInfo));
     
     $('#replay-level-1-selector').empty();
     _(replayInfo.contents).chain().pluck('name').each((level1Name) => {
