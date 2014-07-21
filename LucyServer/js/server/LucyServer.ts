@@ -51,9 +51,9 @@ var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and
 
 // Libraries without TypeScript definitions:
 
-var mysql      = require('mysql');
-var lineReader = require('line-reader');
-var nodefs     = require('node-fs'); // for recursive dir creation
+var mysql            = require('mysql');
+var lineByLineReader = require('line-by-line');
+var nodefs           = require('node-fs'); // for recursive dir creation
 var app = express();
 
 // global state variables
@@ -485,7 +485,8 @@ var replayFileReader : any;
 var replayStartClockTime : number; // TODO explain + mention ms
 var replayStartEventTime : number;
 
-// filePath is relative to saveDirectoryPath and without .csv extension
+// TODO Quickly tapping the start-replay button hangs Firefox. Chrome is fine though. 
+// Note: filePath is relative to saveDirectoryPath and without .csv extension
 function startReplay(filePath : string, cont : {success : () => void; error : (message : string) => void}) {
   util.log('Start-replay request for filename ' + filePath);
   if (!isSafeFilePath(filePath.replace(/[\/,\.]/g,''))) { // first remove / and ., which are allowed in replay file paths
@@ -495,75 +496,84 @@ function startReplay(filePath : string, cont : {success : () => void; error : (m
   } else {
     var replayFilePath = saveDirectoryPath + '/' + filePath + '.csv';
 
-    if (!fs.existsSync( replayFilePath )) { // read-line is badly designed and doesn't allow catching errors on open
+    if (!fs.existsSync( replayFilePath )) { 
+      // Check file existence beforehand, since we cannot use cont.error() after the lineReader has been created (creation 
+      // succeeds even for missing file and only calls the error callback afterwards).
       var err = 'Error: Replay file does not exist: '+ replayFilePath;
       util.log(err);
       cont.error(err);
     } else {
       stopReplay();
-      lineReader.open(replayFilePath, (reader : any) => {
-        replayFileReader = reader;
-        if (!replayFileReader.hasNextLine()) {
-          var err = 'Error: Replay file is empty:' + replayFilePath;
-          util.log(err);
-          cont.error(err);
-        } else {
-          reader.nextLine(function(line : string) { // drop header
-            state.tagsData = [];
-            readReplayEvent();
-            state.status.replayFileName = filePath;
-          });
-        }
+      
+      state.tagsData = [];
+      state.status.replayFileName = filePath;
+
+      // TODO: drop header line more elegantly
+      var lineReader = new lineByLineReader(replayFilePath);
+      
+      replayFileReader = lineReader;
+      
+      lineReader.on('error', function (err : Error) {
+        stopReplay();
+        util.error('lineReader error while reading \'' + filePath + '\'');
+        util.error(err);
       });
+      
+      lineReader.on('line', function (line : string) {
+        lineReader.pause();
+        readReplayEvent(line, lineReader); // replayFileReader is resumed by readReplayEvent()
+      });
+      
+      lineReader.on('end', function () {
+        util.log('Ending replay'); // TODO: apparently called several times
+        if (!replayFileReader)
+          clearReplay();
+      });
+      cont.success();
     }
   }
 }
 
 function stopReplay() {
   if (replayFileReader) {
-    replayFileReader.nextLine = ((line : string) => {}); // read-line is crap, we need to disable nextLine to prevent uncatchable exceptions on close
     replayFileReader.close();
     replayFileReader = null;
   }
+  clearReplay();
+}
+
+function clearReplay() {
   state.tagsData = [];
   state.status.replayFileName = null;
   replayStartClockTime = null;
   replayStartEventTime = null;
 }
-
-function readReplayEvent() {
-  if (replayFileReader && replayFileReader.hasNextLine()) { // need to null check replayFileReader as it may have been closed by stopReplay()
-    replayFileReader.nextLine(function(line : string) {
-      //util.log('Read replay line: ' + line);
-      var replayEvent = parseReplayEventCSV(line);
-      if (!replayEvent) { // TODO: Buggy read-line sometimes corrupts a line. It happens only very rarely, so we simply skip the line for now.
-        readReplayEvent();        
-      } else { 
-        var replayEventTime = new Date(replayEvent.timestamp).getTime();
-        if (!replayStartClockTime) { // This means we're reading the first event
-          replayStartClockTime = new Date().getTime();
-          replayStartEventTime = replayEventTime;
-          util.log('Replay first event timestamp: ' + new Date(replayEventTime));
-          state.tagsData = [];
-          // put name in server state
-        }
-        
-        var replayEventRelativeTime = new Date(replayEvent.timestamp).getTime() - replayStartEventTime;
-        var replayEventClockTime = replayStartClockTime + replayEventRelativeTime;
-        var eventDelay = util.clip(0, Number.MAX_VALUE, replayEventClockTime - new Date().getTime());
-        //util.log(replayEventRelativeTime + '  ' + eventDelay);
-  
-        //util.log('Emit event: ' + JSON.stringify(replayEvent));
-        processReaderEvent(replayEvent);
-        
-        setTimeout(() => {
-          readReplayEvent();
-        }, eventDelay);
-      }      
-    });
+function readReplayEvent(line : string, lineReader : any) {
+  //util.log('Read replay line: ' + line);
+  var replayEvent = parseReplayEventCSV(line);
+  if (!replayEvent) {
+    lineReader.resume();
   } else {
-    stopReplay();
-  }
+    var replayEventTime = new Date(replayEvent.timestamp).getTime();
+    if (!replayStartClockTime) { // This means we're reading the first event
+      replayStartClockTime = new Date().getTime();
+      replayStartEventTime = replayEventTime;
+      //util.log('Replay first event timestamp: ' + new Date(replayEventTime));
+      state.tagsData = [];
+    }
+    
+    var replayEventRelativeTime = new Date(replayEvent.timestamp).getTime() - replayStartEventTime;
+    var replayEventClockTime = replayStartClockTime + replayEventRelativeTime;
+    var eventDelay = util.clip(0, Number.MAX_VALUE, replayEventClockTime - new Date().getTime());
+    //util.log(replayEventRelativeTime + '  ' + eventDelay);
+
+    //util.log('Emit event: ' + JSON.stringify(replayEvent));
+    processReaderEvent(replayEvent);
+    
+    setTimeout(() => {
+      lineReader.resume();
+    }, eventDelay);
+  }      
 }
 
 // NOTE: we assume the fields do not contain commas, so every comma is a separator
@@ -574,7 +584,7 @@ function parseReplayEventCSV(csvLine : string) : ServerCommon.ReaderEvent {
     util.error('Error: csv line has incorrect nr. of fields:\n' + csvLine);
     return null;
   } else {
-    // check format of fields to prevent damage by read-line
+    // check format of fields, originally introduced to deal with buggy read-line package, but still useful as an extra check for correctness
     if (!(   /^'[0-9a-zA-Z]+$/.test(values[0])                  // [ "'005355d0000000000017c48" 
           && /^\d\d:\d\d:\d\d:\d\d\d$/.test(values[1])          // , "14:24:13:098" 
           && /^[a-z][a-z][a-z]\-\d+\-\d\d\d\d$/.test(values[2]) // , "jul-8-2014"
@@ -582,7 +592,6 @@ function parseReplayEventCSV(csvLine : string) : ServerCommon.ReaderEvent {
           && /^\-\d+$/.test(values[4])                          // , "-60"
           && /^$/.test(values[5]) && /^$/.test(values[6]) && /^$/.test(values[7]) && /^$/.test(values[8]) // , "", "", "", "" 
           && /^\d+\.\d+\.\d+\.\d+$/.test(values[9])             // , "10.0.0.32" ]
-          && (values[0].length == 24 || values[0].length == 33)
          )) {
       util.error('Error: csv line has an incorrect fields:\n' + csvLine);
       return null;
