@@ -485,6 +485,8 @@ var replayFileReader : any;
 var replayStartClockTime : number; // TODO explain + mention ms
 var replayStartEventTime : number;
 
+// TODO line-by-line is also buggy: async processing according to https://www.npmjs.org/package/line-by-line stops at the start of the last
+// chunk, meaning we lose the last 5 seconds of each replay and cannot replay files under 5 seconds (determined by nr of lines, so actual time may vary) 
 // TODO Quickly tapping the start-replay button hangs Firefox. Chrome is fine though. 
 // Note: filePath is relative to saveDirectoryPath and without .csv extension
 function startReplay(filePath : string, cont : {success : () => void; error : (message : string) => void}) {
@@ -503,7 +505,13 @@ function startReplay(filePath : string, cont : {success : () => void; error : (m
       util.log(err);
       cont.error(err);
     } else {
-      stopReplay();
+      // Because line-by-line does not distinguish automatic close (after error or eof) from user-initiated close, and the 'end' event
+      // is emited after a delay, we need to disable 'end' handling, since otherwise the new file reader will be cleared at this event.
+      if (replayFileReader) {
+        replayFileReader.removeAllListeners('end');    
+        replayFileReader.close();
+        clearReplay();
+      }
       
       state.tagsData = [];
       state.status.replayFileName = filePath;
@@ -513,21 +521,21 @@ function startReplay(filePath : string, cont : {success : () => void; error : (m
       
       replayFileReader = lineReader;
       
-      lineReader.on('error', function (err : Error) {
-        stopReplay();
-        util.error('lineReader error while reading \'' + filePath + '\'');
+      lineReader.on('error', (err : Error) => {
+        //clearReplay();
+        util.error('lineReader: error while reading \'' + filePath + '\'');
         util.error(err);
       });
       
-      lineReader.on('line', function (line : string) {
-        lineReader.pause();
-        readReplayEvent(line, lineReader); // replayFileReader is resumed by readReplayEvent()
+      lineReader.on('line', (line : string) => {
+        util.log('line');
+        lineReader.pause(); // replayFileReader is resumed by readReplayEvent()
+        readReplayEvent(line, lineReader);
       });
-      
-      lineReader.on('end', function () {
+        
+      lineReader.on('end', () => {
         util.log('Ending replay'); // TODO: apparently called several times
-        if (!replayFileReader)
-          clearReplay();
+        clearReplay();
       });
       cont.success();
     }
@@ -535,19 +543,18 @@ function startReplay(filePath : string, cont : {success : () => void; error : (m
 }
 
 function stopReplay() {
-  if (replayFileReader) {
+  if (replayFileReader)
     replayFileReader.close();
-    replayFileReader = null;
-  }
-  clearReplay();
 }
 
 function clearReplay() {
+  replayFileReader = null;
   state.tagsData = [];
   state.status.replayFileName = null;
   replayStartClockTime = null;
   replayStartEventTime = null;
 }
+
 function readReplayEvent(line : string, lineReader : any) {
   //util.log('Read replay line: ' + line);
   var replayEvent = parseReplayEventCSV(line);
