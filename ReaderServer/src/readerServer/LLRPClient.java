@@ -362,7 +362,10 @@ public class LLRPClient implements LLRPEndpoint {
   // This function gets called asynchronously
   // when an error occurs.
   public void errorOccured(String s) {
-    Util.log("Reader " + readerIP + ": An error occurred: " + s);
+    Util.log("\n\n\nReader " + readerIP + ": An unhandled error occurred: " + s);
+    Util.log("Terminating reader server.");
+    System.exit(1); // Sometimes LLRP yields java.io.IOExceptions, after which readers don't communicate anymore. Until we've found the cause,
+    // simply exit the reader server, which causes all reader connections to be closed, and triggers a respawn of the reader server process.
   }
    
   // Connect to the reader
