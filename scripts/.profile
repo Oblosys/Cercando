@@ -18,4 +18,7 @@ alias update-lucy="~/git/Cercando/scripts/updateCompileRestartLucyServer.sh --da
 alias update-reader="~/git/Cercando/scripts/updateCompileRestartReaderServer.sh --daemon"
 alias restart-lucy="~/git/Cercando/scripts/restartLucyServer.sh --daemon"
 alias restart-reader="~/git/Cercando/scripts/restartReaderServer.sh --daemon"
-
+alias unload-lucy="sudo launchctl unload /Library/LaunchDaemons/com.oblomov.lucyServer.plist"
+alias unload-reader="sudo launchctl unload /Library/LaunchDaemons/com.oblomov.readerServer.plist"
+alias load-lucy="sudo launchctl load /Library/LaunchDaemons/com.oblomov.lucyServer.plist"
+alias load-reader="sudo launchctl unload /Library/LaunchDaemons/com.oblomov.readerServer.plist"
