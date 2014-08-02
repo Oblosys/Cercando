@@ -348,6 +348,8 @@ public class LLRPClient implements LLRPEndpoint {
           Util.log("Reader " + readerIP + ": Unhandled reader event notification data in received message:");
           System.out.println(message.toXMLString());
         }
+      } else if (message.getTypeNum() == KEEPALIVE.TYPENUM) {
+        Util.log("Reader " + readerIP + ": KeepAlive received");
       } else {
         Util.log("Reader " + readerIP + ": Unhandled reader message received: "+message.getTypeNum());
         System.out.println(message.toXMLString());
@@ -377,6 +379,9 @@ public class LLRPClient implements LLRPEndpoint {
     {
       Util.log("Connecting to reader at " + readerIP + ".");
       reader.connect();
+      //Util.log("Ack " + reader.getHandler().isKeepAliveAck() + " Forward: " + reader.getHandler().isKeepAliveForward());
+      // isKeepAliveAck is already set to true by default
+      reader.getHandler().setKeepAliveForward(true);
     } catch (LLRPConnectionAttemptFailedException e) { // handled by messageReceived()
       //e.printStackTrace();
       //System.exit(1);
