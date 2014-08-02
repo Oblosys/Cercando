@@ -19,7 +19,7 @@ import org.llrp.ltk.types.*;
  * 
  */
 public class LLRPClient implements LLRPEndpoint {
-  private LLRPConnection reader;
+  private LLRPConnector reader;
   private static final int TIMEOUT_MS = 10000;
   private static final int ROSPEC_ID = 1;
    
@@ -376,7 +376,7 @@ public class LLRPClient implements LLRPEndpoint {
     try
     {
       Util.log("Connecting to reader at " + readerIP + ".");
-      ((LLRPConnector) reader).connect();
+      reader.connect();
     } catch (LLRPConnectionAttemptFailedException e) { // handled by messageReceived()
       //e.printStackTrace();
       //System.exit(1);
