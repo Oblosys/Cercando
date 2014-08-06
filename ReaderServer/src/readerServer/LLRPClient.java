@@ -436,6 +436,26 @@ public class LLRPClient implements LLRPEndpoint {
     }
   }
   
+  public void setReaderConfig() {
+    SET_READER_CONFIG_RESPONSE response;
+     
+    SET_READER_CONFIG cmd = new SET_READER_CONFIG();
+    
+    KeepaliveSpec keepaliveSpec = new KeepaliveSpec();
+    keepaliveSpec.setKeepaliveTriggerType(new KeepaliveTriggerType(KeepaliveTriggerType.Periodic));
+    keepaliveSpec.setPeriodicTriggerValue(new UnsignedInteger(1000));
+    cmd.setKeepaliveSpec(keepaliveSpec);
+    cmd.setResetToFactoryDefault(new Bit(0)); // Another undocumented magic parameter without which the command times out..
+    try {
+      response = (SET_READER_CONFIG_RESPONSE)reader.transact(cmd, TIMEOUT_MS);
+      System.out.println(response.toXMLString());
+    }
+    catch (Exception e) {
+      Util.log("Reader " + readerIP + ": Error setting reader configuration.");
+      e.printStackTrace();
+    }
+  }
+  
   // Not in any of the code samples, but essential for the reader to start transmitting
   public void enableEventsAndReports() { 
   	ENABLE_EVENTS_AND_REPORTS cmd = new ENABLE_EVENTS_AND_REPORTS();
@@ -454,7 +474,8 @@ public class LLRPClient implements LLRPEndpoint {
     Util.log("Initializing reader at " + readerIP + ".");
     connect(readerIP);
     getReaderCapabilities();
-    getReaderConfig();
+    //getReaderConfig();
+    //setReaderConfig();
     deleteROSpecs();
     addROSpec();
     enableROSpec();
