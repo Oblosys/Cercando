@@ -303,16 +303,16 @@ function connectReaderServer() {
     readerServerConnected(readerServerSocket);
   });
   readerServerSocket.on('error', function(err : any) { // TODO: not typed
-    util.log('Connection to reader server failed (error code: ' + err.code + '), retrying..');
+    logTs('Connection to reader server failed (error code: ' + err.code + '), retrying..');
     if (readerServerSocket) 
       readerServerSocket.destroy();
   });
   readerServerSocket.on('close', function() {
-    util.log('Connection closed');
+    logTs('Connection closed');
     destroySocketAndRetryConnection();
   });
 
-  util.log('Trying to connect to reader server on '+readerServerHostName+':'+readerServerPortNr);
+  logTs('Trying to connect to reader server on '+readerServerHostName+':'+readerServerPortNr);
   readerServerSocket.connect(readerServerPortNr, readerServerHostName);
 }
 
@@ -322,7 +322,7 @@ function destroySocketAndRetryConnection() {
     readerServerSocket.destroy(); // destroy socket if it wasn't already destroyed, just to make sure
   readerServerSocket = null;
   
-  util.log('Connection to reader server lost, reconnecting..');
+  logTs('Connection to reader server lost, reconnecting..');
   setTimeout(function() { // automatically try to reconnect
     connectReaderServer();
   }, reconnectInterval);
@@ -335,7 +335,7 @@ function showInvisibles(str : string) {
 
 function readerServerConnected(readerServerSocket : net.Socket) {
   state.status.isConnected = true;
-  util.log('Connected to reader server at: ' + readerServerHostName + ':' + readerServerPortNr);
+  logTs('Connected to reader server at: ' + readerServerHostName + ':' + readerServerPortNr);
   
   // raw data listener
   var lineBuffer = '';
