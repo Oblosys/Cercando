@@ -443,7 +443,7 @@ public class LLRPClient implements LLRPEndpoint {
     
     KeepaliveSpec keepaliveSpec = new KeepaliveSpec();
     keepaliveSpec.setKeepaliveTriggerType(new KeepaliveTriggerType(KeepaliveTriggerType.Periodic));
-    keepaliveSpec.setPeriodicTriggerValue(new UnsignedInteger(1000));
+    keepaliveSpec.setPeriodicTriggerValue(new UnsignedInteger(60 * 1000));
     cmd.setKeepaliveSpec(keepaliveSpec);
     cmd.setResetToFactoryDefault(new Bit(0)); // Another undocumented magic parameter without which the command times out..
     try {
@@ -475,7 +475,7 @@ public class LLRPClient implements LLRPEndpoint {
     connect(readerIP);
     getReaderCapabilities();
     //getReaderConfig();
-    //setReaderConfig();
+    setReaderConfig();
     deleteROSpecs();
     addROSpec();
     enableROSpec();
