@@ -418,8 +418,14 @@ public class LLRPClient implements LLRPEndpoint {
      
     GET_READER_CONFIG cmd = new GET_READER_CONFIG();
     cmd.setRequestedData(new GetReaderConfigRequestedData(GetReaderConfigRequestedData.All));
+    
+    // Need to request config for all antennas and ports, otherwise command will time out.
+    // See https://support.impinj.com/hc/communities/public/questions/201883788-Getting-Reader-Configuration-with-Java
+    cmd.setAntennaID(new UnsignedShort(0));
+    cmd.setGPIPortNum(new UnsignedShort(0));
+    cmd.setGPOPortNum(new UnsignedShort(0));
     try {
-      response = (GET_READER_CONFIG_RESPONSE)reader.transact(cmd, TIMEOUT_MS); // TODO: fails with a timeout exception for some reason
+      response = (GET_READER_CONFIG_RESPONSE)reader.transact(cmd, TIMEOUT_MS);
       System.out.println(response.toXMLString());
       return response;
     }
@@ -448,7 +454,7 @@ public class LLRPClient implements LLRPEndpoint {
     Util.log("Initializing reader at " + readerIP + ".");
     connect(readerIP);
     getReaderCapabilities();
-    //getReaderConfig(); // fails with timeout exception
+    getReaderConfig();
     deleteROSpecs();
     addROSpec();
     enableROSpec();
