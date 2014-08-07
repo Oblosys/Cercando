@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.mina.common.IoSession;
 import org.llrp.ltk.generated.enumerations.*;
 import org.llrp.ltk.generated.messages.*;
 import org.llrp.ltk.generated.parameters.*;
@@ -455,7 +456,7 @@ public class LLRPClient implements LLRPEndpoint {
   }
   
   public void setReaderConfig() {
-    SET_READER_CONFIG_RESPONSE response;
+    //SET_READER_CONFIG_RESPONSE response;
      
     SET_READER_CONFIG cmd = new SET_READER_CONFIG();
     
@@ -465,8 +466,9 @@ public class LLRPClient implements LLRPEndpoint {
     cmd.setKeepaliveSpec(keepaliveSpec);
     cmd.setResetToFactoryDefault(new Bit(0)); // Another undocumented magic parameter without which the command times out..
     try {
-      response = (SET_READER_CONFIG_RESPONSE)reader.transact(cmd, TIMEOUT_MS);
-      System.out.println(response.toXMLString());
+      /*response = (SET_READER_CONFIG_RESPONSE)*/reader.transact(cmd, TIMEOUT_MS);
+      //System.out.println(response.toXMLString());
+      // TODO: check status of response
     }
     catch (Exception e) {
       Util.log("Reader " + readerIP + ": Error setting reader configuration.");
