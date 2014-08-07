@@ -374,6 +374,24 @@ public class LLRPClient implements LLRPEndpoint {
   public void connect(String hostname){
     // Create the reader object.
     reader = new LLRPConnector(this, hostname);
+    
+    // Extra debug code to try and fix lost connections
+    LLRPIoHandlerAdapter handler = new LLRPIoHandlerAdapterImpl(reader){
+      @Override
+      public void sessionOpened(IoSession session) throws Exception {
+        Util.log("Session opened"); // we can store the session to check connection on the LLRPClient object 
+        super.sessionOpened(session);
+      }
+      
+      @Override
+      public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+        Util.log("Exception was caught (should be sent to errorOccured)");
+        super.exceptionCaught(session, cause);
+      }
+    };
+    reader.setHandler(handler);
+    // end of debug code
+    
     // Try connecting to the reader.
     try
     {
