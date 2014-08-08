@@ -528,7 +528,7 @@ function startReplay(filePath : string, cont : {success : () => void; error : (m
       });
       
       lineReader.on('line', (line : string) => {
-        util.log('line');
+        //util.log('line');
         lineReader.pause(); // replayFileReader is resumed by readReplayEvent()
         readReplayEvent(line, lineReader);
       });
