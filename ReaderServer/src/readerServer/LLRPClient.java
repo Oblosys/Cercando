@@ -379,7 +379,7 @@ public class LLRPClient implements LLRPEndpoint {
     // Extra debug code to try and fix lost connections
     LLRPIoHandlerAdapter handler = new LLRPIoHandlerAdapterImpl(reader){
       @Override
-      public void sessionOpened(IoSession session) throws Exception {
+      public void sessionOpened(IoSession session) throws Exception { // For some reason, this is also called when stopping the readers..
         Util.log("Session opened"); // we can store the session to check connection on the LLRPClient object 
         super.sessionOpened(session);
       }
