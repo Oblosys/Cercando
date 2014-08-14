@@ -24,6 +24,7 @@ public class Main {
   private static final String readerIPs[] = {"10.0.0.30","10.0.0.31","10.0.0.32"};
   private static final int readerServerPort = 8193;
 
+  private static final int CONNECTION_LOG_INTERVAL_MS = 60 * 1000; // Interval for logging reader connection status
   private static final int MONITOR_INTERVAL_MS = 1000; // Interval for checking reader keepalive age (should be larger than LLRPClient.KEEPALIVE_INTERVAL_MS)
   
   private static Vector<LLRPClient> llrpClients = new Vector<LLRPClient>();
@@ -70,6 +71,7 @@ public class Main {
 	    llrpClients.add(llrpClient);
 	  }
     Util.log("All readers initialized");
+    logReaderConnections();
     monitorReaders();
     
     while (true) {
@@ -120,6 +122,18 @@ public class Main {
         e.printStackTrace();
       }
     }
+  }
+  
+  private static void logReaderConnections() {
+    Timer uploadCheckerTimer = new Timer(true);
+    uploadCheckerTimer.scheduleAtFixedRate(
+        new TimerTask() {
+          public void run() { 
+            for (LLRPClient client : llrpClients) {
+              client.logConnectionReport();              
+            }
+          }
+        }, 0, CONNECTION_LOG_INTERVAL_MS);
   }
   
   // Exit reader server when for any of the readers, the keepalive event has not been received since last check.

@@ -23,12 +23,14 @@ public class LLRPClient implements LLRPEndpoint {
   private LLRPConnector reader;
   private static final int TIMEOUT_MS = 10000;
   private static final int ROSPEC_ID = 1;
-
   private static final int KEEPALIVE_INTERVAL_MS = 500; // Interval for keepalive events, should be smaller than Main.MONITOR_INTERVAL_MS
-  private static Date lastKeepAliveTimestamp = null;
-   
   public final String readerIP;
-  
+
+  private Date lastKeepAliveTimestamp = null;
+  private Date lastTimestamp = null;
+  private long nrOfReadEvents = 0;
+  private long nrOfReadEventsSinceLastReport = 0;
+
   public LLRPClient(String readerIP) {
     this.readerIP = readerIP;
   }
@@ -38,6 +40,13 @@ public class LLRPClient implements LLRPEndpoint {
     return (lastKeepAliveTimestamp != null) ? (new Date().getTime() - lastKeepAliveTimestamp.getTime()) : -1;
   }
   
+  public void logConnectionReport() {
+    Util.log("Reader " + readerIP + ": Socket connections: " + EventEmitter.getNrOfEmitters() +
+             " queue sizes: " + Util.showList(EventEmitter.getQueueSizes()));
+    Util.log("Reader " + readerIP + ": Nr of events: " + nrOfReadEventsSinceLastReport + 
+             " (total: "+nrOfReadEvents+")");
+    nrOfReadEventsSinceLastReport = 0;
+  }
   // Build the ROSpec.
   // An ROSpec specifies start and stop triggers,
   // tag report fields, antennas, etc.
@@ -240,8 +249,6 @@ public class LLRPClient implements LLRPEndpoint {
     }
   }
 
-  private static Date lastTimestamp = null;
-
   // This function gets called asynchronously from an anonymous thread when a tag report is available.
   public void messageReceived(LLRPMessage message) {
   	//Util.log("Message received");
@@ -251,24 +258,18 @@ public class LLRPClient implements LLRPEndpoint {
         // The message received is an Access Report.
         RO_ACCESS_REPORT report = (RO_ACCESS_REPORT) message;
    
+        nrOfReadEvents++;
+        nrOfReadEventsSinceLastReport++;
         
         Date newTimestamp = new Date();
         if (lastTimestamp == null)
           lastTimestamp = newTimestamp; // for first event, set last timestamp equal to new timestamp
         
         long msDiff = newTimestamp.getTime() - lastTimestamp.getTime(); // time since last read event in milliseconds
+        lastTimestamp = newTimestamp;
         //Util.log(msDiff);
         if (msDiff > 1000)
           Util.log("!!!!!!!!!! Reader " + readerIP + ":  Long delay between reader events: " + msDiff + "!!!!!!!!!!");
-        
-        int logInterval = 60*1000; // log active connections every 60 seconds
-        
-        if (newTimestamp.getTime() / logInterval != lastTimestamp.getTime() / logInterval) {
-          Util.log("Reader " + readerIP + ": Socket connections: " + EventEmitter.getNrOfEmitters() +
-                          " queue sizes: " + Util.showList(EventEmitter.getQueueSizes()));
-        }
-        lastTimestamp = newTimestamp;
-
         
         // Get a list of the tags read.
         List<TagReportData>  tags = report.getTagReportDataList();
