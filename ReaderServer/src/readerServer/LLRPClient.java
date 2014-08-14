@@ -27,7 +27,6 @@ public class LLRPClient implements LLRPEndpoint {
   public final String readerIP;
 
   private Date lastKeepAliveTimestamp = null;
-  private Date lastTimestamp = null;
   private long nrOfReadEvents = 0;
   private long nrOfReadEventsSinceLastReport = 0;
 
@@ -260,17 +259,9 @@ public class LLRPClient implements LLRPEndpoint {
    
         nrOfReadEvents++;
         nrOfReadEventsSinceLastReport++;
-        
-        Date newTimestamp = new Date();
-        if (lastTimestamp == null)
-          lastTimestamp = newTimestamp; // for first event, set last timestamp equal to new timestamp
-        
-        long msDiff = newTimestamp.getTime() - lastTimestamp.getTime(); // time since last read event in milliseconds
-        lastTimestamp = newTimestamp;
-        //Util.log(msDiff);
-        if (msDiff > 1000)
-          Util.log("!!!!!!!!!! Reader " + readerIP + ":  Long delay between reader events: " + msDiff + "!!!!!!!!!!");
-        
+            
+        Date timestamp = new Date();
+
         // Get a list of the tags read.
         List<TagReportData>  tags = report.getTagReportDataList();
         
@@ -296,7 +287,7 @@ public class LLRPClient implements LLRPEndpoint {
             ",\"ant\":" + tag.getAntennaID().getAntennaID().toString() +
             ",\"epc\":\"" + epcStr + "\"" +
             ",\"rssi\":" + tag.getPeakRSSI().getPeakRSSI().toString() +
-            ",\"timestamp\":\"" + dateFormat.format(newTimestamp) + "\"" +
+            ",\"timestamp\":\"" + dateFormat.format(timestamp) + "\"" +
             "}";
         	sendLine(json);
             //System.out.println(tag.getEPCParameter());
