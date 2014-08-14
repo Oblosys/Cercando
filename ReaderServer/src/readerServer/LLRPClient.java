@@ -23,11 +23,19 @@ public class LLRPClient implements LLRPEndpoint {
   private LLRPConnector reader;
   private static final int TIMEOUT_MS = 10000;
   private static final int ROSPEC_ID = 1;
+
+  private static final int KEEPALIVE_INTERVAL_MS = 500; // Interval for keepalive events, should be smaller than Main.MONITOR_INTERVAL_MS
+  private static Date lastKeepAliveTimestamp = null;
    
-  private String readerIP;
+  public final String readerIP;
   
   public LLRPClient(String readerIP) {
     this.readerIP = readerIP;
+  }
+  
+  // Return the nr of milliseconds since we last received a keepalive from the reader, or -1 if no keepalive was received yet.
+  public long getTimeSinceKeepalive() {
+    return (lastKeepAliveTimestamp != null) ? (new Date().getTime() - lastKeepAliveTimestamp.getTime()) : -1;
   }
   
   // Build the ROSpec.
@@ -350,7 +358,8 @@ public class LLRPClient implements LLRPEndpoint {
           System.out.println(message.toXMLString());
         }
       } else if (message.getTypeNum() == KEEPALIVE.TYPENUM) {
-        Util.log("Reader " + readerIP + ": KeepAlive received");
+        //Util.log("Reader " + readerIP + ": KeepAlive received");
+        lastKeepAliveTimestamp = new Date();
       } else {
         Util.log("Reader " + readerIP + ": Unhandled reader message received: "+message.getTypeNum());
         System.out.println(message.toXMLString());
@@ -462,7 +471,7 @@ public class LLRPClient implements LLRPEndpoint {
     
     KeepaliveSpec keepaliveSpec = new KeepaliveSpec();
     keepaliveSpec.setKeepaliveTriggerType(new KeepaliveTriggerType(KeepaliveTriggerType.Periodic));
-    keepaliveSpec.setPeriodicTriggerValue(new UnsignedInteger(60 * 1000));
+    keepaliveSpec.setPeriodicTriggerValue(new UnsignedInteger(KEEPALIVE_INTERVAL_MS));
     cmd.setKeepaliveSpec(keepaliveSpec);
     cmd.setResetToFactoryDefault(new Bit(0)); // Another undocumented magic parameter without which the command times out..
     try {
