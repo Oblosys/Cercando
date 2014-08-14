@@ -128,7 +128,10 @@ public class Main {
     Timer uploadCheckerTimer = new Timer(true);
     uploadCheckerTimer.scheduleAtFixedRate(
         new TimerTask() {
-          public void run() { 
+          public void run() {
+            Util.log("Socket connections: " + EventEmitter.getNrOfEmitters() +
+                " queue sizes: " + Util.showList(EventEmitter.getQueueSizes()));
+
             for (LLRPClient client : llrpClients) {
               client.logConnectionReport();              
             }

@@ -40,8 +40,6 @@ public class LLRPClient implements LLRPEndpoint {
   }
   
   public void logConnectionReport() {
-    Util.log("Reader " + readerIP + ": Socket connections: " + EventEmitter.getNrOfEmitters() +
-             " queue sizes: " + Util.showList(EventEmitter.getQueueSizes()));
     Util.log("Reader " + readerIP + ": Nr of events: " + nrOfReadEventsSinceLastReport + 
              " (total: "+nrOfReadEvents+")");
     nrOfReadEventsSinceLastReport = 0;
