@@ -4,6 +4,8 @@ import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 /**
@@ -21,6 +23,8 @@ public class Main {
    * */
   private static final String readerIPs[] = {"10.0.0.30","10.0.0.31","10.0.0.32"};
   private static final int readerServerPort = 8193;
+
+  private static final int MONITOR_INTERVAL_MS = 1000; // Interval for checking reader keepalive age (should be larger than LLRPClient.KEEPALIVE_INTERVAL_MS)
   
   private static Vector<LLRPClient> llrpClients = new Vector<LLRPClient>();
  
@@ -66,6 +70,7 @@ public class Main {
 	    llrpClients.add(llrpClient);
 	  }
     Util.log("All readers initialized");
+    monitorReaders();
     
     while (true) {
       Util.log("Waiting for client connection on " + port);
@@ -114,9 +119,25 @@ public class Main {
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
-
     }
-
+  }
   
+  // Exit reader server when for any of the readers, the keepalive event has not been received since last check.
+  private static void monitorReaders() {
+    Timer uploadCheckerTimer = new Timer(true);
+    uploadCheckerTimer.scheduleAtFixedRate(
+        new TimerTask() {
+          public void run() { 
+            for (LLRPClient client : llrpClients) {
+              long timeSinceKeepalive = client.getTimeSinceKeepalive();
+              //Util.log(client.readerIP + " " + timeSinceKeepalive);
+              
+              if (timeSinceKeepalive > MONITOR_INTERVAL_MS) { 
+                Util.log("Reader " + client.readerIP + ": No keepalive since previous monitor check.");
+                System.exit(1);
+              }              
+            }
+          }
+        }, 0, MONITOR_INTERVAL_MS);
   }
 }
