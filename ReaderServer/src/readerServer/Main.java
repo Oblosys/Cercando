@@ -66,7 +66,7 @@ public class Main {
 	    llrpClients.add(llrpClient);
 	  }
     Util.log("All readers initialized");
-    /*
+    
     while (true) {
       Util.log("Waiting for client connection on " + port);
       
@@ -87,7 +87,7 @@ public class Main {
         Util.log("Error in main loop:\n" + e.getMessage());
         System.exit(1);
       }
-    }*/
+    }
 	}
   
   @SuppressWarnings("unused")
