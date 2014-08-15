@@ -150,8 +150,8 @@ public class Main {
               //Util.log(client.readerIP + " " + timeSinceKeepalive);
               
               if (timeSinceKeepalive > MONITOR_INTERVAL_MS) { 
-                Util.log("Reader " + client.readerIP + ": No keepalive since previous monitor check.");
-                System.exit(1);
+                Util.log("Reader " + client.readerIP + ": Keepalive delayed (last one " + timeSinceKeepalive + "ms ago)");
+                //System.exit(1);
               }              
             }
           }
