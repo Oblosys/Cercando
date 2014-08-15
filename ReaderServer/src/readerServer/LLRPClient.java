@@ -512,7 +512,7 @@ public class LLRPClient implements LLRPEndpoint {
   }
   
   private void sendLine(String message) {
-    EventEmitter.queueEventOnAllEmitters(message);
+    //EventEmitter.queueEventOnAllEmitters(message);
   }
  
 }

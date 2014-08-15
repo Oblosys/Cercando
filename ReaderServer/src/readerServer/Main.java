@@ -73,7 +73,7 @@ public class Main {
     Util.log("All readers initialized");
     logReaderConnections();
     monitorReaders();
-    
+    /*
     while (true) {
       Util.log("Waiting for client connection on " + port);
       
@@ -95,6 +95,7 @@ public class Main {
         System.exit(1);
       }
     }
+    */
 	}
   
   @SuppressWarnings("unused")
