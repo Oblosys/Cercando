@@ -60,7 +60,7 @@ public class Main {
       serversocket = new ServerSocket(port);
     } catch (Exception e) {
 	    System.err.println("Error:" + e.getMessage());
-	    return;
+      System.exit(1);
 	  }
 	  Util.log("Initializing "+readerIPs.length + " reader" + (readerIPs.length>1 ? "s" : "") +
 	           " at IP adress" + (readerIPs.length>1 ? "es" : "") + ": ");
