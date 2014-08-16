@@ -3,9 +3,9 @@ export PS1='\[\033[1;36m\]Lucy:\w> \[\033[0m\]'
 export EDITOR=emacs
 
 export HISTCONTROL=ignoredups
-# arrow keys select in history
-bind '"[A":history-search-backward'
-bind '"[B":history-search-forward'
+# arrow keys select in history. Note: create ^[[A and ^[[B in nano with verbatim mode ESC-V Arrow Up/Down
+bind '"[A":history-search-backward'
+bind '"[B":history-search-forward'
 
 alias ls="ls -al"
 alias lss="/bin/ls"
