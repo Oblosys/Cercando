@@ -1,9 +1,9 @@
 package readerServer;
+
 import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -45,15 +45,7 @@ public class Main {
       }
     });
     
-    //startServer(readerServerPort);
-    nasLogTimingTest();
-    while (true)
-      try {
-        Thread.sleep(60000);
-      } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
+    startServer(readerServerPort);
     //test();
   }
 
@@ -167,20 +159,5 @@ public class Main {
             }
           }
         }, 0, MONITOR_INTERVAL_MS);
-  }
-  
-  static long counter;
-  static long previousLogDurationMs = 0;
-  
-  public static void nasLogTimingTest() {
-    Timer uploadCheckerTimer = new Timer(true);
-    uploadCheckerTimer.scheduleAtFixedRate(
-        new TimerTask() {
-          public void run() {
-            long timeBeforeLogMs = new Date().getTime();
-            Util.log("Previous log took: " + previousLogDurationMs + "ms (#" + counter + ")");
-            previousLogDurationMs = new Date().getTime() - timeBeforeLogMs;
-          }
-        }, 0, 1*1000);
   }
 }
