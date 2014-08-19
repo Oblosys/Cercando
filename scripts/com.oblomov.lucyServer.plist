@@ -17,7 +17,7 @@
         </dict>
     </dict>
     <key>StandardOutPath</key>
-    <string/Users/martijn/lucyLogs/lucyServer.log</string>
+    <string>/Users/martijn/lucyLogs/lucyServer.log</string>
     <key>StandardErrorPath</key>
     <string>/Users/martijn/lucyLogs/lucyServer.log</string>
     <key>UserName</key>
