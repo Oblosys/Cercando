@@ -1,8 +1,10 @@
 # To be copied to /etc/
 # and activated by adding the following line (without #) to /etc/auto_master:
-# /mnt/LucySynology      auto_lucy
+# /Users/martijn/mount/LucySynology       auto_lucy
 
-# We use /mnt instead of /Volumes as OS X doesn't automatically create a directory for the mountpoint in /Volumes.
-# In contrast, /mnt/LucySynology is created when needed.
+# We use mount in user dir instead of /Volumes as OS X doesn't automatically create a directory 
+# for the mountpoint in /Volumes. In contrast, /mnt/LucySynology is created when needed. The mount point
+# needs to be in a user directory, since otherwise OS X sometimes only sets root-only acces permissions.
 
 web -fstype=afp afp://admin:admin@10.0.0.20/web
+
