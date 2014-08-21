@@ -9,13 +9,7 @@
         <string>/Users/martijn/git/Cercando/scripts/startReaderServer.sh</string>
     </array>
     <key>KeepAlive</key>
-    <dict>
-        <key>PathState</key>
-        <dict>
-            <key>/mnt/LucySynology/web</key>
-            <true/>
-        </dict>
-    </dict>
+    <true/>
     <key>StandardOutPath</key>
     <string>/Users/martijn/lucyLogs/readerServer.log</string>
     <key>StandardErrorPath</key>
