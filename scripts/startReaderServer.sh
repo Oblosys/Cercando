@@ -1,6 +1,8 @@
 export PATH=/usr/local/bin:$PATH
 cd ~/git/Cercando
 
+echo -e "\n\n########## startReaderServer.sh: Starting Reader server"
+
 # The reader server does not access the NAS, so unlike the Lucy server we do not need to wait
 # until it has mounted, unless we start logging to the NAS again. Logging to the NAS is probably not
 # a good idea though, since any interruptions in the connection may completely stop all logging.
