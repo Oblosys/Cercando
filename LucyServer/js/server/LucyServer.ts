@@ -4,6 +4,7 @@
 /// <reference path="../typings/node/node.d.ts" />
 /// <reference path="../typings/express/express.d.ts" />
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
+/// <reference path="./File.ts" />
 /// <reference path="./Trilateration.ts" />
 /// <reference path="./Config.ts" />
 /// <reference path="../shared/Shared.ts" />
@@ -43,10 +44,10 @@ import Backbone = require('backbone');
 
 import _        = require('underscore');
 import path     = require('path');
+import file          = require('./File');  
 import trilateration = require('./Trilateration');
-import Config   = require('./Config');
-import ServerCommon   = require('./ServerCommon');
-
+import Config        = require('./Config');
+import ServerCommon  = require('./ServerCommon');
 var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 
 // Libraries without TypeScript definitions:
@@ -224,7 +225,7 @@ function initExpress() {
     res.setHeader('content-type', 'application/json');
     logTs('Getting replay directory structure')
     var replayInfo : Shared.ReplayInfo =
-      { contents: getRecursiveDirContents(saveDirectoryPath) }; 
+      { contents: file.getRecursiveDirContents(saveDirectoryPath) }; 
       //{ contents: [ { name: '7', contents: [ { name: '1', contents: [{name: '10.45', contents: []}, {name: '11.00', contents: []}] }, { name: '2', contents: [{name: '11.45', contents: []}, {name: '12.00', contents: []}] } ] }
       //            , { name: '8', contents: [ { name: '3', contents: [{name: '13.45', contents: []}, {name: '14.00', contents: []}] }, { name: '4', contents: [{name: '14.45', contents: []}, {name: '15.00', contents: []}] } ] }
       //            ] }
@@ -374,11 +375,11 @@ function readerServerConnected(readerServerSocket : net.Socket) {
 }
 
 function startSaving(filePath : string, cont : {success : () => void; error : (message : string) => void}) {
-  if (!isSafeFilePath(filePath))
+  if (!file.isSafeFilePath(filePath))
     cont.error('Invalid file path: "'+filePath+'"\nMay only contain letters, digits, spaces, and these characters: \'(\' \')\' \'-\' \'_\'');
   else {
     var fullFilename = userSaveDirectoryPath + '/' + filePath+'.csv';
-    mkUniqueFilePath(fullFilename, (uniqueFilePath) => {
+    file.mkUniqueFilePath(fullFilename, (uniqueFilePath) => {
       outputFileStream = fs.createWriteStream(uniqueFilePath);
       outputFileStream.on('error', function(err : Error) {
         util.log('Start-saving failed: ' + err.message);
@@ -458,29 +459,6 @@ function logReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   outputStreamWriteReaderEvent(eventLogFileStream, readerEvent);
 }
 
-// Recursively get the directory trees starting at pth
-// TODO: should be async, since we're running on the web server
-function getRecursiveDirContents(pth : string) : Shared.DirEntry[] {
-  try {
-    var names = _(fs.readdirSync(pth)).filter(name => {return _.head(name) != '.'}); // filter out names starting with '.'
-    
-    var entries = _(names).map(name => {
-        var contents = [];
-        if (fs.statSync(path.join(pth, name)).isDirectory()) {
-          contents = getRecursiveDirContents(path.join(pth, name));
-        } else {
-          name = path.basename(name, '.csv'); // Drop .csv extension (other extensions should not exist, so we leave them to show the error)
-        }
-        return { name: name, contents:  contents };
-      });
-    
-    return entries;
-   } catch (e) {
-     util.error('getRecursiveDirContents: Error reading directory ' + pth + '\n' + e);
-     return [];
-   }  
-}
-
 var replayFileReader : any;
 var replayStartClockTime : number; // TODO explain + mention ms
 var replayStartEventTime : number;
@@ -491,7 +469,7 @@ var replayStartEventTime : number;
 // Note: filePath is relative to saveDirectoryPath and without .csv extension
 function startReplay(filePath : string, cont : {success : () => void; error : (message : string) => void}) {
   util.log('Start-replay request for filename ' + filePath);
-  if (!isSafeFilePath(filePath.replace(/[\/,\.]/g,''))) { // first remove / and ., which are allowed in replay file paths
+  if (!file.isSafeFilePath(filePath.replace(/[\/,\.]/g,''))) { // first remove / and ., which are allowed in replay file paths
     // This is safe as long as we only open the file within the server and try to parse it as csv, when csv can be downloaded we need stricter
     // safety precautions.
     cont.error('Invalid file path: "'+filePath+'"\nMay only contain letters, digits, spaces, and these characters: \'(\' \')\' \'-\' \'_\'  \'/\'  \'.\'');
@@ -833,47 +811,6 @@ function getAntennaNr(antennaId : Shared.AntennaId) {
   return -1;
 }
 
-// Only allow letters, digits, and slashes
-function isSafeFilePath(filePath : string) : boolean {
-  return /^[a-zA-Z0-9" "\(\)\-\_]+$/.test(filePath);
-}
-
-function mkUniqueFilePath(fullFilePath : string, success : (uniqueFilePath : string) => any) {
-  var pathNameArr = fullFilePath.match(/(.*)\/([^\/]*$)/); // split on last /
-  if (!pathNameArr || pathNameArr.length != 3) { // [fullFilePath, path, name]   
-  } else {
-    var filePath = pathNameArr[1];
-    var filenameExt = pathNameArr[2];
-    var nameExtArr = filenameExt.match(/(.*)\.([^\.]*$)/); // split on last .
-    var filename : string;
-    var ext : string;
-    if (nameExtArr && nameExtArr.length == 3) {
-      filename = nameExtArr[1];
-      ext = '.'+nameExtArr[2];
-    } else {
-      filename = filenameExt;
-      ext = '';
-    }
-    fs.readdir(pathNameArr[1], (err, files) => {
-      if (err) {
-        util.error('Error on readdir in mkUniqueFilename: ' + err);
-      } else {
-        util.log(files, filename, ext);
-        if (!(_(files).contains(filename + ext))) 
-          success(fullFilePath); // the suggested name does not already exist
-        else {
-          var filenameIndexed : string;
-          var i = 1;
-          do { // try a higher index until the name is not in the directory
-            filenameIndexed = filename + ' (' + i++ + ')' + ext;
-            util.log('filenameIndexed' + filenameIndexed);
-          } while (_(files).contains(filenameIndexed))
-          success( filePath + '/' + filenameIndexed);
-        }  
-      }
-    });
-  }
-}
 
 function logTs(msg : string) {
   var date = new Date();
