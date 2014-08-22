@@ -51,8 +51,13 @@ module Shared {
                            ; metaData : TagMetaData }[]
   
   // Format for communicating with diColore servers
-  export interface TagLocations { timestamp : string; tagLocations : { epc : string ; x : number; y : number}[] }; 
+  export interface TagLocations { timestamp : string; tagLocations : { epc : string ; x : number; y : number}[] } 
   
+  // Format for communicating with diColore servers
+  export interface TagDistances {antennaData : { antennaName : string
+                                               ; tagDistances : { epc: string
+                                                                ; rssi: number
+                                                                ; distance : number}[] }[] }  
   
   export interface ServerState {
     status : { isConnected : boolean; isSaving : boolean; readerServerTime : string; replayFileName : string }

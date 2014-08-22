@@ -270,7 +270,36 @@ function initExpress() {
     res.setHeader('content-type', 'application/json');
     res.send(JSON.stringify(tagLocations));
   });
-  
+
+  // For communicating with Di Colore software
+  app.get('/query/short-mid-tag-distances', function(req, res) {
+    positionAllTags(); // TODO: keep track of positioned tags, to prevent recomputation
+    // TODO: maybe enforce distance in AntennaRssi, then we don't even need to do positioning at all for this function
+    // sparse array for keeping track of tags per antenna (we keep 
+    var allAntennaTags : { epc:string; rssi:number; distance:number}[][] = util.replicate(allAntennas.length, []);
+        
+    _(state.tagsData).each(tag => {
+      _(tag.antennaRssis).each(antRssi => {
+        util.log(tag.epc + ' ' + JSON.stringify(antRssi));
+        if (allAntennas[antRssi.antNr].shortMidRangeTarget!=null && antRssi.age < 0.5) // TODO: use better way to clear short/mid faster than normal antennas, or use constant
+          // TODO: age seems incorrect: always 0 except for the last entry  
+          allAntennaTags[antRssi.antNr].push({epc: tag.epc, rssi: antRssi.value, distance: antRssi.distance});
+      }); 
+    });
+
+    var allAntennaData: { antennaName:string; tagDistances : { epc:string; rssi:number; distance:number}[] }[] =
+      _(allAntennaTags).map((tagsInRange, antennaNr) => {
+        return {antennaName: allAntennas[antennaNr].name, tagDistances: tagsInRange};
+      });
+
+    // filter short/midrange antennas from sparse array
+    var shortMidRangAntennaData = _(allAntennaData).filter((antenna, antennaNr) => {return allAntennas[antennaNr].shortMidRangeTarget != null});
+    
+    var tagDistances : Shared.TagDistances = {antennaData: shortMidRangAntennaData};
+    res.setHeader('content-type', 'application/json');
+    res.send(JSON.stringify(tagDistances));
+  });
+
   app.get('/query/test', function(req, res) {  
     util.log('test');
     res.setHeader('content-type', 'text/plain');
