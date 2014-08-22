@@ -1,7 +1,7 @@
 export PATH=/usr/local/bin:$PATH
 cd ~/git/Cercando
 
-echo -e "\n\n########## startLucyServer.sh: Starting Lucy server"
+echo "\n\n########## startLucyServer.sh: Starting Lucy server"
 
 # make sure Synology NAS is mounted before starting the server
 ./scripts/waitUntilNasMounted.sh
