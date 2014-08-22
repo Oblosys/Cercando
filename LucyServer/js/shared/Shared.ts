@@ -50,6 +50,10 @@ module Shared {
                            ; coordinate? : { coord: {x : number; y : number}; isRecent : boolean } 
                            ; metaData : TagMetaData }[]
   
+  // Format for communicating with diColore servers
+  export interface TagLocations { timestamp : string; tagLocations : { epc : string ; x : number; y : number}[] }; 
+  
+  
   export interface ServerState {
     status : { isConnected : boolean; isSaving : boolean; readerServerTime : string; replayFileName : string }
     selectedAntennaLayoutNr : number

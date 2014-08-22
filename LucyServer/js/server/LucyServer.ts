@@ -256,7 +256,20 @@ function initExpress() {
     res.end();
   });
 
-
+  // For communicating with Di Colore software
+  app.get('/query/tag-locations', function(req, res) {
+    positionAllTags(); // TODO: keep track of positioned tags, to prevent recomputation
+    var locations : {epc:string; x:number; y:number}[] = [];
+    _(state.tagsData).each(tag => {
+        if (tag.coordinate) { // in case no location was computed yet (TODO: may be unnecessary when we keep track of positioned tags)
+          locations.push({epc: tag.epc, x:+tag.coordinate.coord.x.toFixed(2), y:+tag.coordinate.coord.y.toFixed(2)}) 
+        }
+    });
+    var now = new Date();
+    var tagLocations : Shared.TagLocations = { timestamp: util.showDate(now) + ' ' + util.showTime(now), tagLocations: locations}
+    res.setHeader('content-type', 'application/json');
+    res.send(JSON.stringify(tagLocations));
+  });
   
   app.get('/query/test', function(req, res) {  
     util.log('test');
