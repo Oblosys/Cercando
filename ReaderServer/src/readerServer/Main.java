@@ -151,7 +151,7 @@ public class Main {
               
               if (timeSinceKeepalive > MONITOR_INTERVAL_MS) { 
                 Util.log("Reader " + client.readerIP + ": Keepalive delayed (last one " + timeSinceKeepalive + "ms ago)");
-                if (timeSinceKeepalive > 10*MONITOR_INTERVAL_MS) { 
+                if (timeSinceKeepalive > 3*MONITOR_INTERVAL_MS) { 
                   System.exit(1);
                 }
               }              
