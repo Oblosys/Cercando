@@ -280,7 +280,7 @@ function initExpress() {
         
     _(state.tagsData).each(tag => {
       _(tag.antennaRssis).each(antRssi => {
-        util.log(tag.epc + ' ' + JSON.stringify(antRssi));
+        //util.log(tag.epc + ' ' + JSON.stringify(antRssi));
         if (allAntennas[antRssi.antNr].shortMidRangeTarget!=null && antRssi.age < 0.5) // TODO: use better way to clear short/mid faster than normal antennas, or use constant
           // TODO: age seems incorrect: always 0 except for the last entry  
           allAntennaTags[antRssi.antNr].push({epc: tag.epc, rssi: antRssi.value, distance: antRssi.distance});
