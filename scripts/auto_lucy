@@ -1,6 +1,6 @@
 # To be copied to /etc/
 # and activated by adding the following line (without #) to /etc/auto_master:
-# /Users/martijn/mount/LucySynology       auto_lucy
+# /Users/NHMR/mount/LucySynology       auto_lucy
 
 # We use mount in user dir instead of /Volumes as OS X doesn't automatically create a directory 
 # for the mountpoint in /Volumes. In contrast, /mnt/LucySynology is created when needed. The mount point
