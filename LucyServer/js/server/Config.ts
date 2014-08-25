@@ -641,7 +641,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
     , tagConfiguration: 
         []
     };
-  return [groningenHorizontaal, groningenSchuin, rotterdamOpening, rotterdamOpeningMM, rotterdam];
+  return [rotterdamOpening, rotterdamOpeningMM, rotterdam];
 }
 
 function scaleAndTranslate( scale : number, translationX : number, translationY : number
