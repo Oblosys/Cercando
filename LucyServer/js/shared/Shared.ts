@@ -69,7 +69,7 @@ module Shared {
   export function initialServerState() : ServerState {
     return {
       status: {isConnected: false, isSaving: false, readerServerTime: null, replayFileName: null}, // replayFileName is relative to saveDirectoryPath and without .csv extension
-      selectedAntennaLayoutNr: 2,
+      selectedAntennaLayoutNr: 0,
       tagsData: [],
       unknownAntennaIds: []
     };
