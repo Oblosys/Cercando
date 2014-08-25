@@ -24,7 +24,7 @@ public class Main {
   private static final String readerIPs[] = {"10.0.0.30","10.0.0.31","10.0.0.32","10.0.0.33"};
   private static final int readerServerPort = 8193;
 
-  private static final int CONNECTION_LOG_INTERVAL_MS = 1 * 60 * 1000; // Interval for logging reader connection status
+  private static final int CONNECTION_LOG_INTERVAL_MS = 10 * 60 * 1000; // Interval for logging reader connection status
   private static final int MONITOR_INTERVAL_MS = 1000; // Interval for checking reader keepalive age (should be larger than LLRPClient.KEEPALIVE_INTERVAL_MS)
   
   private static Vector<LLRPClient> llrpClients = new Vector<LLRPClient>();
