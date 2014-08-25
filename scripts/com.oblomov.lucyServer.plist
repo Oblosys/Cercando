@@ -6,19 +6,19 @@
     <string>com.oblomov.lucyServer</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/martijn/git/Cercando/scripts/startLucyServer.sh</string>
+        <string>/Users/NHMR/git/Cercando/scripts/startLucyServer.sh</string>
     </array>
     <key>KeepAlive</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>/Users/martijn/lucyLogs/lucyServer.log</string>
+    <string>/Users/NHMR/lucyLogs/lucyServer.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/martijn/lucyLogs/lucyServer.log</string>
+    <string>/Users/NHMR/lucyLogs/lucyServer.log</string>
     <key>UserName</key>
-    <string>martijn</string>
+    <string>NHMR</string>
 </dict>
 </plist>
 <!-- For installation, create a root copy of this file in /Library/LaunchDaemons/ with:
-sudo cp /Users/martijn/git/Cercando/scripts/com.oblomov.lucyServer.plist /Library/LaunchDaemons/
+sudo cp /Users/NHMR/git/Cercando/scripts/com.oblomov.lucyServer.plist /Library/LaunchDaemons/
 sudo launchctl load /Library/LaunchDaemons/com.oblomov.lucyServer.plist
 -->
