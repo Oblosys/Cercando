@@ -20,7 +20,7 @@ var presentationServerPortNr = 8199;
 
 var db_config = {
     host:'10.0.0.20', // replaced by 'localhost' when remoteReader paramater is given
-    user: 'lucy',
+    user: 'NHMR',
     password: '',
     database: 'lucy_test',
     connectTimeout: 5000
