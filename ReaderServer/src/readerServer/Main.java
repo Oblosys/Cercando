@@ -21,7 +21,7 @@ public class Main {
    * Mac: C4:7D:CC:06:BF:EB  IP: 10.0.0.32
    * Mac: 00:23:68:F1:54:C2  IP: 10.0.0.33 (Currently in Groningen)
    * */
-  private static final String readerIPs[] = {"10.0.0.30","10.0.0.31","10.0.0.32"};
+  private static final String readerIPs[] = {"10.0.0.30","10.0.0.31","10.0.0.32","10.0.0.33"};
   private static final int readerServerPort = 8193;
 
   private static final int CONNECTION_LOG_INTERVAL_MS = 10 * 60 * 1000; // Interval for logging reader connection status
