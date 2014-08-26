@@ -29,6 +29,7 @@ var db_config = {
 var reconnectInterval = 2000; // time in ms to wait before trying to reconnect to the reader server
 var useSmoother = true;
 var lucyDataDirectoryPath = process.env['HOME'] + '/lucyData';
+var lucyLogDirectoryPath = process.env['HOME'] + '/lucyLogs';
 var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
 var userSaveDirectoryPath = saveDirectoryPath + '/userSave';
 var autoSaveDirectoryPath = saveDirectoryPath + '/autoSave';
@@ -124,6 +125,8 @@ function initExpress() {
   app.use('/js/node_modules', express.static(__dirname + '/../node_modules'));
   app.use('/data', express.directory(lucyDataDirectoryPath));
   app.use('/data', express.static(lucyDataDirectoryPath));
+  app.use('/logs', express.directory(lucyLogDirectoryPath));
+  app.use('/logs', express.static(lucyLogDirectoryPath));
   app.get('/', function(req, res) { res.redirect('/locator.html'); }); // redirect '/' to '/locator.html'
   app.use(express.static(__dirname + '/../../www')); //  serve 'www' directory as root directory
 
