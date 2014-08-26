@@ -22,7 +22,7 @@ module Shared {
 
   export interface ShortMidRangeTarget { isShortRange : boolean; serverIp : string; antennaIndex : number }
   
-  export interface AntennaSpec { name? : string; coord : Coord; shortMidRangeTarget? : ShortMidRangeTarget }
+  export interface AntennaSpec { name : string; coord : Coord; shortMidRangeTarget? : ShortMidRangeTarget }
 
   export interface AntennaId { readerIp : string; antennaNr : number }
   
