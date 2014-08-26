@@ -204,7 +204,7 @@ function initExpress() {
 
 function setAntennaLayout(nr : number) {
   state.selectedAntennaLayoutNr = util.clip(0, allAntennaLayouts.length-1, nr);
-  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr].readerAntennaSpecs);
+  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr]);
   state.tagsData = [];
   state.unknownAntennaIds = [];
 }

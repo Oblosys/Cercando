@@ -285,7 +285,7 @@ function initExpress() {
     _(state.tagsData).each(tag => {
       _(tag.antennaRssis).each(antRssi => {
         //util.log(tag.epc + ' ' + JSON.stringify(antRssi));
-        if (allAntennas[antRssi.antNr].shortMidRangeTarget!=null && antRssi.age < 0.5) // TODO: use better way to clear short/mid faster than normal antennas, or use constant
+        if (allAntennas[antRssi.antNr].shortMidRange!=null && antRssi.age < 0.5) // TODO: use better way to clear short/mid faster than normal antennas, or use constant
           // TODO: age seems incorrect: always 0 except for the last entry  
           allAntennaTags[antRssi.antNr].push({epc: tag.epc, rssi: antRssi.value, distance: antRssi.distance});
       }); 
@@ -297,7 +297,7 @@ function initExpress() {
       });
 
     // filter short/midrange antennas from sparse array
-    var shortMidRangAntennaData = _(allAntennaData).filter((antenna, antennaNr) => {return allAntennas[antennaNr].shortMidRangeTarget != null});
+    var shortMidRangAntennaData = _(allAntennaData).filter((antenna, antennaNr) => {return allAntennas[antennaNr].shortMidRange != null});
     
     var tagDistances : Shared.TagDistances = {antennaData: shortMidRangAntennaData};
     res.setHeader('content-type', 'application/json');
@@ -314,7 +314,7 @@ function initExpress() {
 
 function setAntennaLayout(nr : number) {
   state.selectedAntennaLayoutNr = util.clip(0, allAntennaLayouts.length-1, nr);
-  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr].readerAntennaSpecs);
+  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr]);
   state.tagsData = [];
   state.unknownAntennaIds = [];
 }
@@ -683,8 +683,9 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
     updateAntennaRssi(newAntennaRssi, tag.antennaRssis);
     //trilateration.getDistanceForRssi(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI);
     //util.log(tagsState);
-    if (allAntennas[antNr].shortMidRangeTarget) {
-      var shortMidRangeTarget = allAntennas[antNr].shortMidRangeTarget;
+    if (allAntennas[antNr].shortMidRange) {
+      var shortMidRange = allAntennas[antNr].shortMidRange;
+      //TODO: obsolete
       //signalPresentationServer(shortMidRangeTarget.serverIp, shortMidRangeTarget.antennaIndex, readerEvent.epc);
     }
   }
@@ -747,8 +748,8 @@ function positionAllTags() {
   // compute coordinate for each tag
   _(state.tagsData).each((tag) => {
     var shortMidRangeRssi = _(tag.antennaRssis).find((antennaRssi) => {
-      var shortMidRangeTarget = allAntennas[antennaRssi.antNr].shortMidRangeTarget;
-      return shortMidRangeTarget != null && shared.isRecentAntennaRSSI(antennaRssi);
+      var shortMidRange = allAntennas[antennaRssi.antNr].shortMidRange;
+      return shortMidRange != null && shared.isRecentAntennaRSSI(antennaRssi);
     });
     if (shortMidRangeRssi && shortMidRangeRssi.value > shared.shortMidRagneRssiThreshold) {
       //util.log('short mid for tag '+tag.epc);

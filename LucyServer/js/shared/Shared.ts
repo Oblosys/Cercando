@@ -15,18 +15,22 @@ module Shared {
   export interface AntennaLayout { name : string; dimensions: {width : number; height : number}; scale: number
                                  ; backgroundImage? : string
                                  ; tagConfiguration : TagConfiguration[]
-                                 ; readerAntennaSpecs : ReaderAntennaSpec[]; 
+                                 ; readerAntennaSpecs : ReaderAntennaSpec[]
+                                 ; shortMidRangeSpecs : ShortMidRangeSpec[]
                                  }
   
   export interface ReaderAntennaSpec { readerIp : string; antennaSpecs : AntennaSpec[] }
 
-  export interface ShortMidRangeTarget { isShortRange : boolean; serverIp : string; antennaIndex : number }
+  export enum ShortOrMid { Short, Mid }
   
-  export interface AntennaSpec { name : string; coord : Coord; shortMidRangeTarget? : ShortMidRangeTarget }
+  export interface ShortMidRangeSpec { antennaName : string; range : ShortOrMid; serverIp : string }
+
+  export interface AntennaSpec { name : string; coord : Coord }
 
   export interface AntennaId { readerIp : string; antennaNr : number }
   
-  export interface Antenna extends AntennaSpec { antennaId : AntennaId }
+  // Besides the antennaId, we add the ShortMidRangeSpec to the antenna object, so we don't need to look it up each time.
+  export interface Antenna extends AntennaSpec { antennaId : AntennaId; shortMidRange : ShortMidRangeSpec }
   
   export interface AntennaRSSI { antNr : number; value : number; timestamp : Date; age? : number; /* milliseconds */ distance? : number }
    
@@ -76,8 +80,8 @@ module Shared {
   }
   
   export function getAntennaMaxRange(antenna : Antenna) : number {
-    return antenna.shortMidRangeTarget ? (antenna.shortMidRangeTarget.isShortRange ? maxAntennaRangeShort : maxAntennaRangeMid) 
-                                       : maxAntennaRangeLong;
+    return antenna.shortMidRange ? (antenna.shortMidRange.range == ShortOrMid.Short ? maxAntennaRangeShort : maxAntennaRangeMid) 
+                                 : maxAntennaRangeLong;
   }
   
   export function isRecentAntennaRSSI(antennaRssi : AntennaRSSI) : boolean {
