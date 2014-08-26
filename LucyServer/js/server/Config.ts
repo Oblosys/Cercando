@@ -66,7 +66,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
    // for layout 'rotterdam'.
    // TODO: does not contain D reader antennas yet
    var rotterdamRaw : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
-    scaleAndTranslate(1/1000,-9,-5,
+    scaleAndTranslate(1/1070,-8.4,-4.25,
     { name: 'Rotterdam raw'
     //, dimensions: {width: 14, height: 14 * 1686/3183}
     , dimensions: {width: 17, height: 17 * 734/1365}
@@ -110,6 +110,20 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
             , {name: 'C8', coord: {x:2450, y:2536}, shortMidRangeTarget: {isShortRange:false, serverIp : '127.0.0.1', antennaIndex: 6}}
             ]
           }
+        , { readerIp: '10.0.0.33'
+          , antennaSpecs:
+            [ {name: 'D1', coord: {x:7200, y:2300}}
+            , {name: 'D2', coord: {x:5800, y:4310}}
+            , {name: 'D3', coord: {x:3040, y:4180}}
+            , {name: 'D4', coord: {x:3770, y:2110}}
+            , {name: 'D5', coord: {x:5800, y: 900}}
+            
+            , {name: 'NW', coord: {x:0,     y:0}}
+            , {name: 'NE', coord: {x:16936, y:0}}
+            , {name: 'SE', coord: {x:16936, y:9045}}
+            , {name: 'SW', coord: {x:0,     y:9045}}
+            ]
+          }      
         ]
     , tagConfiguration: 
         []
