@@ -33,6 +33,7 @@ var lucyLogDirectoryPath = process.env['HOME'] + '/lucyLogs';
 var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
 var userSaveDirectoryPath = saveDirectoryPath + '/userSave';
 var autoSaveDirectoryPath = saveDirectoryPath + '/autoSave';
+var cercandoGitDirectory = process.env['HOME'] + '/git/Cercando';
 
 import http     = require('http');
 import express  = require('express');
@@ -140,7 +141,7 @@ function initExpress() {
   });
 
   app.get('/query/version', function(req, res) {  
-    child_pr.exec( "/Users/martijn/git/Cercando/scripts/generateGitInfo.sh" // TODO: get rid of absolute path
+    child_pr.exec( cercandoGitDirectory + '/scripts/generateGitInfo.sh'
                  , {cwd: '../..'}
                  , function(error, stdout, stderr) { 
                      res.setHeader('content-type', 'application/json');
