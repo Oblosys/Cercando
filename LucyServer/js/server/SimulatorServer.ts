@@ -56,7 +56,7 @@ var months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov',
 initServer();
 
 function initServer() {
-  // usage: LucyServer [portNr] [remoteReader]
+  // usage: LucyServer [portNr]
   var portArg = parseInt(process.argv[2]);
   serverPortNr = portArg || defaultServerPortNr;
   

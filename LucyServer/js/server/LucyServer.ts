@@ -82,11 +82,11 @@ var dbConnectionPool : any;
 initServer();
 
 function initServer() {
-  // usage: LucyServer [portNr] [remoteReader]
+  // usage: LucyServer [portNr] [--remoteReader]
   var portArg = parseInt(process.argv[2]);
   serverPortNr = portArg || defaultServerPortNr;
   
-  if (process.argv[2] == 'remoteReader' || portArg && process.argv[3] == 'remoteReader') {
+  if (process.argv[2] == '--remoteReader' || portArg && process.argv[3] == '--remoteReader') {
     // use remoteReader to connect to reader server on lucy.oblomov.com instead of localhost 
     readerServerHostName = remoteHostName;
     db_config.host = 'localhost';

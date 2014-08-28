@@ -7,6 +7,6 @@ sudo launchctl stop com.oblomov.lucyServer
 else
 scripts/killLucyServer.sh
 sleep 1
-# Start a normal server, and pass optional 'remoteReader' arg in $1
+# Start a normal server, and pass optional '--remoteReader' arg in $1
 scripts/startLucyServer.sh $1
 fi
