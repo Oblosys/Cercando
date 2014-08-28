@@ -14,7 +14,7 @@ if [ "$1" = "--daemon" ]; then
 
 
 # >/dev/null 2>&1 &
-until $runServer </dev/null >>~/tempLogs/readerServer.log 2>&1 ; do
+until $runServer </dev/null >>~/lucyLogs/readerServer.log 2>&1 ; do
     echo "Reader server crashed with exit code $?. Respawning.." >&2
     sleep 1
 done
