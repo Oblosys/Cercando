@@ -1,12 +1,8 @@
 export PATH=/usr/local/bin:$PATH
 cd ~/git/Cercando
 
-if [ "$1" = "--daemon" ]; then
-sudo launchctl stop com.oblomov.readerServer
-# automatically restarted by launchd
-else
-scripts/killReaderServer.sh
+scripts/stopReaderServer.sh
+# Give the server some time to gracefully disconnect from the readers
 sleep 1
 scripts/startReaderServer.sh
-fi
  

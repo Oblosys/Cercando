@@ -8,4 +8,5 @@ if [ "$?" -ne "0" ]; then
     exit 1
 fi
 
+# Pass optional '--daemon' arg in $1
 scripts/compileRestartReaderServer.sh $1
