@@ -8,4 +8,5 @@ if [ "$?" -ne "0" ]; then
     exit 1
 fi
 
-scripts/compileRestartLucyServer.sh $1
+# Pass optional '--daemon' and '--remoteReader' args in $*
+scripts/compileRestartLucyServer.sh $*
