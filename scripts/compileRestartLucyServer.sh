@@ -1,7 +1,6 @@
 export PATH=/usr/local/bin:$PATH
 cd ~/git/Cercando
 
-
 scripts/stopLucyServer.sh $*
 scripts/compileLucyServer.sh
 if [ "$?" -ne "0" ]; then
