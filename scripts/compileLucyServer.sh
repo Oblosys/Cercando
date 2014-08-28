@@ -3,6 +3,7 @@ cd ~/git/Cercando
 echo Compiling LucyServer
 tsc -m commonjs -t ES5 LucyServer/js/server/LucyServer.ts
 if [ "$?" -ne "0" ]; then
+    echo "ERROR: compilation failed, exiting script"
     exit 1
 fi
 
