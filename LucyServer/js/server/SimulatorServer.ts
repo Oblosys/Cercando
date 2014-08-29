@@ -16,7 +16,7 @@ var reconnectInterval = 2000; // time in ms to wait before trying to reconnect t
 var useSmoother = true;
 var lucyDirectoryPath = process.env['HOME'] + '/lucy';
 var lucyDataDirectoryPath = lucyDirectoryPath + '/data';
-var lucyConfigDirectoryPath = lucyDirectoryPath +  + '/config'; // local, so it can't easily be accidentally edited
+var lucyConfigFilePath = lucyDirectoryPath + '/config/config.json'; // local, so it can't easily be accidentally edited
 
 import http     = require('http');
 import express  = require('express');
@@ -205,7 +205,7 @@ function initExpress() {
 
 function initAntennaLayout(nr : number) {
   state.selectedAntennaLayoutNr = util.clip(0, allAntennaLayouts.length-1, nr);
-  var shortMidRangeSpecs = Config.getShortMidRangeSpecs();
+  var shortMidRangeSpecs = Config.getShortMidRangeSpecs(lucyConfigFilePath);
   allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr], shortMidRangeSpecs);
   state.tagsData = [];
   state.unknownAntennaIds = [];

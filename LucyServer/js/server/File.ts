@@ -7,6 +7,24 @@ import path     = require('path');
 
 var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 
+export function readConfigFile(lucyConfigFilePath : string) : {config: Shared.ShortMidRangeSpec[]; err: Error} {
+  try {
+    var configJSON = <string>fs.readFileSync(lucyConfigFilePath, {encoding:'utf8'});
+    var config = <Shared.ShortMidRangeSpec[]>JSON.parse(configJSON);
+    return {config: config, err: null};
+  } catch (err) {
+    return {config: null, err: err};
+  }
+}
+
+export function writeConfigFile(lucyConfigFilePath : string, config : Shared.ShortMidRangeSpec[]) { 
+  try {
+    fs.writeFileSync(lucyConfigFilePath, JSON.stringify(config));
+  } catch (err) {
+    util.error('Internal error: failed to write config to \'' + lucyConfigFilePath + '\'');
+    process.exit(1);
+  }
+}
 
 // Recursively get the directory trees starting at pth
 // TODO: should be async, since we're running on the web server

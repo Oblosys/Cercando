@@ -31,7 +31,7 @@ var useSmoother = true;
 var lucyDirectoryPath = process.env['HOME'] + '/lucy';
 var lucyDataDirectoryPath = lucyDirectoryPath + '/data';
 var lucyLogDirectoryPath = lucyDirectoryPath + '/log';
-var lucyConfigDirectoryPath = lucyDirectoryPath +  + '/config'; // local, so it can't easily be accidentally edited
+var lucyConfigFilePath = lucyDirectoryPath + '/config/config.json'; // local, so it can't easily be accidentally edited
 var configUploadDirectoryPath = lucyDataDirectoryPath + '/configUpload';
 var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
 var userSaveDirectoryPath = saveDirectoryPath + '/userSave';
@@ -317,7 +317,7 @@ function initExpress() {
 
 function initAntennaLayout(nr : number) {
   state.selectedAntennaLayoutNr = util.clip(0, allAntennaLayouts.length-1, nr);
-  var shortMidRangeSpecs = Config.getShortMidRangeSpecs();
+  var shortMidRangeSpecs = Config.getShortMidRangeSpecs(lucyConfigFilePath);
   allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr], shortMidRangeSpecs);
   state.tagsData = [];
   state.unknownAntennaIds = [];

@@ -2,18 +2,26 @@
 
 import _        = require('underscore');
 import util     = require('oblo-util');
+import fs       = require('fs');
 
-export function getShortMidRangeSpecs() : Shared.ShortMidRangeSpec[] {
-  return [  {antennaName: 'A5', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-         ,  {antennaName: 'A6', range:Shared.ShortOrMid.Short, serverIp : '127.0.0.1'}
-         ,  {antennaName: 'A7', range:Shared.ShortOrMid.Short, serverIp : '127.0.0.1'}
-         ,  {antennaName: 'A8', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-         ,  {antennaName: 'B1', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-         ,  {antennaName: 'B8', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-         ,  {antennaName: 'C7', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-         ,  {antennaName: 'C8', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-         ];
+import file     = require('./File');  
 
+export function getShortMidRangeSpecs(lucyConfigFilePath : string) : Shared.ShortMidRangeSpec[] {
+  var config : Shared.ShortMidRangeSpec[] = []; 
+  if (!fs.existsSync(lucyConfigFilePath)) {
+    util.log('File \'' + lucyConfigFilePath + '\' not found, creating empty config file.');
+    file.writeConfigFile(lucyConfigFilePath, config);
+  } else {
+    util.log('Using existing config from ' + lucyConfigFilePath);
+    var result = file.readConfigFile(lucyConfigFilePath);
+    if (result.err) {
+      util.error('Internal error: failed to read config from \'' + lucyConfigFilePath + '\'');
+      process.exit(1);
+    } else {
+      config = result.config;
+    } 
+  }
+  return config;
 }
 
 export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
