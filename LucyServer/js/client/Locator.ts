@@ -103,6 +103,14 @@ function initReplaySelectors() {
   });
 }
 
+function handleViewConfigButton() {
+  window.location.href = '/query/view-config';
+}
+
+function handleUploadConfigButton() {
+  window.location.href = '/query/upload-config';
+}
+
 function handleSelectReplayLevel1() {
   var selectedLevel1Name = $('#replay-level-1-selector').val();
   console.log('Select replay level 1 name: ' + selectedLevel1Name);

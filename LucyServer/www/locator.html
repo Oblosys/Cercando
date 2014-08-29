@@ -20,7 +20,9 @@
     <div id="main">
       <div id="control-panel">
         Antenna layout: <select onchange="handleSelectLayout(this);" id="layout-selector"></select><br/>
-        <br/>
+        <input type="button" id="view-config-button" onclick="handleViewConfigButton()" value="View antenna config"></input>
+        <input type="button" id="upload-config-button" onclick="handleUploadConfigButton()" value="Upload config"></input>
+        <br/><br/>
         <input type="button" id="start-refresh-button" onclick="handleStartRefreshButton()" value="Start refresh"></input>
         <input type="button" id="stop-refresh-button" onclick="handleStopRefreshButton()" value="Stop refresh"></input>
         <input type="button" id="reset-button" onclick="handleResetButton()" value="Reset"></input><br/>
