@@ -3,6 +3,19 @@
 import _        = require('underscore');
 import util     = require('oblo-util');
 
+export function getShortMidRangeSpecs() : Shared.ShortMidRangeSpec[] {
+  return [  {antennaName: 'A5', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
+         ,  {antennaName: 'A6', range:Shared.ShortOrMid.Short, serverIp : '127.0.0.1'}
+         ,  {antennaName: 'A7', range:Shared.ShortOrMid.Short, serverIp : '127.0.0.1'}
+         ,  {antennaName: 'A8', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
+         ,  {antennaName: 'B1', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
+         ,  {antennaName: 'B8', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
+         ,  {antennaName: 'C7', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
+         ,  {antennaName: 'C8', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
+         ];
+
+}
+
 export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
   var groningenHorizontaal : Shared.AntennaLayout =
     { name: 'Groningen (horizontaal)'
@@ -17,7 +30,6 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                           ]
           }
         ]
-    , shortMidRangeSpecs: []
     , tagConfiguration: 
         [ {epc:'0000000000000000000000000370869', color:'green',     testCoord:null}
         , {epc:'0000000000000000000000000503968', color:'yellow',    testCoord:null}
@@ -47,7 +59,6 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                           ]
           }
         ]
-    , shortMidRangeSpecs: []
     , tagConfiguration: 
         [ {epc:'0000000000000000000000000370869', color:'green',     testCoord:{x:1.2-0*0.35, y:1.2-0*0.35}}
         , {epc:'0000000000000000000000000503968', color:'yellow',    testCoord:{x:1.2-1*0.35, y:1.2-1*0.35}}
@@ -127,16 +138,6 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
             ]
           }      
         ]
-    , shortMidRangeSpecs:
-            [  {antennaName: 'A5', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-            ,  {antennaName: 'A6', range:Shared.ShortOrMid.Short, serverIp : '127.0.0.1'}
-            ,  {antennaName: 'A7', range:Shared.ShortOrMid.Short, serverIp : '127.0.0.1'}
-            ,  {antennaName: 'A8', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-            ,  {antennaName: 'B1', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-            ,  {antennaName: 'B8', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-            ,  {antennaName: 'C7', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-            ,  {antennaName: 'C8', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-            ]
     , tagConfiguration: 
         []
     });
@@ -342,16 +343,6 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
               ]
           }
         ]
-    , shortMidRangeSpecs:
-            [  {antennaName: 'A5', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-            ,  {antennaName: 'A6', range:Shared.ShortOrMid.Short, serverIp : '127.0.0.1'}
-            ,  {antennaName: 'A7', range:Shared.ShortOrMid.Short, serverIp : '127.0.0.1'}
-            ,  {antennaName: 'A8', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-            ,  {antennaName: 'B1', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-            ,  {antennaName: 'B8', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-            ,  {antennaName: 'C7', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-            ,  {antennaName: 'C8', range:Shared.ShortOrMid.Mid,   serverIp : '127.0.0.1'}
-            ]
     , tagConfiguration: 
         []
     });

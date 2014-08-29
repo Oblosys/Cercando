@@ -7,8 +7,8 @@ var Shared = require('../shared/Shared.js');
  
 export interface ReaderEvent { readerIp : string; ant : number; epc : string; rssi : number; timestamp : string }
 
-export function mkReaderAntennas(readerAntennaLayout : Shared.AntennaLayout) : Shared.Antenna[] {
-  var antennas = _.map(readerAntennaLayout.readerAntennaSpecs, (readerAntennaSpec) => {return mkAntennas(readerAntennaSpec.readerIp, readerAntennaSpec.antennaSpecs, readerAntennaLayout.shortMidRangeSpecs);});
+export function mkReaderAntennas(readerAntennaLayout : Shared.AntennaLayout, shortMidRangeSpecs : Shared.ShortMidRangeSpec[]) : Shared.Antenna[] {
+  var antennas = _.map(readerAntennaLayout.readerAntennaSpecs, (readerAntennaSpec) => {return mkAntennas(readerAntennaSpec.readerIp, readerAntennaSpec.antennaSpecs, shortMidRangeSpecs);});
   return _.flatten(antennas);
 }
 

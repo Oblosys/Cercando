@@ -62,6 +62,7 @@ function initServer() {
   
   util.log('\n\n\nStarting Simulator server on port ' + serverPortNr);
   
+  allAntennaLayouts = Config.getAllAntennaLayouts();
   resetServerState();
   startReaderServer();
   initExpress();
@@ -70,8 +71,7 @@ function initServer() {
 
 function resetServerState() {
   state = shared.initialServerState();
-  allAntennaLayouts = Config.getAllAntennaLayouts();
-  setAntennaLayout(state.selectedAntennaLayoutNr);
+  initAntennaLayout(state.selectedAntennaLayoutNr);
 }
 
 function initExpress() {
@@ -124,7 +124,7 @@ function initExpress() {
   app.get('/query/select-layout/:nr', function(req, res) { // return AntennaInfo object for new selection  
     util.log('Selecting antenna layout '+req.params.nr+': '+allAntennaLayouts[req.params.nr].name +
              ',  sending antenna data to client. (' + new Date() + ')');
-    setAntennaLayout(req.params.nr);
+    initAntennaLayout(req.params.nr);
     res.setHeader('content-type', 'application/json');
     res.send(JSON.stringify( getAntennaInfo(req.params.nr) ));
   });
@@ -202,9 +202,10 @@ function initExpress() {
   });
 }
 
-function setAntennaLayout(nr : number) {
+function initAntennaLayout(nr : number) {
   state.selectedAntennaLayoutNr = util.clip(0, allAntennaLayouts.length-1, nr);
-  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr]);
+  var shortMidRangeSpecs = Config.getShortMidRangeSpecs();
+  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr], shortMidRangeSpecs);
   state.tagsData = [];
   state.unknownAntennaIds = [];
 }

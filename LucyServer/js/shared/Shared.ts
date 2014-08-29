@@ -16,7 +16,6 @@ module Shared {
                                  ; backgroundImage? : string
                                  ; tagConfiguration : TagConfiguration[]
                                  ; readerAntennaSpecs : ReaderAntennaSpec[]
-                                 ; shortMidRangeSpecs : ShortMidRangeSpec[]
                                  }
   
   export interface ReaderAntennaSpec { readerIp : string; antennaSpecs : AntennaSpec[] }
@@ -63,6 +62,7 @@ module Shared {
                                                                 ; rssi: number
                                                                 ; distance : number}[] }[] }  
   
+  // TODO: split this in true server state (including allAntennas because of dynamic shortMidRangeSpecs) and part that is sent to client
   export interface ServerState {
     status : { isConnected : boolean; isSaving : boolean; readerServerTime : string; replayFileName : string }
     selectedAntennaLayoutNr : number

@@ -99,6 +99,7 @@ function initServer() {
   util.log('\n\n');
   logTs('Starting Lucy server on port ' + serverPortNr + ', using reader server on ' + readerServerHostName + '\n\n');
   
+  allAntennaLayouts = Config.getAllAntennaLayouts();
   resetServerState();
   initExpress();
   var server = app.listen(serverPortNr, () => { util.log('Web server listening to port ' + serverPortNr);});
@@ -108,8 +109,7 @@ function resetServerState() {
   state = shared.initialServerState();
   disconnectReader();
   connectReaderServer();
-  allAntennaLayouts = Config.getAllAntennaLayouts();
-  setAntennaLayout(state.selectedAntennaLayoutNr);
+  initAntennaLayout(state.selectedAntennaLayoutNr);
   util.log('Resetting server state');
 }
 
@@ -170,7 +170,7 @@ function initExpress() {
   app.get('/query/select-layout/:nr', function(req, res) { // return AntennaInfo object for new selection  
     util.log('Selecting antenna layout '+req.params.nr+': '+allAntennaLayouts[req.params.nr].name +
              ',  sending antenna data to client. (' + new Date() + ')');
-    setAntennaLayout(req.params.nr);
+    initAntennaLayout(req.params.nr);
     res.setHeader('content-type', 'application/json');
     res.send(JSON.stringify( getAntennaInfo(req.params.nr) ));
   });
@@ -312,9 +312,10 @@ function initExpress() {
   });
 }
 
-function setAntennaLayout(nr : number) {
+function initAntennaLayout(nr : number) {
   state.selectedAntennaLayoutNr = util.clip(0, allAntennaLayouts.length-1, nr);
-  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr]);
+  var shortMidRangeSpecs = Config.getShortMidRangeSpecs();
+  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr], shortMidRangeSpecs);
   state.tagsData = [];
   state.unknownAntennaIds = [];
 }
