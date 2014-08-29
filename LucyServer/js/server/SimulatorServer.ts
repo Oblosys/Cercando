@@ -14,8 +14,9 @@ var defaultServerPortNr = 8081; // port for the Simulator web server
 var readerServerPortNr = 8193;
 var reconnectInterval = 2000; // time in ms to wait before trying to reconnect to the reader server
 var useSmoother = true;
-var lucyDataDirectoryPath = process.env['HOME'] + '/lucyData';
-var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
+var lucyDirectoryPath = process.env['HOME'] + '/lucy';
+var lucyDataDirectoryPath = lucyDirectoryPath + '/data';
+var lucyConfigDirectoryPath = lucyDirectoryPath +  + '/config'; // local, so it can't easily be accidentally edited
 
 import http     = require('http');
 import express  = require('express');
