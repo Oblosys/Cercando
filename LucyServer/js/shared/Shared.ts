@@ -23,7 +23,8 @@ module Shared {
   export enum ShortOrMid { Short, Mid }
   
   export interface ShortMidRangeSpec { antennaName : string; range : ShortOrMid; serverIp : string }
-
+  export var shortMidRangeSpecKeys = ['antennaName', 'range', 'serverIp']; // for dynamically checking uploaded config file
+  
   export interface AntennaSpec { name : string; coord : Coord }
 
   export interface AntennaId { readerIp : string; antennaNr : number }

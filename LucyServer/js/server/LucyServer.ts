@@ -32,7 +32,7 @@ var lucyDirectoryPath = process.env['HOME'] + '/lucy';
 var lucyDataDirectoryPath = lucyDirectoryPath + '/data';
 var lucyLogDirectoryPath = lucyDirectoryPath + '/log';
 var lucyConfigFilePath = lucyDirectoryPath + '/config/config.json'; // local, so it can't easily be accidentally edited
-var configUploadDirectoryPath = lucyDataDirectoryPath + '/configUpload';
+var configUploadFilePath = lucyDataDirectoryPath + '/configUpload/config.json';
 var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
 var userSaveDirectoryPath = saveDirectoryPath + '/userSave';
 var autoSaveDirectoryPath = saveDirectoryPath + '/autoSave';
@@ -152,6 +152,32 @@ function initExpress() {
                    } );
   });
   
+  app.get('/query/view-config', function(req, res) {  
+    res.setHeader('content-type', 'text/html');    
+    var html = 'Current short/mid-range configuration:<br/><br/>';
+
+    html += '<tt>' + JSON.stringify(Config.getShortMidRangeSpecs(lucyConfigFilePath)) + '</t>';
+    html += '<br/><br/><input type="button" onclick="history.go(-1);" value="&nbsp;&nbsp;Ok&nbsp;&nbsp;"></input>';
+    res.send(html);
+    });
+
+  app.get('/query/upload-config', function(req, res) {  
+    res.setHeader('content-type', 'text/html');
+    var html = '';
+    var result = file.readConfigFile(configUploadFilePath);
+    if (result.err) {
+      html += '<span style="color: red">ERROR: Uploading new configuration from Synology NAS failed:</span><br/>'
+      html += '<pre>' + result.err + '</pre>';
+    } else {
+      file.writeConfigFile(lucyConfigFilePath, result.config); // write the new config to the local config file
+      initAntennaLayout(state.selectedAntennaLayoutNr); // incorporate new short/mid-range specs in antennaLayout
+      html += 'Succesfully uploaded short/mid-range configuration from Synology NAS to Lucy server:<br/><br/>';
+      html += '<tt>' + JSON.stringify(result.config) + '</tt>';
+    } 
+    html += '<br/><br/><input type="button" onclick="history.go(-1);" value="&nbsp;&nbsp;Ok&nbsp;&nbsp;"></input>';
+    res.send(html);
+  });
+
   app.get('/query/tags', function(req, res) {  
     //util.log('Sending tag data to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
@@ -315,6 +341,7 @@ function initExpress() {
   });
 }
 
+// set allAntennas by taking the layout specified by nr and combining it with the current shortMidRangeSpecs.
 function initAntennaLayout(nr : number) {
   state.selectedAntennaLayoutNr = util.clip(0, allAntennaLayouts.length-1, nr);
   var shortMidRangeSpecs = Config.getShortMidRangeSpecs(lucyConfigFilePath);

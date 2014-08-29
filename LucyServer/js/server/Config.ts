@@ -15,7 +15,7 @@ export function getShortMidRangeSpecs(lucyConfigFilePath : string) : Shared.Shor
     util.log('Using existing config from ' + lucyConfigFilePath);
     var result = file.readConfigFile(lucyConfigFilePath);
     if (result.err) {
-      util.error('Internal error: failed to read config from \'' + lucyConfigFilePath + '\'');
+      util.error('Internal error: failed to read config from \'' + lucyConfigFilePath + '\':\n'+result.err);
       process.exit(1);
     } else {
       config = result.config;

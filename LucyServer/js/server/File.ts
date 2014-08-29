@@ -10,8 +10,7 @@ var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and
 export function readConfigFile(lucyConfigFilePath : string) : {config: Shared.ShortMidRangeSpec[]; err: Error} {
   try {
     var configJSON = <string>fs.readFileSync(lucyConfigFilePath, {encoding:'utf8'});
-    var config = <Shared.ShortMidRangeSpec[]>JSON.parse(configJSON);
-    return {config: config, err: null};
+    return validateConfig(JSON.parse(configJSON));
   } catch (err) {
     return {config: null, err: err};
   }
@@ -26,6 +25,28 @@ export function writeConfigFile(lucyConfigFilePath : string, config : Shared.Sho
   }
 }
 
+export function validateConfig(configObject : any) : {config: Shared.ShortMidRangeSpec[]; err: Error} {
+  var errMsg = '';
+  
+  if (!_.isArray(configObject)) {
+    errMsg += 'Object in config.json is not an array.';
+  } else {
+    for (var i=0; i<configObject.length; i++) {
+      var keys = _(configObject[i]).keys();
+      var missingKeys = _.difference(shared.shortMidRangeSpecKeys, keys);
+      var extraKeys = _.difference(keys, shared.shortMidRangeSpecKeys);
+      if (!_.isEmpty(missingKeys))
+        errMsg += 'Element ' + i + ' is missing keys: ' + missingKeys + '\n'; 
+      if (!_.isEmpty(extraKeys))
+        errMsg += 'Element ' + i + ' has unrecognized keys: ' + extraKeys + '\n'; 
+    }
+  }
+  if (errMsg)
+    return {config: <Shared.ShortMidRangeSpec[]>null, err: new Error(errMsg)};
+  else
+    return {config: <Shared.ShortMidRangeSpec[]>configObject, err: null};
+}
+ 
 // Recursively get the directory trees starting at pth
 // TODO: should be async, since we're running on the web server
 export function getRecursiveDirContents(pth : string) : Shared.DirEntry[] {
