@@ -166,10 +166,17 @@ function initExpress() {
     var html = '';
     var result = file.readConfigFile(configUploadFilePath);
     if (result.err) {
-      html += '<span style="color: red">ERROR: Uploading new configuration from Synology NAS failed:</span><br/>'
+      html += '<span style="color: red">ERROR: Uploading new configuration from Synology NAS (/web/lucyData/configUpload/config.json) failed:</span><br/>';
       html += '<pre>' + result.err + '</pre>';
     } else {
-      fs.unlinkSync(configUploadFilePath); // remove upload file, so we won't confuse it with the current config
+      try {
+        fs.unlinkSync(configUploadFilePath); // remove upload file, so we won't confuse it with the current config
+      } catch(err) {
+        html += '<span style="color: red">ERROR: Failed to remove upload file: /web/lucyData/configUpload/config.json</span>';
+        html += '<pre>' + err + '</pre>';
+        html += 'Please remove the file manually.<br/><br/>';
+      } // failed removal is not fatal, so we continue
+      
       file.writeConfigFile(lucyConfigFilePath, result.config); // write the new config to the local config file
       initAntennaLayout(state.selectedAntennaLayoutNr); // incorporate new short/mid-range specs in antennaLayout
       html += 'Succesfully uploaded short/mid-range configuration from Synology NAS to Lucy server:<br/><br/>';
