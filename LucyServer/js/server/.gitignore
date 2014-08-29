@@ -1,5 +1,6 @@
 Config.js
 DummyPresentationServer.js
+File.js
 LucyServer.js
 ServerCommon.js
 SimulatorServer.js
