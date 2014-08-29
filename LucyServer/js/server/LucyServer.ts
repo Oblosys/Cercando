@@ -779,7 +779,7 @@ function purgeOldTags() {
     });
     var isTagRecent = tag.antennaRssis.length > 0;
     if (!isTagRecent) {
-      util.log('Purging tag '+tag.epc);
+      //util.log('Purging tag '+tag.epc);
       tagDidExit(tag)
     } 
     return isTagRecent;
@@ -787,12 +787,12 @@ function purgeOldTags() {
 }
 
 function tagDidEnter(tag : Shared.TagData) {
-  util.log('Tag ' + tag.epc + ' entered the floor');
+  //util.log('Tag ' + tag.epc + ' entered the floor');
   queryTagMetaData(tag);
 }
 
 function tagDidExit(tag : Shared.TagData) {
-  util.log('Tag ' + tag.epc + ' exited the floor');
+  //util.log('Tag ' + tag.epc + ' exited the floor');
 }
 
 function signalPresentationServer(serverIp : string, antennaIndex : number, epc : string) {
@@ -831,7 +831,7 @@ function queryTagMetaData(tag : Shared.TagData) {
           if (rows == null) {
             util.error('Error during metadata lookup for tag ' + tag.epc + ': SQL response is null');
           } else if (rows.length == 0) { // tag not found
-            util.log('Queried ' + tag.epc + ': tag not found in database');
+            //util.log('Queried ' + tag.epc + ': tag not found in database');
           } else if (rows.length == 1) { 
             try { // surround metaData assignment with try to catch incompatibilities in table format
               if (rows.length > 1) {
