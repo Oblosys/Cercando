@@ -169,6 +169,7 @@ function initExpress() {
       html += '<span style="color: red">ERROR: Uploading new configuration from Synology NAS failed:</span><br/>'
       html += '<pre>' + result.err + '</pre>';
     } else {
+      fs.unlinkSync(configUploadFilePath); // remove upload file, so we won't confuse it with the current config
       file.writeConfigFile(lucyConfigFilePath, result.config); // write the new config to the local config file
       initAntennaLayout(state.selectedAntennaLayoutNr); // incorporate new short/mid-range specs in antennaLayout
       html += 'Succesfully uploaded short/mid-range configuration from Synology NAS to Lucy server:<br/><br/>';
