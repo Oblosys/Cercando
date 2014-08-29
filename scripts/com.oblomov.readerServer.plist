@@ -11,9 +11,9 @@
     <key>KeepAlive</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>/Users/NHMR/lucyLogs/readerServer.log</string>
+    <string>/Users/NHMR/lucy/log/readerServer.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/NHMR/lucyLogs/readerServer.log</string>
+    <string>/Users/NHMR/lucy/log/readerServer.log</string>
     <key>UserName</key>
     <string>NHMR</string>
 </dict>

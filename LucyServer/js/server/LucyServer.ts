@@ -28,8 +28,11 @@ var db_config = {
 
 var reconnectInterval = 2000; // time in ms to wait before trying to reconnect to the reader server
 var useSmoother = true;
-var lucyDataDirectoryPath = process.env['HOME'] + '/lucyData';
-var lucyLogDirectoryPath = process.env['HOME'] + '/lucyLogs';
+var lucyDirectoryPath = process.env['HOME'] + '/lucy';
+var lucyDataDirectoryPath = lucyDirectoryPath + '/data';
+var lucyLogDirectoryPath = lucyDirectoryPath + '/log';
+var lucyConfigDirectoryPath = lucyDirectoryPath +  + '/config'; // local, so it can't easily be accidentally edited
+var configUploadDirectoryPath = lucyDataDirectoryPath + '/configUpload';
 var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
 var userSaveDirectoryPath = saveDirectoryPath + '/userSave';
 var autoSaveDirectoryPath = saveDirectoryPath + '/autoSave';
