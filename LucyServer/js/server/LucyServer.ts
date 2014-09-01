@@ -713,7 +713,9 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
     
     var newRssi = !useSmoother ? readerEvent.rssi 
                                : filtered(readerEvent.epc, readerEvent.ant, readerEvent.rssi, timestamp, oldAntennaRssi);
-    var newAntennaRssi = {antNr: antNr, value: newRssi, timestamp: timestamp};
+
+    var distance = trilateration.getDistanceForRssi(tag.epc, allAntennas[antNr].name, newRssi);
+    var newAntennaRssi : Shared.AntennaRSSI = {antNr: antNr, value: newRssi, timestamp: timestamp, distance: distance};
     //if (readerEvent.epc == '0000000000000000000000000503968' && readerEvent.ant == 1) {
     //  util.log(new Date().getSeconds() + ' ' + readerEvent.epc + ' ant '+readerEvent.ant + ' rawRssi: '+readerEvent.rssi.toFixed(1) + ' dist: '+
     //          trilateration.getDistanceForRssi(readerEvent.epc, ''+readerEvent.ant, readerEvent.rssi));
@@ -772,13 +774,11 @@ function positionAllTags() {
   previousPositioningTimeMs = latestReaderEventTimeMs; 
 
   //util.log(state.tagsData.length + ' tags')
-  // compute distance and age for each antennaRssi for each tag
+  // set the age for each antennaRssi for each tag
   _(state.tagsData).each((tag) => {
     //util.log(tag.epc + ':' + tag.antennaRssis.length + ' signals');
     _(tag.antennaRssis).each((antennaRssi) => {
-      antennaRssi.distance = trilateration.getDistanceForRssi(tag.epc, allAntennas[antennaRssi.antNr].name, antennaRssi.value);
       antennaRssi.age = latestReaderEventTimeMs - antennaRssi.timestamp.getTime(); 
-      return antennaRssi.distance;
     });
   });
   
