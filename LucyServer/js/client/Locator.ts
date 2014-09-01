@@ -40,12 +40,15 @@ var UIState = Backbone.Model.extend({
   }
 });
 
+var isServerConnected = false; // maintained by refresh
+
 var uiState : Backbone.Model = new UIState();
 
 /***** Initialization *****/
 
 function resetClientState() {
   util.log('Resetting client state');
+  isServerConnected;
   uiState.trigger('change'); // reflect current values in UI, even when they are not different from defaults (and don't fire change  event)
   serverState.tagsData = [];
   allTagTrails = {};
@@ -269,8 +272,11 @@ function updateLabels() {
   $('#client-time-label').text(ClientCommon.showTime(new Date()));
   $('#reader-time-label').text(serverState.status.readerServerTime ? ClientCommon.showTime(new Date(serverState.status.readerServerTime)): '--:--:--');
   
-  $('#connection-label').text(serverState.status.isConnected ? 'Connected' : 'Not connected');
-  $('#connection-label').css('color', serverState.status.isConnected ? 'lime' : 'red');
+  $('#reader-connection-label').text(serverState.status.isConnected ? 'Connected' : 'Not connected');
+  $('#reader-connection-label').css('color', serverState.status.isConnected ? 'lime' : 'red');
+
+  $('#server-connection-label').text(isServerConnected ? 'Connected' : 'Not connected');
+  $('#server-connection-label').css('color', isServerConnected ? 'lime' : 'red');
 }
 
 function updateTags() {
@@ -372,6 +378,9 @@ function stopRefreshInterval() {
 
 function refresh() {
   $.getJSON( 'query/tags', function(newServerState : Shared.ServerState) {
+    if (!isServerConnected)
+      resetClientState();
+    isServerConnected = true;
     //util.log(JSON.stringify('old epcs: '+_(serverState.tagsData).pluck('epc')));
     //util.log(JSON.stringify('new epcs: '+_(newServerState.tagsData).pluck('epc')));
     addRemoveSVGElements(serverState.tagsData, newServerState.tagsData)
@@ -385,7 +394,8 @@ function refresh() {
 
     updateTags();
   }).fail(function(jqXHR : JQueryXHR, status : any, err : any) {
-    resetClientState();
+    isServerConnected = false;
+    updateLabels();
     util.error( "Error:\n\n" + jqXHR.responseText );
   });
 }
