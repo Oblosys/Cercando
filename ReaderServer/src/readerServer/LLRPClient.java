@@ -267,8 +267,20 @@ public class LLRPClient implements LLRPEndpoint {
         	String epcVerbose = tag.getEPCParameter().toString();
           //String firstSeenVerbose = tag.getFirstSeenTimestampUTC().toString();
           //String lastSeenVerbose = tag.getLastSeenTimestampUTC().toString();
-          String epcPrefix = "EPC_96: ePC: "; // actual EPC number is prefixed by this string 
-          CharSequence epcStr = epcVerbose.subSequence(epcPrefix.length(), epcVerbose.length());
+          
+        	// Because tags can have different formats with different prefixes, we take the sequence
+        	// of alphanumeric characters ending at the right.
+        	StringBuilder epcBuilder = new StringBuilder();
+          for (int i=epcVerbose.length()-1; i>=0; i--) {
+            char c = epcVerbose.charAt(i);
+            if (!Character.isLetterOrDigit(c))
+              break;
+            epcBuilder.append(c);
+          }
+          String epcStr = epcBuilder.reverse().toString();
+          if (epcStr.isEmpty())
+            epcStr = "INVALIDEPC"; // Prevent empty strings with an easy to recognize epc
+          
           //CharSequence firstSeenStr = firstSeenVerbose.subSequence(37, firstSeenVerbose.length());
           //CharSequence lastSeenStr = lastSeenVerbose.subSequence(36, lastSeenVerbose.length());
           
