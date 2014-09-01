@@ -27,6 +27,9 @@ var db_config = {
 };
 
 var reconnectInterval = 2000; // time in ms to wait before trying to reconnect to the reader server
+var reportShortMidRangeInterval = 100; // time in ms between sending short-/midrange antenna data to Di Colore
+var positioningInterval = 250; // time in ms between computing coordinates of all tags (and purging old signals/tags)
+
 var useSmoother = true;
 var lucyDirectoryPath = process.env['HOME'] + '/lucy';
 var lucyDataDirectoryPath = lucyDirectoryPath + '/data';
@@ -81,6 +84,9 @@ var serverPortNr : number;
 
 var dbConnectionPool : any;
 
+var reportShortMidRangeTimer : NodeTimer;
+var positioningTimer : NodeTimer;
+
 
 initServer();
 
@@ -104,9 +110,14 @@ function initServer() {
   
   allAntennaLayouts = Config.getAllAntennaLayouts();
   resetServerState();
+ 
+  reportShortMidRangeTimer = setInterval(reportShortMidRangeData, reportShortMidRangeInterval);
+  positioningTimer = setInterval(positionAllTags, positioningInterval);
+
   initExpress();
   var server = app.listen(serverPortNr, () => { util.log('Web server listening to port ' + serverPortNr);});
 }
+
 
 function resetServerState() {
   state = shared.initialServerState();
@@ -190,10 +201,15 @@ function initExpress() {
     //util.log('Sending tag data to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
     
+    // TODO: Make separate type for this and don't put reader server time in state (only in tagsInfo) 
     state.status.readerServerTime = latestReaderEventTimeMs ? ''+new Date(latestReaderEventTimeMs) : null;
-    positionAllTags();
-    
-    res.send(JSON.stringify(state));
+    var tagsInfo : Shared.ServerState =
+      { selectedAntennaLayoutNr: state.selectedAntennaLayoutNr
+      , unknownAntennaIds: state.unknownAntennaIds
+      , tagsData: _(state.tagsData).filter(tagData => {return tagData.coordinate != null}) // don't send tags that don't have a coordinate yet
+      , status: state.status
+      };
+    res.send(JSON.stringify(tagsInfo));
   });
 
   app.get('/query/layout-info', function(req, res) {  
@@ -299,7 +315,6 @@ function initExpress() {
 
   // For communicating with Di Colore software
   app.get('/query/tag-locations', function(req, res) {
-    positionAllTags(); // TODO: keep track of positioned tags, to prevent recomputation
     var locations : {epc:string; x:number; y:number}[] = [];
     _(state.tagsData).each(tag => {
         if (tag.coordinate) { // in case no location was computed yet (TODO: may be unnecessary when we keep track of positioned tags)
@@ -314,8 +329,6 @@ function initExpress() {
 
   // For communicating with Di Colore software
   app.get('/query/short-mid-tag-distances', function(req, res) {
-    positionAllTags(); // TODO: keep track of positioned tags, to prevent recomputation
-    // TODO: maybe enforce distance in AntennaRssi, then we don't even need to do positioning at all for this function
     // sparse array for keeping track of tags per antenna (we keep 
     var allAntennaTags : { epc:string; rssi:number; distance:number}[][] = util.replicate(allAntennas.length, []);
         
@@ -723,12 +736,6 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
     
     updateAntennaRssi(newAntennaRssi, tag.antennaRssis);
     //trilateration.getDistanceForRssi(readerEvent.ePC, readerEvent.ant, readerEvent.RSSI);
-    //util.log(tagsState);
-    if (allAntennas[antNr].shortMidRange) {
-      var shortMidRange = allAntennas[antNr].shortMidRange;
-      //TODO: obsolete
-      //signalPresentationServer(shortMidRangeTarget.serverIp, shortMidRangeTarget.antennaIndex, readerEvent.epc);
-    }
   }
 }
 
@@ -767,6 +774,9 @@ function filtered(epc : string, ant : number, rssi : number, timestamp : Date, p
 
 
 
+function reportShortMidRangeData() {
+  //signalPresentationServer(shortMidRangeTarget.serverIp, shortMidRangeTarget.antennaIndex, readerEvent.epc);
+}
 
 // trilaterate all tags and set age and distance for each rssi value
 function positionAllTags() {
@@ -778,7 +788,7 @@ function positionAllTags() {
   _(state.tagsData).each((tag) => {
     //util.log(tag.epc + ':' + tag.antennaRssis.length + ' signals');
     _(tag.antennaRssis).each((antennaRssi) => {
-      antennaRssi.age = latestReaderEventTimeMs - antennaRssi.timestamp.getTime(); 
+      antennaRssi.age = latestReaderEventTimeMs - antennaRssi.timestamp.getTime();
     });
   });
   
