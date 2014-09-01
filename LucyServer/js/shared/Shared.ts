@@ -30,7 +30,7 @@ module Shared {
   // Besides the antennaId, we add the ShortMidRangeSpec to the antenna object, so we don't need to look it up each time.
   export interface Antenna extends AntennaSpec { antennaId : AntennaId; shortMidRange : ShortMidRangeSpec }
   
-  export interface AntennaRSSI { antNr : number; value : number; timestamp : Date; distance : number; age? : number /* milliseconds */}
+  export interface AntennaRSSI { antNr : number; value : number; timestamp : Date; distance : number; age : number /* milliseconds */}
    
   export interface LayoutInfo { selectedLayoutNr : number; names : string[] }
   

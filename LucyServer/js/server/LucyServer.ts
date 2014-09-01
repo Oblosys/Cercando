@@ -715,7 +715,7 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
                                : filtered(readerEvent.epc, readerEvent.ant, readerEvent.rssi, timestamp, oldAntennaRssi);
 
     var distance = trilateration.getDistanceForRssi(tag.epc, allAntennas[antNr].name, newRssi);
-    var newAntennaRssi : Shared.AntennaRSSI = {antNr: antNr, value: newRssi, timestamp: timestamp, distance: distance};
+    var newAntennaRssi : Shared.AntennaRSSI = {antNr: antNr, value: newRssi, timestamp: timestamp, distance: distance, age: 0};
     //if (readerEvent.epc == '0000000000000000000000000503968' && readerEvent.ant == 1) {
     //  util.log(new Date().getSeconds() + ' ' + readerEvent.epc + ' ant '+readerEvent.ant + ' rawRssi: '+readerEvent.rssi.toFixed(1) + ' dist: '+
     //          trilateration.getDistanceForRssi(readerEvent.epc, ''+readerEvent.ant, readerEvent.rssi));
