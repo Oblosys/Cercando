@@ -12,8 +12,8 @@ alias lss="/bin/ls"
 
 alias cerc="cd ~/git/Cercando"
 
-alias monitor-lucy="tail -f ~/lucyLogs/lucyServer.log"
-alias monitor-reader="tail -f ~/lucyLogs/readerServer.log"
+alias monitor-lucy="tail -f ~/lucy/log/lucyServer.log"
+alias monitor-reader="tail -f ~/lucy/log/readerServer.log"
 alias update-lucy="~/git/Cercando/scripts/updateCompileRestartLucyServer.sh --daemon"
 alias update-reader="~/git/Cercando/scripts/updateCompileRestartReaderServer.sh --daemon"
 alias restart-lucy="~/git/Cercando/scripts/restartLucyServer.sh --daemon"
