@@ -81,7 +81,7 @@ module ClientCommon {
   
   export function createAntennaMarker(planeSVG : D3.Selection, rangePlaneSVG : D3.Selection, tagZonePlaneSVG : D3.Selection, antenna : Shared.Antenna, antennaNr : number) {
     var pos = ClientCommon.toScreen(antenna.coord);
-    var antennaClass = (antenna.shortMidRange ? (antenna.shortMidRange.range == Shared.ShortOrMid.Short ? 'short' : 'mid')
+    var antennaClass = (antenna.shortMidRange ? (antenna.shortMidRange.isShortRange ? 'short' : 'mid')
                                               : 'long') + '-range';
 
     // styling is done with css (unfortunately, r is not a css attribute)

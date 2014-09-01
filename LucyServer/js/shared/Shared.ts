@@ -20,10 +20,8 @@ module Shared {
   
   export interface ReaderAntennaSpec { readerIp : string; antennaSpecs : AntennaSpec[] }
 
-  export enum ShortOrMid { Short, Mid }
-  
-  export interface ShortMidRangeSpec { antennaName : string; range : ShortOrMid; serverIp : string }
-  export var shortMidRangeSpecKeys = ['antennaName', 'range', 'serverIp']; // for dynamically checking uploaded config file
+  export interface ShortMidRangeSpec { antennaName : string; isShortRange : boolean; serverIp : string }
+  export var shortMidRangeSpecKeys = ['antennaName', 'isShortRange', 'serverIp']; // for dynamically checking uploaded config file
   
   export interface AntennaSpec { name : string; coord : Coord }
 
@@ -81,7 +79,7 @@ module Shared {
   }
   
   export function getAntennaMaxRange(antenna : Antenna) : number {
-    return antenna.shortMidRange ? (antenna.shortMidRange.range == ShortOrMid.Short ? maxAntennaRangeShort : maxAntennaRangeMid) 
+    return antenna.shortMidRange ? (antenna.shortMidRange.isShortRange ? maxAntennaRangeShort : maxAntennaRangeMid) 
                                  : maxAntennaRangeLong;
   }
   
