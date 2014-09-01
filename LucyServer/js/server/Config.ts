@@ -6,6 +6,7 @@ import fs       = require('fs');
 
 import file     = require('./File');  
 
+// NOTE: short-/midrange settings apply to all antenna layouts
 export function getShortMidRangeSpecs(lucyConfigFilePath : string) : Shared.ShortMidRangeSpec[] {
   var config : Shared.ShortMidRangeSpec[] = []; 
   if (!fs.existsSync(lucyConfigFilePath)) {
