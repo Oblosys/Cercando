@@ -11,6 +11,8 @@
 
 var defaultServerPortNr = 8081; // port for the Simulator web server
 
+var eventEmissionDelay = 100; 
+
 var readerServerPortNr = 8193;
 var reconnectInterval = 2000; // time in ms to wait before trying to reconnect to the reader server
 var useSmoother = true;
@@ -252,7 +254,6 @@ function getAntennaNr(antennaId : Shared.AntennaId) {
 
 var clientSocket : net.Socket;
 var eventInterval : NodeTimer;
-var eventEmissionDelay = 1000; // 
 
 function startReaderServer() {
   var server = net.createServer(function(c) { //'connection' listener
