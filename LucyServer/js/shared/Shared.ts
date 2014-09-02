@@ -53,13 +53,13 @@ module Shared {
                            ; metaData : TagMetaData }[]
   
   // Format for communicating with diColore servers
-  export interface TagLocations { timestamp : string; tagLocations : { epc : string ; x : number; y : number}[] } 
+  export interface DiColoreTagLocations { timestamp : string; tagLocations : { epc : string ; x : number; y : number}[] } 
   
   // Format for communicating with diColore servers
-  export interface TagDistances {antennaData : { antennaName : string
-                                               ; tagDistances : { epc: string
-                                                                ; rssi: number
-                                                                ; distance : number}[] }[] }  
+  export interface DiColoreTagDistances { antennaName : string
+                                        ; tagDistances : { epc: string
+                                                         ; rssi: number
+                                                         ; distance : number}[] }  
   
   // TODO: split this in true server state (including allAntennas because of dynamic shortMidRangeSpecs) and part that is sent to client
   export interface ServerState {

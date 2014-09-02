@@ -16,7 +16,9 @@ var defaultServerPortNr = 8080; // port for the Lucy web server
 var remoteHostName = 'lucy.oblomov.com';
 //var remoteHostName = '10.0.0.24';
 var readerServerPortNr       = 8193;
-var presentationServerPortNr = 8199;
+//var diColoreLocationServer = {ip: '10.0.0.26', port: 8198};
+var diColoreLocationServer = {ip: '127.0.0.1', port: 8198};
+var diColoreShortMidPort = 8199; // ip addresses are specified per short-/midrange antenna in config.json at lucyConfigFilePath
 
 var db_config = {
     host:'10.0.0.20', // replaced by 'localhost' when remoteReader paramater is given
@@ -311,47 +313,6 @@ function initExpress() {
     res.setHeader('content-type', 'text/plain');
     res.writeHead(204);
     res.end();
-  });
-
-  // For communicating with Di Colore software
-  app.get('/query/tag-locations', function(req, res) {
-    var locations : {epc:string; x:number; y:number}[] = [];
-    _(state.tagsData).each(tag => {
-        if (tag.coordinate) { // in case no location was computed yet (TODO: may be unnecessary when we keep track of positioned tags)
-          locations.push({epc: tag.epc, x:+tag.coordinate.coord.x.toFixed(2), y:+tag.coordinate.coord.y.toFixed(2)}) 
-        }
-    });
-    var now = new Date();
-    var tagLocations : Shared.TagLocations = { timestamp: util.showDate(now) + ' ' + util.showTime(now), tagLocations: locations}
-    res.setHeader('content-type', 'application/json');
-    res.send(JSON.stringify(tagLocations));
-  });
-
-  // For communicating with Di Colore software
-  app.get('/query/short-mid-tag-distances', function(req, res) {
-    // sparse array for keeping track of tags per antenna (we keep 
-    var allAntennaTags : { epc:string; rssi:number; distance:number}[][] = util.replicate(allAntennas.length, []);
-        
-    _(state.tagsData).each(tag => {
-      _(tag.antennaRssis).each(antRssi => {
-        //util.log(tag.epc + ' ' + JSON.stringify(antRssi));
-        if (allAntennas[antRssi.antNr].shortMidRange!=null && antRssi.age < 0.5) // TODO: use better way to clear short/mid faster than normal antennas, or use constant
-          // TODO: age seems incorrect: always 0 except for the last entry  
-          allAntennaTags[antRssi.antNr].push({epc: tag.epc, rssi: antRssi.value, distance: antRssi.distance});
-      }); 
-    });
-
-    var allAntennaData: { antennaName:string; tagDistances : { epc:string; rssi:number; distance:number}[] }[] =
-      _(allAntennaTags).map((tagsInRange, antennaNr) => {
-        return {antennaName: allAntennas[antennaNr].name, tagDistances: tagsInRange};
-      });
-
-    // filter short/midrange antennas from sparse array
-    var shortMidRangAntennaData = _(allAntennaData).filter((antenna, antennaNr) => {return allAntennas[antennaNr].shortMidRange != null});
-    
-    var tagDistances : Shared.TagDistances = {antennaData: shortMidRangAntennaData};
-    res.setHeader('content-type', 'application/json');
-    res.send(JSON.stringify(tagDistances));
   });
 
   app.get('/query/test', function(req, res) {  
@@ -773,10 +734,84 @@ function filtered(epc : string, ant : number, rssi : number, timestamp : Date, p
 }
 
 
+// Di Colore communication
+
+// type-safe shorthand function
+function messageDiColoreTagDistances(serverIp : string, serverPort : number, tagDistances : Shared.DiColoreTagDistances) {
+  messageDiColoreServer(serverIp, serverPort, tagDistances);
+}
+
+// type-safe shorthand function
+function messageDiColoreTagLocations(serverIp : string, serverPort : number, tagLocations : Shared.DiColoreTagLocations) {
+  messageDiColoreServer(serverIp, serverPort, tagLocations);
+}
+ 
+function messageDiColoreServer(serverIp : string, serverPort : number, messageObject : any) {
+  //util.log(new Date() + ' Messaging Di Colore server %s:%d', serverIp, serverPort);
+  var presentationServerSocket = new net.Socket();
+  
+  presentationServerSocket.on('data', function(buffer : NodeBuffer) {
+    var response = buffer.toString('utf8');
+    if (response != 'ok\n') {
+      util.log('Error: Di Colore server at ' + serverIp + ':' + serverPort + ' failed to respond correctly:\n' + response);
+    }
+    presentationServerSocket.end();
+  });
+  presentationServerSocket.on('connect', function() {
+    presentationServerSocket.write( JSON.stringify(messageObject) );
+  });
+  presentationServerSocket.on('error', function(err : any) { // not typed
+    util.log('Connection to Di Colore server at ' + serverIp + ' failed (error code: ' + err.code + ')');
+    if (presentationServerSocket) 
+      presentationServerSocket.destroy();
+  });
+  presentationServerSocket.on('close', function() {
+    //util.log('Connection closed');
+  });
+
+  presentationServerSocket.connect(serverPort, serverIp);
+}
 
 function reportShortMidRangeData() {
-  //signalPresentationServer(shortMidRangeTarget.serverIp, shortMidRangeTarget.antennaIndex, readerEvent.epc);
+  // create sparse array for all antennas to store tags visible to each short-/midrange antenna
+  // (using array for all antennas allows us to use the antennaNr as index)
+  var allAntennaTags : { epc:string; rssi:number; distance:number}[][] = util.replicate(allAntennas.length, []);
+  _(state.tagsData).each(tag => {
+    _(tag.antennaRssis).each(antRssi => {
+      //util.log(tag.epc + ' ' + JSON.stringify(antRssi));
+      if (allAntennas[antRssi.antNr].shortMidRange!=null && antRssi.age < 0.5) // TODO: use better way to clear short/mid faster than normal antennas, or use constant
+        // TODO: age seems incorrect: always 0 except for the last entry  
+        allAntennaTags[antRssi.antNr].push({epc: tag.epc, rssi: antRssi.value, distance: antRssi.distance});
+    }); 
+  });
+
+  var shortMidTagss : { antennaName:string; shortMidRangeIp:string; tagDistances : { epc:string; rssi:number; distance:number}[] }[] = [];
+    
+  _(allAntennaTags).each((tagsInRange, antennaNr) => {
+      if (allAntennas[antennaNr].shortMidRange != null) {
+        shortMidTagss.push({antennaName: allAntennas[antennaNr].name, shortMidRangeIp: allAntennas[antennaNr].shortMidRange.serverIp, tagDistances: tagsInRange});
+      }
+  });
+
+  _(shortMidTagss).each(shortMidTags => {
+    var diColoreTagDistances :Shared.DiColoreTagDistances = {antennaName: shortMidTags.antennaName, tagDistances: shortMidTags.tagDistances};
+    messageDiColoreServer(shortMidTags.shortMidRangeIp, diColoreShortMidPort, JSON.stringify(diColoreTagDistances));
+  });
 }
+
+// Report all tag coordinates to Di Colore server
+function reportTagLocations() {
+  var tagLocations : {epc:string; x:number; y:number}[] = [];
+  _(state.tagsData).each(tag => {
+      if (tag.coordinate) { // in case no location was computed yet
+        tagLocations.push({epc: tag.epc, x:+tag.coordinate.coord.x.toFixed(2), y:+tag.coordinate.coord.y.toFixed(2)}) 
+      }
+  });
+  var now = new Date();
+  var diColoreTagLocations : Shared.DiColoreTagLocations = { timestamp: util.showDate(now) + ' ' + util.showTime(now), tagLocations: tagLocations}
+  messageDiColoreTagLocations(diColoreLocationServer.ip, diColoreLocationServer.port, diColoreTagLocations);
+}
+
 
 // trilaterate all tags and set age and distance for each rssi value
 function positionAllTags() {
@@ -808,6 +843,8 @@ function positionAllTags() {
       tag.coordinate = trilateration.getPosition(tag.epc, allAntennas, oldCoord, dt, tag.antennaRssis);
     }
   });
+  
+  reportTagLocations();
 }
 
 // remove all tags that only have timestamps larger than ancientAge
@@ -838,30 +875,6 @@ function tagDidEnter(tag : Shared.TagData) {
 
 function tagDidExit(tag : Shared.TagData) {
   //util.log('Tag ' + tag.epc + ' exited the floor');
-}
-
-function signalPresentationServer(serverIp : string, antennaIndex : number, epc : string) {
-  //util.log(new Date() + ' Signaling presentation server %s on antenna %d for tag %s', serverIp, antennaIndex, epc);
-  var presentationServerSocket = new net.Socket();
-  
-  presentationServerSocket.on('data', function(buffer : NodeBuffer) {
-    var response = buffer.toString('utf8');
-    util.log('Presentation server on '+serverIp+': ' +  (response == 'ok\n' ? 'Presentation server was signaled on antenna '+antennaIndex : 'Error from presentation server: ' + response));
-    presentationServerSocket.end();
-  });
-  presentationServerSocket.on('connect', function() {
-    presentationServerSocket.write('epc=' + epc + '&antennaIndex=' + antennaIndex);
-  });
-  presentationServerSocket.on('error', function(err : any) { // TODO: not typed
-    util.log('Connection to presentation server at ' + serverIp + ' failed (error code: ' + err.code + ')');
-    if (presentationServerSocket) 
-      presentationServerSocket.destroy();
-  });
-  presentationServerSocket.on('close', function() {
-    //util.log('Connection closed');
-  });
-
-  presentationServerSocket.connect(presentationServerPortNr, serverIp);
 }
 
 function queryTagMetaData(tag : Shared.TagData) {
