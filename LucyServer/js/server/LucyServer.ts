@@ -16,8 +16,7 @@ var defaultServerPortNr = 8080; // port for the Lucy web server
 var remoteHostName = 'lucy.oblomov.com';
 //var remoteHostName = '10.0.0.24';
 var readerServerPortNr       = 8193;
-//var diColoreLocationServer = {ip: '10.0.0.26', port: 8198};
-var diColoreLocationServer = {ip: '127.0.0.1', port: 8198};
+var diColoreLocationServer = {ip: '10.0.0.26', port: 8198};
 var diColoreShortMidPort = 8199; // ip addresses are specified per short-/midrange antenna in config.json at lucyConfigFilePath
 
 var db_config = {
