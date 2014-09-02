@@ -63,9 +63,9 @@ module Shared {
   
   // TODO: split this in true server state (including allAntennas because of dynamic shortMidRangeSpecs) and part that is sent to client
   export interface ServerState {
-    status : { isConnected : boolean; isSaving : boolean; readerServerTime : string; replayFileName : string }
+    status : { isConnected : boolean; isSaving : boolean; replayFileName : string }
     selectedAntennaLayoutNr : number
-    liveTagInfo : { tagsData : TagData[] }
+    liveTagInfo : { mostRecentEventTime : string; tagsData : TagData[] }
     unknownAntennaIds : AntennaId[]
     diColoreStatus : { locationServerOperational : boolean ; shortMidRangeServers : {antennaName : string; operational : boolean}[] } 
   }
@@ -74,9 +74,9 @@ module Shared {
 
   export function initialServerState() : ServerState {
     return {
-      status: {isConnected: false, isSaving: false, readerServerTime: null, replayFileName: null}, // replayFileName is relative to saveDirectoryPath and without .csv extension
+      status: {isConnected: false, isSaving: false, replayFileName: null}, // replayFileName is relative to saveDirectoryPath and without .csv extension
       selectedAntennaLayoutNr: 0,
-      liveTagInfo: {tagsData: []},
+      liveTagInfo: {mostRecentEventTime: null, tagsData: []},
       unknownAntennaIds: [],
       diColoreStatus: { locationServerOperational: false, shortMidRangeServers : [] }
     };

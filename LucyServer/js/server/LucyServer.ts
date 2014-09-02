@@ -205,12 +205,12 @@ function initExpress() {
     //util.log('Sending tag data to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
     
-    // TODO: Make separate type for this and don't put reader server time in state (only in tagsInfo) 
-    state.status.readerServerTime = latestReaderEventTimeMs ? ''+new Date(latestReaderEventTimeMs) : null;
     var tagsInfo : Shared.ServerState =
       { selectedAntennaLayoutNr: state.selectedAntennaLayoutNr
       , unknownAntennaIds: state.unknownAntennaIds
-      , liveTagInfo: {tagsData: _(state.liveTagInfo.tagsData).filter(tagData => {return tagData.coordinate != null})} // don't send tags that don't have a coordinate yet
+      , liveTagInfo: { mostRecentEventTime: latestReaderEventTimeMs ? ''+new Date(latestReaderEventTimeMs) : null
+                     , tagsData: _(state.liveTagInfo.tagsData).filter(tagData => {return tagData.coordinate != null}) // don't send tags that don't have a coordinate yet
+                     }
       , status: state.status
       , diColoreStatus: state.diColoreStatus
       };
