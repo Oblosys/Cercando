@@ -19,19 +19,12 @@ function initServer() {
       //util.log('client connected');
       
       clientSocket.on('data', function(buffer : NodeBuffer) {
-        var tagInfo : string = buffer.toString('utf8');
-        var vars : any = {};
-        var params = tagInfo.split('&');
-        for(var i = 0; i < params.length; i++){
-            var paramArr = params[i].split('=');
-            vars[paramArr[0]] = paramArr[1];
-        }
-        if (vars.epc && vars.antennaIndex)
-          util.log(new Date() + ' Saw tag ' + vars.epc + ' on antenna ' + vars.antennaIndex);
+        var message : string = buffer.toString('utf8');
+        util.log(new Date() + ' Received: '+message);
       }); 
       clientSocket.write('ok\n');
       clientSocket.on('end', function() {
-        console.log('Client disconnected');
+        //console.log('Client disconnected');
         clientSocket = null;
       });
       
@@ -41,5 +34,4 @@ function initServer() {
     console.log('Listening to ' + serverPortNr);
     
   });
-  setInterval(() => {util.log(new Date() + ' Listening')},50)
 }
