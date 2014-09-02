@@ -30,3 +30,7 @@
 	float: left;
 	clear: left;
 }
+
+#short-mid-range-server-status span {
+	margin-right: 5px;
+}

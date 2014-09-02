@@ -277,11 +277,19 @@ function updateLabels() {
 
   $('#server-connection-label').text(isServerConnected ? 'Connected' : 'Not connected');
   $('#server-connection-label').css('color', isServerConnected ? 'lime' : 'red');
+  
+  $('#location-server-status-label').text(serverState.diColoreStatus.locationServerOperational ? 'OK' : 'Down');
+  $('#location-server-status-label').css('color', serverState.diColoreStatus.locationServerOperational ? 'lime' : 'red');
+  
+  var shortMidRangeStatusSpans = '';
+  _(serverState.diColoreStatus.shortMidRangeServers).each(status => {
+    var color = status.operational ? 'lime' : 'red';
+    shortMidRangeStatusSpans+='<span style="color: '+color+'">'+status.antennaName+'</span>';
+  });
+  $('#short-mid-range-server-status').html(shortMidRangeStatusSpans);
 }
 
-function updateTags() {
-  updateLabels();
-    
+function updateTags() {    
   var now = new Date();
   var unknownAntennasHtml = serverState.unknownAntennaIds.length == 0 ? 'None' :
     _(serverState.unknownAntennaIds).map((unknownAntenna) => {
@@ -391,6 +399,7 @@ function refresh() {
       util.log('old layout was ' + oldSelectedAntennaLayoutNr + ' selecting new layout');
       selectLayout(serverState.selectedAntennaLayoutNr);
     }
+    updateLabels();
 
     updateTags();
   }).fail(function(jqXHR : JQueryXHR, status : any, err : any) {

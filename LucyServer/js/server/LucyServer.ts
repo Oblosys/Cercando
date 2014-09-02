@@ -210,6 +210,7 @@ function initExpress() {
       , unknownAntennaIds: state.unknownAntennaIds
       , tagsData: _(state.tagsData).filter(tagData => {return tagData.coordinate != null}) // don't send tags that don't have a coordinate yet
       , status: state.status
+      , diColoreStatus: state.diColoreStatus
       };
     res.send(JSON.stringify(tagsInfo));
   });
@@ -330,6 +331,9 @@ function initAntennaLayout(nr : number) {
   allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr], shortMidRangeSpecs);
   state.tagsData = [];
   state.unknownAntennaIds = [];
+  state.diColoreStatus.shortMidRangeServers = _(shortMidRangeSpecs).map(spec => {
+    return {antennaName: spec.antennaName, operational: false};
+  });
 }
 
 function getAntennaInfo(nr : number) : Shared.AntennaInfo {
@@ -738,15 +742,23 @@ function filtered(epc : string, ant : number, rssi : number, timestamp : Date, p
 
 // type-safe shorthand function
 function messageDiColoreTagDistances(serverIp : string, serverPort : number, tagDistances : Shared.DiColoreTagDistances) {
-  messageDiColoreServer(serverIp, serverPort, tagDistances);
-}
+  messageDiColoreServer(serverIp, serverPort, tagDistances, successful => {
+    var shortMidRangeStatus = _(state.diColoreStatus.shortMidRangeServers).findWhere({antennaName: tagDistances.antennaName});
+    if (shortMidRangeStatus) {
+      shortMidRangeStatus.operational = successful;
+    } else {
+      util.error('Internal error: shortMidRange status object not found for antenna: ' + tagDistances.antennaName);
+    }
+  });}
 
 // type-safe shorthand function
 function messageDiColoreTagLocations(serverIp : string, serverPort : number, tagLocations : Shared.DiColoreTagLocations) {
-  messageDiColoreServer(serverIp, serverPort, tagLocations);
+  messageDiColoreServer(serverIp, serverPort, tagLocations, successful => {
+    state.diColoreStatus.locationServerOperational = successful;
+  });
 }
  
-function messageDiColoreServer(serverIp : string, serverPort : number, messageObject : any) {
+function messageDiColoreServer(serverIp : string, serverPort : number, messageObject : any, callback : (successful : boolean) => void) {
   //util.log(new Date() + ' Messaging Di Colore server %s:%d', serverIp, serverPort);
   var presentationServerSocket = new net.Socket();
   
@@ -754,7 +766,9 @@ function messageDiColoreServer(serverIp : string, serverPort : number, messageOb
     var response = buffer.toString('utf8');
     if (response != 'ok\n') {
       util.log('Error: Di Colore server at ' + serverIp + ':' + serverPort + ' failed to respond correctly:\n' + response);
-    }
+      callback(false);
+    } else
+      callback(true);
     presentationServerSocket.end();
   });
   presentationServerSocket.on('connect', function() {
@@ -762,6 +776,7 @@ function messageDiColoreServer(serverIp : string, serverPort : number, messageOb
   });
   presentationServerSocket.on('error', function(err : any) { // not typed
     util.log('Connection to Di Colore server at ' + serverIp + ' failed (error code: ' + err.code + ')');
+    callback(false);
     if (presentationServerSocket) 
       presentationServerSocket.destroy();
   });
@@ -795,7 +810,7 @@ function reportShortMidRangeData() {
 
   _(shortMidTagss).each(shortMidTags => {
     var diColoreTagDistances :Shared.DiColoreTagDistances = {antennaName: shortMidTags.antennaName, tagDistances: shortMidTags.tagDistances};
-    messageDiColoreServer(shortMidTags.shortMidRangeIp, diColoreShortMidPort, JSON.stringify(diColoreTagDistances));
+    messageDiColoreTagDistances(shortMidTags.shortMidRangeIp, diColoreShortMidPort, diColoreTagDistances);
   });
 }
 
