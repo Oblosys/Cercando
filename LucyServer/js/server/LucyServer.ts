@@ -304,6 +304,8 @@ function initExpress() {
         res.send(403, { error: message });
       }
     };
+    util.log(new Date() + ' Start-replay request\nFile: "' + decodeURI(req.query.filename + '"') + 
+             '\nOriginating IP: ' + req.ip + '  user-agent: '+ (req.headers['user-agent'] ? '"' + req.headers['user-agent'].slice(0,20) + '.."' : '<Unknown user agent>'));
     startReplay(decodeURI(req.query.filename), cont);
   });
 
@@ -530,7 +532,6 @@ var replayStartEventTime : number;
 // TODO Quickly tapping the start-replay button hangs Firefox. Chrome is fine though. 
 // Note: filePath is relative to saveDirectoryPath and without .csv extension
 function startReplay(filePath : string, cont : {success : () => void; error : (message : string) => void}) {
-  util.log('Start-replay request for filename ' + filePath);
   if (!file.isSafeFilePath(filePath.replace(/[\/,\.]/g,''))) { // first remove / and ., which are allowed in replay file paths
     // This is safe as long as we only open the file within the server and try to parse it as csv, when csv can be downloaded we need stricter
     // safety precautions.
