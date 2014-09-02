@@ -61,22 +61,24 @@ module Shared {
                                                          ; rssi: number
                                                          ; distance : number}[] }  
   
+  export interface TagsInfo { mostRecentEventTime : string; tagsData : TagData[] }
+  
   // TODO: split this in true server state (including allAntennas because of dynamic shortMidRangeSpecs) and part that is sent to client
   export interface ServerState {
     status : { isConnected : boolean; isSaving : boolean; replayFileName : string }
     selectedAntennaLayoutNr : number
-    liveTagInfo : { mostRecentEventTime : string; tagsData : TagData[] }
+    liveTagsInfo : TagsInfo
     unknownAntennaIds : AntennaId[]
     diColoreStatus : { locationServerOperational : boolean ; shortMidRangeServers : {antennaName : string; operational : boolean}[] } 
   }
   
-  export interface ReplaySession { fileReader : any; startClockTime : number; startEventTime : number}
+  export interface ReplaySession { fileReader : any; startClockTime : number; startEventTime : number; tagsInfo : TagsInfo }
 
   export function initialServerState() : ServerState {
     return {
       status: {isConnected: false, isSaving: false, replayFileName: null}, // replayFileName is relative to saveDirectoryPath and without .csv extension
       selectedAntennaLayoutNr: 0,
-      liveTagInfo: {mostRecentEventTime: null, tagsData: []},
+      liveTagsInfo: {mostRecentEventTime: null, tagsData: []},
       unknownAntennaIds: [],
       diColoreStatus: { locationServerOperational: false, shortMidRangeServers : [] }
     };
