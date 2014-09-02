@@ -69,7 +69,7 @@ body {
   text-anchor: end;
 }
 
-#floor #reader-time-label { /* need #floor to make this rule more specific than #floor text */
+#floor #tag-event-time-label { /* need #floor to make this rule more specific than #floor text */
   font-size: 20px;
   fill: red;
   text-anchor: end;
