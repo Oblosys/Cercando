@@ -50,7 +50,7 @@ function resetClientState() {
   util.log('Resetting client state');
   isServerConnected;
   uiState.trigger('change'); // reflect current values in UI, even when they are not different from defaults (and don't fire change  event)
-  serverState.tagsData = [];
+  serverState.liveTagInfo.tagsData = [];
   allTagTrails = {};
   d3.selectAll('#trail-plane *').remove();
   d3.selectAll('#antenna-plane *').remove();
@@ -299,7 +299,7 @@ function updateTags() {
  
   $('.tag-zone').css('fill', '').css('stroke', 'none'); // remove background overrides coming from strongest signals
 
-  _.map(serverState.tagsData, (tagData) => {
+  _.map(serverState.liveTagInfo.tagsData, (tagData) => {
     var tagNr = getTagNr(tagData.epc);
     
     // Mark the most-likely zone this tag is located in, based on the strongest antenna signal
@@ -391,7 +391,7 @@ function refresh() {
     isServerConnected = true;
     //util.log(JSON.stringify('old epcs: '+_(serverState.tagsData).pluck('epc')));
     //util.log(JSON.stringify('new epcs: '+_(newServerState.tagsData).pluck('epc')));
-    addRemoveSVGElements(serverState.tagsData, newServerState.tagsData)
+    addRemoveSVGElements(serverState.liveTagInfo.tagsData, newServerState.liveTagInfo.tagsData)
 
     var oldSelectedAntennaLayoutNr = serverState.selectedAntennaLayoutNr;    
     serverState = newServerState;
@@ -478,5 +478,5 @@ function handleSelectLayout(selectElt : HTMLSelectElement) {
 
 // return the index in tagsData for the tag with this epc 
 function getTagNr(epc : string) {
-  return _(serverState.tagsData).pluck('epc').indexOf(epc);
+  return _(serverState.liveTagInfo.tagsData).pluck('epc').indexOf(epc);
 }

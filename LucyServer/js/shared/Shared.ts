@@ -65,7 +65,7 @@ module Shared {
   export interface ServerState {
     status : { isConnected : boolean; isSaving : boolean; readerServerTime : string; replayFileName : string }
     selectedAntennaLayoutNr : number
-    tagsData : TagData[]
+    liveTagInfo : { tagsData : TagData[] }
     unknownAntennaIds : AntennaId[]
     diColoreStatus : { locationServerOperational : boolean ; shortMidRangeServers : {antennaName : string; operational : boolean}[] } 
   }
@@ -76,7 +76,7 @@ module Shared {
     return {
       status: {isConnected: false, isSaving: false, readerServerTime: null, replayFileName: null}, // replayFileName is relative to saveDirectoryPath and without .csv extension
       selectedAntennaLayoutNr: 0,
-      tagsData: [],
+      liveTagInfo: {tagsData: []},
       unknownAntennaIds: [],
       diColoreStatus: { locationServerOperational: false, shortMidRangeServers : [] }
     };

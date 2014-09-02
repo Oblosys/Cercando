@@ -210,7 +210,7 @@ function initExpress() {
     var tagsInfo : Shared.ServerState =
       { selectedAntennaLayoutNr: state.selectedAntennaLayoutNr
       , unknownAntennaIds: state.unknownAntennaIds
-      , tagsData: _(state.tagsData).filter(tagData => {return tagData.coordinate != null}) // don't send tags that don't have a coordinate yet
+      , liveTagInfo: {tagsData: _(state.liveTagInfo.tagsData).filter(tagData => {return tagData.coordinate != null})} // don't send tags that don't have a coordinate yet
       , status: state.status
       , diColoreStatus: state.diColoreStatus
       };
@@ -333,7 +333,7 @@ function initAntennaLayout(nr : number) {
   state.selectedAntennaLayoutNr = util.clip(0, allAntennaLayouts.length-1, nr);
   var shortMidRangeSpecs = Config.getShortMidRangeSpecs(lucyConfigFilePath);
   allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr], shortMidRangeSpecs);
-  state.tagsData = [];
+  state.liveTagInfo.tagsData = [];
   state.unknownAntennaIds = [];
   state.diColoreStatus.shortMidRangeServers = _(shortMidRangeSpecs).map(spec => {
     return {antennaName: spec.antennaName, operational: false};
@@ -556,7 +556,7 @@ function startReplay(replaySession : Shared.ReplaySession, filePath : string, co
         clearReplay(replaySession);
       }
       
-      state.tagsData = [];
+      state.liveTagInfo.tagsData = [];
       state.status.replayFileName = filePath;
 
       // TODO: drop header line more elegantly
@@ -592,7 +592,7 @@ function stopReplay(replaySession : Shared.ReplaySession) {
 
 function clearReplay(replaySession : Shared.ReplaySession) {
   replaySession.fileReader = null;
-  state.tagsData = [];
+  state.liveTagInfo.tagsData = [];
   state.status.replayFileName = null;
   replaySession.startClockTime = null;
   replaySession.startEventTime = null;
@@ -609,7 +609,7 @@ function readReplayEvent(replaySession : Shared.ReplaySession, line : string, li
       replaySession.startClockTime = new Date().getTime();
       replaySession.startEventTime = replayEventTime;
       //util.log('Replay first event timestamp: ' + new Date(replayEventTime));
-      state.tagsData = [];
+      state.liveTagInfo.tagsData = [];
     }
     
     var replayEventRelativeTime = new Date(replayEvent.timestamp).getTime() - replaySession.startEventTime;
@@ -673,10 +673,10 @@ function processReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
     outputStreamWriteReaderEvent(outputFileStream, readerEvent);
   }
 
-  var tag = _.findWhere(state.tagsData, {epc: readerEvent.epc});
+  var tag = _.findWhere(state.liveTagInfo.tagsData, {epc: readerEvent.epc});
   if (!tag) {
     tag = { epc:readerEvent.epc, antennaRssis: [], metaData: null }
-    state.tagsData.push(tag);
+    state.liveTagInfo.tagsData.push(tag);
     tagDidEnter(tag);
   }
     
@@ -793,7 +793,7 @@ function reportShortMidRangeData() {
   // create sparse array for all antennas to store tags visible to each short-/midrange antenna
   // (using array for all antennas allows us to use the antennaNr as index)
   var allAntennaTags : { epc:string; rssi:number; distance:number}[][] = util.replicate(allAntennas.length, []);
-  _(state.tagsData).each(tag => {
+  _(state.liveTagInfo.tagsData).each(tag => {
     _(tag.antennaRssis).each(antRssi => {
       //util.log(tag.epc + ' ' + JSON.stringify(antRssi));
       if (allAntennas[antRssi.antNr].shortMidRange!=null && antRssi.age < 0.5) // TODO: use better way to clear short/mid faster than normal antennas, or use constant
@@ -819,7 +819,7 @@ function reportShortMidRangeData() {
 // Report all tag coordinates to Di Colore server
 function reportTagLocations() {
   var tagLocations : {epc:string; x:number; y:number}[] = [];
-  _(state.tagsData).each(tag => {
+  _(state.liveTagInfo.tagsData).each(tag => {
       if (tag.coordinate) { // in case no location was computed yet
         tagLocations.push({epc: tag.epc, x:+tag.coordinate.coord.x.toFixed(2), y:+tag.coordinate.coord.y.toFixed(2)}) 
       }
@@ -837,7 +837,7 @@ function positionAllTags() {
 
   //util.log(state.tagsData.length + ' tags')
   // set the age for each antennaRssi for each tag
-  _(state.tagsData).each((tag) => {
+  _(state.liveTagInfo.tagsData).each((tag) => {
     //util.log(tag.epc + ':' + tag.antennaRssis.length + ' signals');
     _(tag.antennaRssis).each((antennaRssi) => {
       antennaRssi.age = latestReaderEventTimeMs - antennaRssi.timestamp.getTime();
@@ -847,7 +847,7 @@ function positionAllTags() {
   purgeOldTags();  
   
   // compute coordinate for each tag
-  _(state.tagsData).each((tag) => {
+  _(state.liveTagInfo.tagsData).each((tag) => {
     var shortMidRangeRssi = _(tag.antennaRssis).find((antennaRssi) => {
       var shortMidRange = allAntennas[antennaRssi.antNr].shortMidRange;
       return shortMidRange != null && shared.isRecentAntennaRSSI(antennaRssi);
@@ -866,7 +866,7 @@ function positionAllTags() {
 
 // remove all tags that only have timestamps larger than ancientAge
 function purgeOldTags() {
-  state.tagsData = _(state.tagsData).filter((tag) => {
+  state.liveTagInfo.tagsData = _(state.liveTagInfo.tagsData).filter((tag) => {
     tag.antennaRssis = _(tag.antennaRssis).filter(antennaRssi => {
       var isAncient = antennaRssi.age > shared.ancientAgeMs;
       if (isAncient) {
