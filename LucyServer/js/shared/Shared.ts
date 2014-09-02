@@ -70,6 +70,8 @@ module Shared {
     diColoreStatus : { locationServerOperational : boolean ; shortMidRangeServers : {antennaName : string; operational : boolean}[] } 
   }
   
+  export interface ReplaySession { fileReader : any; startClockTime : number; startEventTime : number}
+
   export function initialServerState() : ServerState {
     return {
       status: {isConnected: false, isSaving: false, readerServerTime: null, replayFileName: null}, // replayFileName is relative to saveDirectoryPath and without .csv extension

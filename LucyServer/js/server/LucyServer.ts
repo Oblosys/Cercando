@@ -88,6 +88,9 @@ var dbConnectionPool : any;
 var reportShortMidRangeTimer : NodeTimer;
 var positioningTimer : NodeTimer;
 
+// For now, we have just one replay session, until this object is associated with an http session
+var theReplaySession : Shared.ReplaySession = { fileReader: null, startClockTime: null, startEventTime: null};
+
 
 initServer();
 
@@ -306,12 +309,12 @@ function initExpress() {
     };
     util.log(new Date() + ' Start-replay request\nFile: "' + decodeURI(req.query.filename + '"') + 
              '\nOriginating IP: ' + req.ip + '  user-agent: '+ (req.headers['user-agent'] ? '"' + req.headers['user-agent'].slice(0,20) + '.."' : '<Unknown user agent>'));
-    startReplay(decodeURI(req.query.filename), cont);
+    startReplay(theReplaySession, decodeURI(req.query.filename), cont);
   });
 
   app.get('/query/stop-replay', function(req, res) {
     util.log('Stop-replay request');
-    stopReplay();
+    stopReplay(theReplaySession);
     res.setHeader('content-type', 'text/plain');
     res.writeHead(204);
     res.end();
@@ -523,15 +526,14 @@ function logReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   outputStreamWriteReaderEvent(eventLogFileStream, readerEvent);
 }
 
-var replayFileReader : any;
-var replayStartClockTime : number; // TODO explain + mention ms
-var replayStartEventTime : number;
+
+// Replay functionality
 
 // TODO line-by-line is also buggy: async processing according to https://www.npmjs.org/package/line-by-line stops at the start of the last
 // chunk, meaning we lose the last 5 seconds of each replay and cannot replay files under 5 seconds (determined by nr of lines, so actual time may vary) 
 // TODO Quickly tapping the start-replay button hangs Firefox. Chrome is fine though. 
 // Note: filePath is relative to saveDirectoryPath and without .csv extension
-function startReplay(filePath : string, cont : {success : () => void; error : (message : string) => void}) {
+function startReplay(replaySession : Shared.ReplaySession, filePath : string, cont : {success : () => void; error : (message : string) => void}) {
   if (!file.isSafeFilePath(filePath.replace(/[\/,\.]/g,''))) { // first remove / and ., which are allowed in replay file paths
     // This is safe as long as we only open the file within the server and try to parse it as csv, when csv can be downloaded we need stricter
     // safety precautions.
@@ -548,10 +550,10 @@ function startReplay(filePath : string, cont : {success : () => void; error : (m
     } else {
       // Because line-by-line does not distinguish automatic close (after error or eof) from user-initiated close, and the 'end' event
       // is emited after a delay, we need to disable 'end' handling, since otherwise the new file reader will be cleared at this event.
-      if (replayFileReader) {
-        replayFileReader.removeAllListeners('end');    
-        replayFileReader.close();
-        clearReplay();
+      if (replaySession.fileReader) {
+        replaySession.fileReader.removeAllListeners('end');    
+        replaySession.fileReader.close();
+        clearReplay(replaySession);
       }
       
       state.tagsData = [];
@@ -560,7 +562,7 @@ function startReplay(filePath : string, cont : {success : () => void; error : (m
       // TODO: drop header line more elegantly
       var lineReader = new lineByLineReader(replayFilePath);
       
-      replayFileReader = lineReader;
+      replaySession.fileReader = lineReader;
       
       lineReader.on('error', (err : Error) => {
         //clearReplay();
@@ -571,47 +573,47 @@ function startReplay(filePath : string, cont : {success : () => void; error : (m
       lineReader.on('line', (line : string) => {
         //util.log('line');
         lineReader.pause(); // replayFileReader is resumed by readReplayEvent()
-        readReplayEvent(line, lineReader);
+        readReplayEvent(replaySession, line, lineReader);
       });
         
       lineReader.on('end', () => {
         util.log('Ending replay'); // TODO: apparently called several times
-        clearReplay();
+        clearReplay(replaySession);
       });
       cont.success();
     }
   }
 }
 
-function stopReplay() {
-  if (replayFileReader)
-    replayFileReader.close();
+function stopReplay(replaySession : Shared.ReplaySession) {
+  if (replaySession.fileReader)
+    replaySession.fileReader.close();
 }
 
-function clearReplay() {
-  replayFileReader = null;
+function clearReplay(replaySession : Shared.ReplaySession) {
+  replaySession.fileReader = null;
   state.tagsData = [];
   state.status.replayFileName = null;
-  replayStartClockTime = null;
-  replayStartEventTime = null;
+  replaySession.startClockTime = null;
+  replaySession.startEventTime = null;
 }
 
-function readReplayEvent(line : string, lineReader : any) {
+function readReplayEvent(replaySession : Shared.ReplaySession, line : string, lineReader : any) {
   //util.log('Read replay line: ' + line);
   var replayEvent = parseReplayEventCSV(line);
   if (!replayEvent) {
     lineReader.resume();
   } else {
     var replayEventTime = new Date(replayEvent.timestamp).getTime();
-    if (!replayStartClockTime) { // This means we're reading the first event
-      replayStartClockTime = new Date().getTime();
-      replayStartEventTime = replayEventTime;
+    if (!replaySession.startClockTime) { // This means we're reading the first event
+      replaySession.startClockTime = new Date().getTime();
+      replaySession.startEventTime = replayEventTime;
       //util.log('Replay first event timestamp: ' + new Date(replayEventTime));
       state.tagsData = [];
     }
     
-    var replayEventRelativeTime = new Date(replayEvent.timestamp).getTime() - replayStartEventTime;
-    var replayEventClockTime = replayStartClockTime + replayEventRelativeTime;
+    var replayEventRelativeTime = new Date(replayEvent.timestamp).getTime() - replaySession.startEventTime;
+    var replayEventClockTime = replaySession.startClockTime + replayEventRelativeTime;
     var eventDelay = util.clip(0, Number.MAX_VALUE, replayEventClockTime - new Date().getTime());
     //util.log(replayEventRelativeTime + '  ' + eventDelay);
 
@@ -657,7 +659,7 @@ function parseReplayEventCSV(csvLine : string) : ServerCommon.ReaderEvent {
 function processReaderServerEvent(readerEvent : ServerCommon.ReaderEvent) {
   //util.log('Reader event: ' + JSON.stringify(readerEvent));
   logReaderEvent(readerEvent);
-  if (!replayFileReader) {
+  if (!theReplaySession.fileReader) { // TODO: remove as soon as processReaderEvent is parameterized
     processReaderEvent(readerEvent);
   }
 }
