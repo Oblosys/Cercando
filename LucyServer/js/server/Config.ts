@@ -110,14 +110,14 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
           }
         , { readerIp: '10.0.0.31'
           , antennaSpecs:
-            [ {name: 'B1', coord: {x:2450, y:2536}}
-            , {name: 'B2', coord: {x:12465, y:6941}}
+            [ // {name: 'B1', coord: {x:2450, y:2536}}
+              {name: 'B2', coord: {x:12465, y:6941}}
             , {name: 'B3', coord: {x:9303, y:5025}}
             , {name: 'B4', coord: {x:10094, y:7692}}
             , {name: 'B5', coord: {x:10703, y:5025}}
             , {name: 'B6', coord: {x:7612, y:7967}}
             , {name: 'B7', coord: {x:12050, y:7939}}
-            , {name: 'B8', coord: {x:2450, y:2536}}
+            //, {name: 'B8', coord: {x:2450, y:2536}}
             ]
           }
         , { readerIp: '10.0.0.32'
@@ -215,13 +215,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
           }
         , { readerIp: '10.0.0.31'
           , antennaSpecs:
-              [ { name: 'B1'
-                , coord:
-                    { x: 2.2836669921875
-                    , y: 3.4196372812571547
-                    }
-                }
-              , { name: 'B2'
+              [ { name: 'B2'
                 , coord:
                     { x: 3.465
                     , y: 1.9409999999999998
@@ -255,12 +249,6 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                 , coord:
                     { x: 3.0500000000000007
                     , y: 2.939
-                    }
-                }
-              , { name: 'B8'
-                , coord:
-                    { x: 1.2436669921875
-                    , y: 3.4396372812571547
                     }
                 }
               ]
