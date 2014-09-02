@@ -765,7 +765,7 @@ function messageDiColoreServer(serverIp : string, serverPort : number, messageOb
   presentationServerSocket.on('data', function(buffer : NodeBuffer) {
     var response = buffer.toString('utf8');
     if (response != 'ok\n') {
-      util.log('Error: Di Colore server at ' + serverIp + ':' + serverPort + ' failed to respond correctly:\n' + response);
+      //util.log('Error: Di Colore server at ' + serverIp + ':' + serverPort + ' failed to respond correctly:\n' + response);
       callback(false);
     } else
       callback(true);
@@ -775,7 +775,7 @@ function messageDiColoreServer(serverIp : string, serverPort : number, messageOb
     presentationServerSocket.write( JSON.stringify(messageObject) );
   });
   presentationServerSocket.on('error', function(err : any) { // not typed
-    util.log('Connection to Di Colore server at ' + serverIp + ' failed (error code: ' + err.code + ')');
+    //util.log('Connection to Di Colore server at ' + serverIp + ' failed (error code: ' + err.code + ')');
     callback(false);
     if (presentationServerSocket) 
       presentationServerSocket.destroy();
