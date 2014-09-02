@@ -113,8 +113,8 @@ function initServer() {
   allAntennaLayouts = Config.getAllAntennaLayouts();
   resetServerState();
  
-  reportShortMidRangeTimer = setInterval(reportShortMidRangeData, reportShortMidRangeInterval);
-  positioningTimer = setInterval(positionAllTags, positioningInterval);
+  reportShortMidRangeTimer = <any>setInterval(reportShortMidRangeData, reportShortMidRangeInterval); // annoying cast beacause of Eclipse TypeScript
+  positioningTimer = <any>setInterval(positionAllTags, positioningInterval); // annoying cast beacause of Eclipse TypeScript
 
   initExpress();
   var server = app.listen(serverPortNr, () => { util.log('Web server listening to port ' + serverPortNr);});
