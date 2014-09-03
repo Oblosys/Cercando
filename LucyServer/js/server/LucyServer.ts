@@ -214,7 +214,6 @@ function initExpress() {
       , unknownAntennaIds: state.unknownAntennaIds
       , liveTagsInfo: { mostRecentEventTimeMs: tagsInfo.mostRecentEventTimeMs
                       , previousPositioningTimeMs: tagsInfo.previousPositioningTimeMs
-                      , mostRecentEventTime: tagsInfo.mostRecentEventTimeMs ? ''+new Date(tagsInfo.mostRecentEventTimeMs) : null
                       , tagsData: _(tagsInfo.tagsData).filter(tagData => {return tagData.coordinate != null}) // don't send tags that don't have a coordinate yet
                       }
       , status: state.status

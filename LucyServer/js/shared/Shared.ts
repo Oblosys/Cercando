@@ -63,7 +63,6 @@ module Shared {
   
   export interface TagsInfo { mostRecentEventTimeMs : number     // time in milliseconds of the latest reader event (may be in the past for replays)
                             ; previousPositioningTimeMs : number // contains the value of latestReaderEventTimeMs at the previous moment of positioning     
-                            ; mostRecentEventTime : string       // string representation of mostRecentEventTimeMs
                             ; tagsData : TagData[]
                             }
   
