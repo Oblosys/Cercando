@@ -18,6 +18,7 @@ var remoteHostName = 'lucy.oblomov.com';
 var readerServerPortNr       = 8193;
 var diColoreLocationServer = {ip: '10.0.0.26', port: 8198};
 var diColoreShortMidPort = 8199; // ip addresses are specified per short-/midrange antenna in config.json at lucyConfigFilePath
+var sessionExpirationTimeMs = 5 * 1000;
 
 var db_config = {
     host:'10.0.0.20', // replaced by 'localhost' when remoteReader paramater is given
@@ -138,6 +139,9 @@ function initExpress() {
   app.enable('trust proxy'); // Need this to get correct ip address when redirecting from lucy.oblomov.com
 
   app.use(express.compress());
+  app.use(express.cookieParser());
+  app.use(express.session({secret: 'lucy in the sky', cookie: {maxAge:sessionExpirationTimeMs}, rolling: true}));
+  // rolling: keep resetting expiration on each response
 
   // serve 'client', 'shared', and 'node-modules' directories, but not 'server'
   app.use('/js/client', express.static(__dirname + '/../client'));
@@ -204,6 +208,7 @@ function initExpress() {
 
   app.get('/query/tags', function(req, res) {  
     //util.log('Sending tag data to client. (' + new Date() + ')');
+    //util.log('Session id: '+(<any>req.session).id);
     res.setHeader('content-type', 'application/json');
     
     var tagsState = theReplaySession.fileReader ? theReplaySession.tagsState : state.liveTagsState;
