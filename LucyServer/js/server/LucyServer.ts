@@ -844,7 +844,6 @@ function positionTags(tagsState : Shared.TagsState) {
   var dt = tagsState.previousPositioningTimeMs ? (tagsState.mostRecentEventTimeMs - tagsState.previousPositioningTimeMs) / 1000 :  0
   tagsState.previousPositioningTimeMs = tagsState.mostRecentEventTimeMs; 
 
-  util.log(tagsState.tagsData.length + ' tags')
   // set the age for each antennaRssi for each tag
   _(tagsState.tagsData).each((tag) => {
     //util.log(tag.epc + ':' + tag.antennaRssis.length + ' signals');
