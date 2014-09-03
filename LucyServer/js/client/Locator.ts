@@ -270,7 +270,13 @@ function updateLabels() {
   $('#event-source-label').text(tagsServerInfo.serverInfo.status.replayFileName ? 'REPLAY' : 'LIVE FEED');
   $('#replay-filename-label').text(tagsServerInfo.serverInfo.status.replayFileName ? 'Replaying: ' + tagsServerInfo.serverInfo.status.replayFileName : '');
   $('#client-time-label').text(ClientCommon.showTime(new Date()));
-  $('#tag-event-time-label').text(tagsServerInfo.tagsInfo.mostRecentEventTimeMs ? ClientCommon.showTime(new Date(tagsServerInfo.tagsInfo.mostRecentEventTimeMs)): '--:--:--');
+  
+  var eventTime = new Date(tagsServerInfo.tagsInfo.mostRecentEventTimeMs);
+  var timeLabel = tagsServerInfo.tagsInfo.mostRecentEventTimeMs 
+                ? (eventTime.toDateString() != new Date().toDateString() ? ClientCommon.showDate(eventTime) + ' ' : '') 
+                  + ClientCommon.showTime(eventTime) // only show prefix date if not today
+                : '--:--:--';
+  $('#tag-event-time-label').text(timeLabel);
   
   $('#reader-connection-label').text(tagsServerInfo.serverInfo.status.isConnected ? 'Connected' : 'Not connected');
   $('#reader-connection-label').css('color', tagsServerInfo.serverInfo.status.isConnected ? 'lime' : 'red');

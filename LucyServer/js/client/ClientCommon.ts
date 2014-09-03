@@ -315,6 +315,10 @@ module ClientCommon {
     return tag.metaData && tag.metaData.color ? tag.metaData.color : getTagInfo(tag.epc).color;
   }
   
+  export function showDate(date : Date) {
+    return date.getDate() + "-" + (date.getMonth()+1) + "-" + date.getFullYear() 
+  }  
+
   export function showTime(date : Date) {
     return util.padZero(2, date.getHours()) + ":" + util.padZero(2, date.getMinutes()) + ":" + util.padZero(2, date.getSeconds()) 
   }  
