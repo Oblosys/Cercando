@@ -207,12 +207,10 @@ function initExpress() {
     res.setHeader('content-type', 'application/json');
     
     // TODO: don't send serverState but server status (without liveTagsInfo) and separate tagsInfo
-    var tagsInfo = theReplaySession.fileReader ? theReplaySession.tagsInfo : state.liveTagsInfo;
-    util.log(tagsInfo.mostRecentEventTimeMs);
+    var tagsState = theReplaySession.fileReader ? theReplaySession.tagsInfo : state.liveTagsInfo;
     var tagsServerInfo : Shared.TagsServerInfo =
-      { tagsInfo: { mostRecentEventTimeMs: tagsInfo.mostRecentEventTimeMs // TODO: keep these from TagsInfo
-                  , previousPositioningTimeMs: tagsInfo.previousPositioningTimeMs
-                  , tagsData: _(tagsInfo.tagsData).filter(tagData => {return tagData.coordinate != null}) // don't send tags that don't have a coordinate yet
+      { tagsInfo: { mostRecentEventTimeMs: tagsState.mostRecentEventTimeMs
+                  , tagsData: _(tagsState.tagsData).filter(tagData => {return tagData.coordinate != null}) // don't send tags that don't have a coordinate yet
                   } 
       , serverInfo: { selectedAntennaLayoutNr: state.selectedAntennaLayoutNr
                     , unknownAntennaIds: state.unknownAntennaIds
@@ -670,7 +668,7 @@ function processReaderServerEvent(readerEvent : ServerCommon.ReaderEvent) {
 }
 
 // Process ReaderEvent, possibly coming from a replay
-function processReaderEvent(tagsInfo : Shared.TagsInfo, readerEvent : ServerCommon.ReaderEvent) {
+function processReaderEvent(tagsInfo : Shared.TagsState, readerEvent : ServerCommon.ReaderEvent) {
   var timestamp = new Date(readerEvent.timestamp);
   tagsInfo.mostRecentEventTimeMs = timestamp.getTime();
   //util.log('Reader event: ' + JSON.stringify(readerEvent));
@@ -843,7 +841,7 @@ function positionAllTags() {
 }
 
 // trilaterate all tags in tagsInfo and set age and distance for each rssi value
-function positionTags(tagsInfo : Shared.TagsInfo) {
+function positionTags(tagsInfo : Shared.TagsState) {
   var dt = tagsInfo.previousPositioningTimeMs ? (tagsInfo.mostRecentEventTimeMs - tagsInfo.previousPositioningTimeMs) / 1000 :  0
   tagsInfo.previousPositioningTimeMs = tagsInfo.mostRecentEventTimeMs; 
 
@@ -877,7 +875,7 @@ function positionTags(tagsInfo : Shared.TagsInfo) {
 }
 
 // remove all tags that only have timestamps larger than ancientAge
-function purgeOldTags(tagsInfo : Shared.TagsInfo) {
+function purgeOldTags(tagsInfo : Shared.TagsState) {
   tagsInfo.tagsData = _(tagsInfo.tagsData).filter((tag) => {
     tag.antennaRssis = _(tag.antennaRssis).filter(antennaRssi => {
       var isAncient = antennaRssi.age > shared.ancientAgeMs;
