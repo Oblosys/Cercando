@@ -81,13 +81,13 @@ module Shared {
   // Object that is sent to the client periodically
   export interface TagsServerInfo { tagsInfo : TagsInfo; serverInfo : ServerInfo }
   
-  export interface ServerState {
-    status : { isConnected : boolean; isSaving : boolean; replayFileName : string } // replayFileName is relative to saveDirectoryPath and without .csv extension
-    selectedAntennaLayoutNr : number
-    liveTagsState : TagsState
-    unknownAntennaIds : AntennaId[]
-    diColoreStatus : { locationServerOperational : boolean ; shortMidRangeServers : {antennaName : string; operational : boolean}[] } 
-  }
+  export interface ServerState
+    { status : { isConnected : boolean; isSaving : boolean; replayFileName : string } // replayFileName is relative to saveDirectoryPath and without .csv extension
+    ; selectedAntennaLayoutNr : number
+    ; liveTagsState : TagsState
+    ; unknownAntennaIds : AntennaId[]
+    ; diColoreStatus : { locationServerOperational : boolean ; shortMidRangeServers : {antennaName : string; operational : boolean}[] } 
+    }
   
   export interface ReplaySession { fileReader : any; startClockTime : number; startEventTime : number; tagsState : TagsState }
 
