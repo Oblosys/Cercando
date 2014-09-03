@@ -92,7 +92,7 @@ module Shared {
   export interface ReplaySession { fileReader : any; startClockTime : number; startEventTime : number; tagsState : TagsState }
 
   export function initialTagsServerInfo() : TagsServerInfo {
-    return { tagsInfo : { mostRecentEventTimeMs: null, previousPositioningTimeMs: null, tagsData : []}
+    return { tagsInfo : { mostRecentEventTimeMs: null, tagsData : []}
            , serverInfo :
              { status: {isConnected: false, isSaving: false, replayFileName: null},
                selectedAntennaLayoutNr: 0,
