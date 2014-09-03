@@ -98,10 +98,10 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
     , readerAntennaSpecs: // copied from Antenne layout 3 - RFID Blueprint versie 3.jpg
         [ { readerIp: '10.0.0.30'
           , antennaSpecs:
-            [ {name: 'A1', coord: {x:10450, y:2536}}
-            , {name: 'A2', coord: {x:12195, y:1507}}
-            , {name: 'A3', coord: {x:13768, y:1907}}
-            , {name: 'A4', coord: {x:13083, y:4438}}
+            [ {name: 'A1',coord:{x:10450, y:2992}}
+            , {name: 'A2',coord:{x:11993, y:2368}}
+            , {name: 'A3',coord:{x:11444, y:1907}}
+            , {name: 'A4',coord:{x:13083 /*13789*/, y:4438 /*3909*/}}
             , {name: 'A5', coord: {x:2450,  y:2536}}
             , {name: 'A6', coord: {x:2450,  y:2536}}
             , {name: 'A7', coord: {x:2450,  y:2536}}
@@ -111,35 +111,35 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
         , { readerIp: '10.0.0.31'
           , antennaSpecs:
             [ // {name: 'B1', coord: {x:2450, y:2536}}
-              {name: 'B2', coord: {x:12465, y:6941}}
-            , {name: 'B3', coord: {x:9303, y:5025}}
-            , {name: 'B4', coord: {x:10094, y:7692}}
-            , {name: 'B5', coord: {x:10703, y:5025}}
-            , {name: 'B6', coord: {x:7612, y:7967}}
-            , {name: 'B7', coord: {x:12050, y:7939}}
+              {name: 'B2',coord:{x:12465 /*12641*/, y:6941 /*4824*/}}
+            , {name: 'B3',coord:{x:9303 /*8950*/, y:5025 /*5201*/}}
+            , {name: 'B4',coord:{x:10094 /*9918*/, y:7692 /*7339*/}}
+            , {name: 'B5',coord:{x:10703 /*10527*/, y:5025 /*4672*/}}
+            , {name: 'B6',coord:{x:7612 /*8723*/, y:7967 /*7967*/}}
+            , {name: 'B7',coord:{x:12050 /*11609*/, y:7939 /*6193*/}}
             //, {name: 'B8', coord: {x:2450, y:2536}}
             ]
           }
         , { readerIp: '10.0.0.32'
           , antennaSpecs:
-            [ {name: 'C1', coord: {x:9524, y:2298}}
-            , {name: 'C2', coord: {x:7365, y:4953}}
-            , {name: 'C3', coord: {x:7564, y:6385}}
-            , {name: 'C4', coord: {x:4181, y:6236}}
-            , {name: 'C5', coord: {x:6188, y:6827}}
-            , {name: 'C6', coord: {x:3391, y:7949}}
+            [ {name: 'C1',coord:{x:8885, y:2436}}
+            , {name: 'C2',coord:{x:7365 /*6307*/, y:4953 /*4247*/}}
+            , {name: 'C3',coord:{x:7564, y:6385 /*6032*/}}
+            , {name: 'C4',coord:{x:4181, y:6236}}
+            , {name: 'C5',coord:{x:6188, y:6827}}
+            , {name: 'C6',coord:{x:3391 /*6566*/, y:7949 /*8125*/}}
             , {name: 'C7', coord: {x:2450, y:2536}}
             , {name: 'C8', coord: {x:2450, y:2536}}
             ]
           }
         , { readerIp: '10.0.0.33'
           , antennaSpecs:
-            [ {name: 'D1', coord: {x:7200, y:2300}}
-            , {name: 'D2', coord: {x:5800, y:4310}}
-            , {name: 'D3', coord: {x:3040, y:4180}}
-            , {name: 'D4', coord: {x:3770, y:2110}}
-            , {name: 'D5', coord: {x:5800, y: 900}}
-            
+            [ {name: 'D1',coord:{x:7310, y:2842}}
+            , {name: 'D2',coord:{x:5800 /*5037*/, y:4310 /*4807*/}}
+            , {name: 'D3',coord:{x:3040, y:4180}}
+            , {name: 'D4',coord:{x:3770, y:2110}}
+            , {name: 'D5',coord:{x:5800, y:900}}
+          
             , {name: 'NW', coord: {x:0,     y:0}}
             , {name: 'NE', coord: {x:16936, y:0}}
             , {name: 'SE', coord: {x:16936, y:9045}}
