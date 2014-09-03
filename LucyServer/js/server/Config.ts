@@ -83,10 +83,9 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
         ]
     };
     
-   // Layout that is computed from measured coordinates of long range antennas. All short/mid-range
-   // antennas are in a single position (we don't have measured coordinates for those). Serves as a basis
-   // for layout 'rotterdam'.
-   // TODO: does not contain D reader antennas yet
+   // Layout that is computed from measured coordinates of long range antennas in "140903 RFID antenne plaatsing ".
+   // All short/mid-range antennas are in a single position (we don't have measured coordinates for those). 
+   //Serves as a basis for layout 'rotterdam'.
    var rotterdamRaw : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
     scaleAndTranslate(1/1070,-8.4,-4.25,
     { name: 'Rotterdam raw'
@@ -151,10 +150,11 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
         []
     });
 
-   // Layout obtained from layout 'rotterdamRaw' by positioning short/mid-range antennas
-   var rotterdam : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
+   // Old layout obtained from '140526 RFID antenne plaatsing' and '140825 RFID antenne plaatsing' after
+   // correcting for mistakes and adding short-range antennas 
+   var rotterdamOud : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
     scaleAndTranslate(1,0,0,
-    { name: 'Rotterdam'
+    { name: 'Rotterdam oud'
     //, dimensions: {width: 14, height: 14 * 1686/3183}
     , dimensions: {width: 17, height: 17 * 734/1365}
     , scale: 50
@@ -343,8 +343,201 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
     , tagConfiguration: 
         []
     });
+
+   // Layout obtained from layout 'rotterdamRaw' by positioning short/mid-range antennas
+   var rotterdam : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
+    scaleAndTranslate(1,0,0,
+    { name: 'Rotterdam'
+    //, dimensions: {width: 14, height: 14 * 1686/3183}
+    , dimensions: {width: 17, height: 17 * 734/1365}
+    , scale: 50
+    , backgroundImage: 'floorPlans/Blueprint Lucy Rotterdam v2.0.png' // width="3183" height="1686"
+    //, backgroundImage: 'floorPlans/Antenne layout 3 - RFID Blueprint versie 3.jpg' // width="1365" height="734"
+    , readerAntennaSpecs:
+        [ { readerIp: '10.0.0.30'
+          , antennaSpecs:
+              [ { name: 'A1'
+                , coord:
+                    { x: 1.3663551401869167
+                    , y: -1.4537383177570091
+                    }
+                }
+              , { name: 'A2'
+                , coord:
+                    { x: 2.8084112149532707
+                    , y: -2.0369158878504674
+                    }
+                }
+              , { name: 'A3'
+                , coord:
+                    { x: 2.295327102803739
+                    , y: -2.467757009345794
+                    }
+                }
+              , { name: 'A4'
+                , coord:
+                    { x: 3.8271028037383186
+                    , y: -0.1023364485981304
+                    }
+                }
+              , { name: 'A5'
+                , coord:
+                    { x: 1.3973333740234375
+                    , y: -3.73069597069597
+                    }
+                }
+              , { name: 'A6'
+                , coord:
+                    { x: 4.9236669921875
+                    , y: 0.6796372812571547
+                    }
+                }
+              , { name: 'A7'
+                , coord:
+                    { x: 5.6036669921875
+                    , y: -0.6203627187428452
+                    }
+                }
+              , { name: 'A8'
+                , coord:
+                    { x: 5.8036669921875
+                    , y: -2.606029222649095
+                    }
+                }
+              ]
+          }
+        , { readerIp: '10.0.0.31'
+          , antennaSpecs:
+              [ { name: 'B2'
+                , coord:
+                    { x: 3.2495327102803735
+                    , y: 2.2369158878504676
+                    }
+                }
+              , { name: 'B3'
+                , coord:
+                    { x: 0.2943925233644862
+                    , y: 0.4462616822429908
+                    }
+                }
+              , { name: 'B4'
+                , coord:
+                    { x: 1.0336448598130836
+                    , y: 2.938785046728972
+                    }
+                }
+              , { name: 'B5'
+                , coord:
+                    { x: 1.602803738317757
+                    , y: 0.4462616822429908
+                    }
+                }
+              , { name: 'B6'
+                , coord:
+                    { x: -1.2859813084112153
+                    , y: 3.195794392523365
+                    }
+                }
+              , { name: 'B7'
+                , coord:
+                    { x: 2.8616822429906534
+                    , y: 3.1696261682242994
+                    }
+                }
+              ]
+          }
+        , { readerIp: '10.0.0.32'
+          , antennaSpecs:
+              [ { name: 'C1'
+                , coord:
+                    { x: -0.09626168224299114
+                    , y: -1.9733644859813082
+                    }
+                }
+              , { name: 'C2'
+                , coord:
+                    { x: -1.5168224299065418
+                    , y: 0.37897196261682264
+                    }
+                }
+              , { name: 'C3'
+                , coord:
+                    { x: -1.330841121495327
+                    , y: 1.7172897196261685
+                    }
+                }
+              , { name: 'C4'
+                , coord:
+                    { x: -4.492523364485981
+                    , y: 1.5780373831775707
+                    }
+                }
+              , { name: 'C5'
+                , coord:
+                    { x: -2.6168224299065423
+                    , y: 2.1303738317757013
+                    }
+                }
+              , { name: 'C6'
+                , coord:
+                    { x: -5.230841121495327
+                    , y: 3.1789719626168225
+                    }
+                }
+              , { name: 'C7'
+                , coord:
+                    { x: -6.0763333129882815
+                    , y: 3.219637281257155
+                    }
+                }
+              , { name: 'C8'
+                , coord:
+                    { x: -6.88066650390625
+                    , y: -0.010695970695970232
+                    }
+                }
+              ]
+          },
+        , { readerIp: '10.0.0.33'
+          , antennaSpecs:
+              [ { name: 'D1'
+                , coord:
+                    { x: -1.5682242990654203
+                    , y: -1.5939252336448595
+                    }
+                }
+              , { name: 'D2'
+                , coord:
+                    { x: -2.979439252336449
+                    , y: -0.22196261682243001
+                    }
+                }
+              , { name: 'D3'
+                , coord:
+                    { x: -5.558878504672897
+                    , y: -0.34345794392523343
+                    }
+                }
+              , { name: 'D4'
+                , coord:
+                    { x: -4.876635514018692
+                    , y: -2.27803738317757
+                    }
+                }
+              , { name: 'D5'
+                , coord:
+                    { x: -2.979439252336449
+                    , y: -3.4088785046728973
+                    }
+                }
+              ]
+          }
+        ]
+    , tagConfiguration: 
+        []
+    });
   
-  return [rotterdam, rotterdamRaw];
+  return [rotterdam, rotterdamRaw, rotterdamOud];
 }
 
 function scaleAndTranslate( scale : number, translationX : number, translationY : number
