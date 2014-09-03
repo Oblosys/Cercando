@@ -25,7 +25,7 @@ var trailLength = 400;
 var allTagTrails = {}; // Object that has epc keys for Shared.Coord[] values (can't easily enforce this in TypeScript)
 
 var refreshInterval : number; // setInterval() returns a number
-var serverState : Shared.ServerState;
+var tagsServerInfo : Shared.TagsServerInfo;
 var allAntennas : Shared.Antenna[];
 var tagConfiguration : Shared.TagConfiguration[];
 var replayInfo : Shared.ReplayInfo; // directory structure of lucyData/savedReaderEvents/
@@ -50,7 +50,7 @@ function resetClientState() {
   util.log('Resetting client state');
   isServerConnected;
   uiState.trigger('change'); // reflect current values in UI, even when they are not different from defaults (and don't fire change  event)
-  serverState.liveTagsInfo.tagsData = [];
+  tagsServerInfo.tagsInfo.tagsData = [];
   allTagTrails = {};
   d3.selectAll('#trail-plane *').remove();
   d3.selectAll('#antenna-plane *').remove();
@@ -67,7 +67,7 @@ function resetClientState() {
 
 function initialize() {
   $.ajaxSetup({ cache: false });
-  serverState = Shared.initialServerState();
+  tagsServerInfo = Shared.initialTagsServerInfo();
 
   uiState.on('change', handleUIStateChange);
   initSelectorButtons();
@@ -267,22 +267,22 @@ function addRemoveSVGElements(oldTagsData : Shared.TagData[], currentTagsData : 
 }
 
 function updateLabels() {
-  $('#event-source-label').text(serverState.status.replayFileName ? 'REPLAY' : 'LIVE FEED');
-  $('#replay-filename-label').text(serverState.status.replayFileName ? 'Replaying: ' + serverState.status.replayFileName : '');
+  $('#event-source-label').text(tagsServerInfo.serverInfo.status.replayFileName ? 'REPLAY' : 'LIVE FEED');
+  $('#replay-filename-label').text(tagsServerInfo.serverInfo.status.replayFileName ? 'Replaying: ' + tagsServerInfo.serverInfo.status.replayFileName : '');
   $('#client-time-label').text(ClientCommon.showTime(new Date()));
-  $('#tag-event-time-label').text(serverState.liveTagsInfo.mostRecentEventTimeMs ? ClientCommon.showTime(new Date(serverState.liveTagsInfo.mostRecentEventTimeMs)): '--:--:--');
+  $('#tag-event-time-label').text(tagsServerInfo.tagsInfo.mostRecentEventTimeMs ? ClientCommon.showTime(new Date(tagsServerInfo.tagsInfo.mostRecentEventTimeMs)): '--:--:--');
   
-  $('#reader-connection-label').text(serverState.status.isConnected ? 'Connected' : 'Not connected');
-  $('#reader-connection-label').css('color', serverState.status.isConnected ? 'lime' : 'red');
+  $('#reader-connection-label').text(tagsServerInfo.serverInfo.status.isConnected ? 'Connected' : 'Not connected');
+  $('#reader-connection-label').css('color', tagsServerInfo.serverInfo.status.isConnected ? 'lime' : 'red');
 
   $('#server-connection-label').text(isServerConnected ? 'Connected' : 'Not connected');
   $('#server-connection-label').css('color', isServerConnected ? 'lime' : 'red');
   
-  $('#location-server-status-label').text(serverState.diColoreStatus.locationServerOperational ? 'OK' : 'Down');
-  $('#location-server-status-label').css('color', serverState.diColoreStatus.locationServerOperational ? 'lime' : 'red');
+  $('#location-server-status-label').text(tagsServerInfo.serverInfo.diColoreStatus.locationServerOperational ? 'OK' : 'Down');
+  $('#location-server-status-label').css('color', tagsServerInfo.serverInfo.diColoreStatus.locationServerOperational ? 'lime' : 'red');
   
   var shortMidRangeStatusSpans = '';
-  _(serverState.diColoreStatus.shortMidRangeServers).each(status => {
+  _(tagsServerInfo.serverInfo.diColoreStatus.shortMidRangeServers).each(status => {
     var color = status.operational ? 'lime' : 'red';
     shortMidRangeStatusSpans+='<span style="color: '+color+'">'+status.antennaName+'</span>';
   });
@@ -291,15 +291,15 @@ function updateLabels() {
 
 function updateTags() {    
   var now = new Date();
-  var unknownAntennasHtml = serverState.unknownAntennaIds.length == 0 ? 'None' :
-    _(serverState.unknownAntennaIds).map((unknownAntenna) => {
+  var unknownAntennasHtml = tagsServerInfo.serverInfo.unknownAntennaIds.length == 0 ? 'None' :
+    _(tagsServerInfo.serverInfo.unknownAntennaIds).map((unknownAntenna) => {
       return '<div id="unknown-antenna">' + unknownAntenna.readerIp + '-' + unknownAntenna.antennaNr + '</div>';
     }).join('');
   $('#unknown-antennas').html(unknownAntennasHtml);
  
   $('.tag-zone').css('fill', '').css('stroke', 'none'); // remove background overrides coming from strongest signals
 
-  _.map(serverState.liveTagsInfo.tagsData, (tagData) => {
+  _.map(tagsServerInfo.tagsInfo.tagsData, (tagData) => {
     var tagNr = getTagNr(tagData.epc);
     
     // Mark the most-likely zone this tag is located in, based on the strongest antenna signal
@@ -357,7 +357,7 @@ function selectLayout(layoutNr : number) {
   stopRefreshInterval();
   (<HTMLSelectElement>$('#layout-selector').get(0)).selectedIndex = layoutNr;
   $.getJSON( 'query/select-layout/'+layoutNr, function(antennaInfo : Shared.AntennaInfo) {
-    serverState.selectedAntennaLayoutNr = layoutNr;
+    tagsServerInfo.serverInfo.selectedAntennaLayoutNr = layoutNr;
     allAntennas = antennaInfo.antennaSpecs;
     tagConfiguration = antennaInfo.tagConfiguration;
     //util.log(JSON.stringify(antennaInfo));
@@ -385,19 +385,19 @@ function stopRefreshInterval() {
 }
 
 function refresh() {
-  $.getJSON( 'query/tags', function(newServerState : Shared.ServerState) {
+  $.getJSON( 'query/tags', function(newTagsServerInfo : Shared.TagsServerInfo) {
     if (!isServerConnected)
       resetClientState();
     isServerConnected = true;
     //util.log(JSON.stringify('old epcs: '+_(serverState.tagsData).pluck('epc')));
     //util.log(JSON.stringify('new epcs: '+_(newServerState.tagsData).pluck('epc')));
-    addRemoveSVGElements(serverState.liveTagsInfo.tagsData, newServerState.liveTagsInfo.tagsData)
+    addRemoveSVGElements(tagsServerInfo.tagsInfo.tagsData, newTagsServerInfo.tagsInfo.tagsData)
 
-    var oldSelectedAntennaLayoutNr = serverState.selectedAntennaLayoutNr;    
-    serverState = newServerState;
-    if (serverState.selectedAntennaLayoutNr != oldSelectedAntennaLayoutNr) {
+    var oldSelectedAntennaLayoutNr = tagsServerInfo.serverInfo.selectedAntennaLayoutNr;    
+    tagsServerInfo = newTagsServerInfo;
+    if (tagsServerInfo.serverInfo.selectedAntennaLayoutNr != oldSelectedAntennaLayoutNr) {
       util.log('old layout was ' + oldSelectedAntennaLayoutNr + ' selecting new layout');
-      selectLayout(serverState.selectedAntennaLayoutNr);
+      selectLayout(tagsServerInfo.serverInfo.selectedAntennaLayoutNr);
     }
     updateLabels();
 
@@ -420,7 +420,7 @@ function disconnectReader() {
   $.get('/query/disconnect', function() {
     util.log('Disconnected from reader.');
     stopRefreshInterval();
-    serverState.status.isConnected = false;
+    tagsServerInfo.serverInfo.status.isConnected = false;
     updateLabels();  
   });
 }
@@ -445,7 +445,7 @@ function handleResetButton() {
   stopRefreshInterval();
   $.get('/query/reset', function() {
     resetClientState();
-    serverState = Shared.initialServerState();
+    tagsServerInfo = Shared.initialTagsServerInfo();
     util.log('Server and client were reset.');
     startRefreshInterval();
   });
@@ -478,5 +478,5 @@ function handleSelectLayout(selectElt : HTMLSelectElement) {
 
 // return the index in tagsData for the tag with this epc 
 function getTagNr(epc : string) {
-  return _(serverState.liveTagsInfo.tagsData).pluck('epc').indexOf(epc);
+  return _(tagsServerInfo.tagsInfo.tagsData).pluck('epc').indexOf(epc);
 }

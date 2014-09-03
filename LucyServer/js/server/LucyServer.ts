@@ -207,19 +207,20 @@ function initExpress() {
     res.setHeader('content-type', 'application/json');
     
     // TODO: don't send serverState but server status (without liveTagsInfo) and separate tagsInfo
-    
     var tagsInfo = theReplaySession.fileReader ? theReplaySession.tagsInfo : state.liveTagsInfo;
-    var result : Shared.ServerState =
-      { selectedAntennaLayoutNr: state.selectedAntennaLayoutNr
-      , unknownAntennaIds: state.unknownAntennaIds
-      , liveTagsInfo: { mostRecentEventTimeMs: tagsInfo.mostRecentEventTimeMs
-                      , previousPositioningTimeMs: tagsInfo.previousPositioningTimeMs
-                      , tagsData: _(tagsInfo.tagsData).filter(tagData => {return tagData.coordinate != null}) // don't send tags that don't have a coordinate yet
-                      }
-      , status: state.status
-      , diColoreStatus: state.diColoreStatus
-      };
-    res.send(JSON.stringify(result));
+    util.log(tagsInfo.mostRecentEventTimeMs);
+    var tagsServerInfo : Shared.TagsServerInfo =
+      { tagsInfo: { mostRecentEventTimeMs: tagsInfo.mostRecentEventTimeMs // TODO: keep these from TagsInfo
+                  , previousPositioningTimeMs: tagsInfo.previousPositioningTimeMs
+                  , tagsData: _(tagsInfo.tagsData).filter(tagData => {return tagData.coordinate != null}) // don't send tags that don't have a coordinate yet
+                  } 
+      , serverInfo: { selectedAntennaLayoutNr: state.selectedAntennaLayoutNr
+                    , unknownAntennaIds: state.unknownAntennaIds
+                    , status: state.status
+                    , diColoreStatus: state.diColoreStatus
+                    }
+      }
+    res.send(JSON.stringify(tagsServerInfo));
   });
 
   app.get('/query/layout-info', function(req, res) {  

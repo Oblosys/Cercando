@@ -65,10 +65,18 @@ module Shared {
                             ; previousPositioningTimeMs : number // contains the value of latestReaderEventTimeMs at the previous moment of positioning     
                             ; tagsData : TagData[]
                             }
+
+  export interface ServerInfo { status : { isConnected : boolean; isSaving : boolean; replayFileName : string }
+                              ; selectedAntennaLayoutNr : number
+                              ; unknownAntennaIds : AntennaId[]
+                              ; diColoreStatus : { locationServerOperational : boolean ; shortMidRangeServers : {antennaName : string; operational : boolean}[] }
+                              }
+  
+  export interface TagsServerInfo { tagsInfo : TagsInfo; serverInfo : ServerInfo }
   
   // TODO: split this in true server state (including allAntennas because of dynamic shortMidRangeSpecs) and part that is sent to client
   export interface ServerState {
-    status : { isConnected : boolean; isSaving : boolean; replayFileName : string }
+    status : { isConnected : boolean; isSaving : boolean; replayFileName : string } // replayFileName is relative to saveDirectoryPath and without .csv extension
     selectedAntennaLayoutNr : number
     liveTagsInfo : TagsInfo
     unknownAntennaIds : AntennaId[]
@@ -77,9 +85,20 @@ module Shared {
   
   export interface ReplaySession { fileReader : any; startClockTime : number; startEventTime : number; tagsInfo : TagsInfo }
 
+  export function initialTagsServerInfo() : TagsServerInfo {
+    return { tagsInfo : { mostRecentEventTimeMs: null, previousPositioningTimeMs: null, tagsData : []}
+           , serverInfo :
+             { status: {isConnected: false, isSaving: false, replayFileName: null},
+               selectedAntennaLayoutNr: 0,
+               unknownAntennaIds: [],
+               diColoreStatus: { locationServerOperational: false, shortMidRangeServers : [] }
+             }
+           }
+  }
+  
   export function initialServerState() : ServerState {
     return {
-      status: {isConnected: false, isSaving: false, replayFileName: null}, // replayFileName is relative to saveDirectoryPath and without .csv extension
+      status: {isConnected: false, isSaving: false, replayFileName: null},
       selectedAntennaLayoutNr: 0,
       liveTagsInfo: {mostRecentEventTimeMs: null, previousPositioningTimeMs: null, mostRecentEventTime: null, tagsData: []},
       unknownAntennaIds: [],
