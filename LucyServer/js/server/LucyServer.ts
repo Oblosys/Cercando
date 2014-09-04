@@ -18,6 +18,7 @@ var remoteHostName = 'lucy.oblomov.com';
 var readerServerPortNr       = 8193;
 var diColoreLocationServer = {ip: '10.0.0.26', port: 8198};
 var diColoreShortMidPort = 8199; // ip addresses are specified per short-/midrange antenna in config.json at lucyConfigFilePath
+var diColoreSocketTimeout = 150; // this prevents buildup of open socket connections
 var sessionExpirationTimeMs = 5 * 1000;
 
 var db_config = {
@@ -771,6 +772,10 @@ function messageDiColoreServer(serverIp : string, serverPort : number, messageOb
   //util.log(new Date() + ' Messaging Di Colore server %s:%d', serverIp, serverPort);
   var presentationServerSocket = new net.Socket();
   
+  // Failing connections don't cause an error event, so we need an explicit timeout to prevent opening too many sockets
+  presentationServerSocket.setTimeout(diColoreSocketTimeout, () => {
+    presentationServerSocket.destroy(); // end() doesn't work if the socket is hanging on connect
+  });
   presentationServerSocket.on('data', function(buffer : NodeBuffer) {
     var response = buffer.toString('utf8');
     if (response != 'ok\n') {
@@ -786,6 +791,7 @@ function messageDiColoreServer(serverIp : string, serverPort : number, messageOb
   presentationServerSocket.on('error', function(err : any) { // not typed
     //util.log('Connection to Di Colore server at ' + serverIp + ' failed (error code: ' + err.code + ')');
     callback(false);
+    presentationServerSocket.end();
     if (presentationServerSocket) 
       presentationServerSocket.destroy();
   });
