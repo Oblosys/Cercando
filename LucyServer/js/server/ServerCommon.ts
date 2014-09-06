@@ -18,3 +18,9 @@ function mkAntennas(readerIp : string, antennaSpecs : Shared.AntennaSpec[], shor
     return {antennaId: {readerIp: readerIp, antennaNr: ix+1}, name: antSpec.name, coord: antSpec.coord, shortMidRange: shortMidRange}
   });
 }
+
+export function log(msg : string) {
+  var date = new Date();
+  util.log( util.padZero(4, date.getFullYear()) + '-' + util.padZero(2, date.getMonth()+1) + '-' + util.padZero(2, date.getDate())
+          + ' ' + util.showTime(date) + ': ' + msg);
+}

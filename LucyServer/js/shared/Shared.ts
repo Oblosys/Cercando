@@ -10,7 +10,9 @@ module Shared {
   export var staleAgeMs = 2000;
   export var ancientAgeMs = 5000;
   
-  export interface Coord { x: number; y : number}
+  export interface Coord { x: number; y : number }
+
+  export interface LoginResponse { err : string }
 
   export interface AntennaLayout { name : string; dimensions: {width : number; height : number}; scale: number
                                  ; backgroundImage? : string
@@ -79,7 +81,7 @@ module Shared {
                               }
   
   // Object that is sent to the client periodically
-  export interface TagsServerInfo { tagsInfo : TagsInfo; serverInfo : ServerInfo }
+  export interface TagsServerInfo { tagsInfo : TagsInfo; serverInfo : ServerInfo; username : string }
   
   export interface ServerState
     { status : { isConnected : boolean; isSaving : boolean; replayFileName : string } // replayFileName is relative to saveDirectoryPath and without .csv extension
@@ -89,16 +91,23 @@ module Shared {
     ; diColoreStatus : { locationServerOperational : boolean ; shortMidRangeServers : {antennaName : string; operational : boolean}[] } 
     }
   
+  export interface SessionState
+    { sessionId : string
+    ; lastAccess : Date
+    ; username : string
+    }
+  
   export interface ReplaySession { fileReader : any; startClockTime : number; startEventTime : number; tagsState : TagsState }
 
   export function initialTagsServerInfo() : TagsServerInfo {
-    return { tagsInfo : { mostRecentEventTimeMs: null, tagsData : []}
-           , serverInfo :
+    return { tagsInfo: { mostRecentEventTimeMs: null, tagsData : []}
+           , serverInfo:
              { status: {isConnected: false, isSaving: false, replayFileName: null},
                selectedAntennaLayoutNr: 0,
                unknownAntennaIds: [],
                diColoreStatus: { locationServerOperational: false, shortMidRangeServers : [] }
              }
+           , username: '' 
            }
   }
   

@@ -1,5 +1,18 @@
 @import url("common.css");
 
+#user-panel {
+	height: 6ex;
+}
+#user-panel > * {
+	display: none;
+}
+#user-panel:not([logged-in]) .user-not-logged-in {
+	display: block;
+}
+#user-panel[logged-in] .user-logged-in {
+  display: block; 
+}
+
 #unknown-antennas {
 	padding-left: 10px;
 	font-size: 80%;

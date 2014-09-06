@@ -19,6 +19,20 @@
   <body>
     <div id="main">
       <div id="control-panel">
+        <div id="user-panel">
+	        <form class="user-not-logged-in" onSubmit="handleFormLogin();return false"> <!-- return false to prevent the form from sending a http request on submit -->
+		        <table>
+		          <tr><td>Username:&nbsp;<td><td><input id="username-field" type="text" size="10"></input><td></tr>
+		          <tr><td>Password:&nbsp;<td><td><input id="password-field" type="password" size="10"></input>
+		            &nbsp;&nbsp;&nbsp;<input type="submit" id="login-button" value="Login"><td></tr>
+		        </table>
+		      </form>
+	        <div class="user-logged-in">
+	          Welcome <span id="username-label"></span><br/>
+	          <input type="button" id="logout-button" onclick="handleLogoutButton()" value="Logout">
+	        </div>
+          
+        </div>
         Antenna layout: <select onchange="handleSelectLayout(this);" id="layout-selector"></select><br/>
         <input type="button" id="view-config-button" onclick="handleViewConfigButton()" value="View antenna config"></input>
         <input type="button" id="upload-config-button" onclick="handleUploadConfigButton()" value="Upload config"></input>

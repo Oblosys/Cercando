@@ -267,6 +267,8 @@ function addRemoveSVGElements(oldTagsData : Shared.TagData[], currentTagsData : 
 }
 
 function updateLabels() {
+  util.setAttr($('#user-panel'), 'logged-in', tagsServerInfo.username != null); // TODO: don't use the name
+  $('#username-label').text(tagsServerInfo.username);
   $('#event-source-label').text(tagsServerInfo.serverInfo.status.replayFileName ? 'REPLAY' : 'LIVE FEED');
   $('#replay-filename-label').text(tagsServerInfo.serverInfo.status.replayFileName ? 'Replaying: ' + tagsServerInfo.serverInfo.status.replayFileName : '');
   $('#client-time-label').text(ClientCommon.showTime(new Date()));
@@ -428,6 +430,34 @@ function disconnectReader() {
     stopRefreshInterval();
     tagsServerInfo.serverInfo.status.isConnected = false;
     updateLabels();  
+  });
+}
+
+function handleFormLogin() {
+  var username = encodeURI($('#username-field').val());
+  var password = encodeURI($('#password-field').val());
+
+  $.get('/query/login', {username: username, password: password}, function(loginResponse : Shared.LoginResponse) {
+    if (!loginResponse.err) {
+      // TODO: immediate refresh, maybe make separate refresh for session data
+      util.log('User ' + username + ' logged in');
+      $('#username-field').val('');
+      $('#password-field').val('');
+    } else {
+      alert('Login failed:\n' + loginResponse.err); // TODO: Maybe flash this error?
+    }
+  }).fail(function(data : JQueryXHR) {
+    alert('Login failed:\n'+JSON.parse(data.responseText).error); // communication or internal server error
+  });
+}
+
+function handleLogoutButton() {
+  var username = tagsServerInfo.username;
+  $.get('/query/logout', function() {
+    util.log('User ' + username + ' logged out');
+    // TODO: immediate refresh, maybe make separate refresh for session data
+  }).fail(function(data : JQueryXHR) {
+    alert('Logout failed:\n'+JSON.parse(data.responseText).error); // internal error
   });
 }
 

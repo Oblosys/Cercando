@@ -3,5 +3,6 @@ DummyPresentationServer.js
 File.js
 LucyServer.js
 ServerCommon.js
+Session.js
 SimulatorServer.js
 Trilateration.js

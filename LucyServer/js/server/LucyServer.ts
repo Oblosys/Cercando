@@ -19,7 +19,6 @@ var readerServerPortNr       = 8193;
 var diColoreLocationServer = {ip: '10.0.0.26', port: 8198};
 var diColoreShortMidPort = 8199; // ip addresses are specified per short-/midrange antenna in config.json at lucyConfigFilePath
 var diColoreSocketTimeout = 150; // this prevents buildup of open socket connections
-var sessionExpirationTimeMs = 5 * 1000;
 
 var db_config = {
     host:'10.0.0.20', // replaced by 'localhost' when remoteReader paramater is given
@@ -56,6 +55,7 @@ import Backbone = require('backbone');
 import _        = require('underscore');
 import path     = require('path');
 import file          = require('./File');  
+import Session       = require('./Session');
 import trilateration = require('./Trilateration');
 import Config        = require('./Config');
 import ServerCommon  = require('./ServerCommon');
@@ -71,7 +71,7 @@ var app = express();
 // global state variables
 
 var state : Shared.ServerState
- 
+
 var allAntennaLayouts : Shared.AntennaLayout[];
 var allAntennas : Shared.Antenna[];
 
@@ -113,7 +113,7 @@ function initServer() {
   dbConnectionPool = mysql.createPool(db_config);
   
   util.log('\n\n');
-  logTs('Starting Lucy server on port ' + serverPortNr + ', using reader server on ' + readerServerHostName + '\n\n');
+  ServerCommon.log('Starting Lucy server on port ' + serverPortNr + ', using reader server on ' + readerServerHostName + '\n\n');
   
   allAntennaLayouts = Config.getAllAntennaLayouts();
   resetServerState();
@@ -141,9 +141,15 @@ function initExpress() {
 
   app.use(express.compress());
   app.use(express.cookieParser());
-  app.use(express.session({secret: 'lucy in the sky', cookie: {maxAge:sessionExpirationTimeMs}, rolling: true}));
-  // rolling: keep resetting expiration on each response
+  app.use(express.session(Session.expressSessionOptions));
 
+  app.use('/', (req : Express.Request, res : Express.Response, next:()=>void)=>{
+    var session = Session.getOrInitSession(req);
+    session.lastAccess = new Date();
+    
+    util.log(new Date() + session.sessionId + ' Nr of sessions: '+Session.getNrOfSessions());
+    next();
+  });
   // serve 'client', 'shared', and 'node-modules' directories, but not 'server'
   app.use('/js/client', express.static(__dirname + '/../client'));
   app.use('/js/shared', express.static(__dirname + '/../shared'));
@@ -172,7 +178,29 @@ function initExpress() {
                      res.send(stdout); 
                    } );
   });
-  
+
+  app.get('/query/login', function(req, res) {
+    res.setHeader('content-type', 'application/json');
+    var username = req.query.username;
+    var password = req.query.password;
+    
+    var loginResponse : Shared.LoginResponse = Session.login(req, username, password);
+    
+    res.send(JSON.stringify(loginResponse));
+  });    
+
+  app.get('/query/logout', function(req, res) {
+    res.setHeader('content-type', 'application/json');
+    var username = req.query.username;
+    ServerCommon.log('Logout request: ' + username);
+    
+    Session.logout(req);
+
+    res.setHeader('content-type', 'text/plain');
+    res.writeHead(204);
+    res.end();
+  });    
+
   app.get('/query/view-config', function(req, res) {  
     res.setHeader('content-type', 'text/html');    
     var html = 'Current short/mid-range configuration:<br/><br/>';
@@ -180,7 +208,7 @@ function initExpress() {
     html += '<tt>' + JSON.stringify(Config.getShortMidRangeSpecs(lucyConfigFilePath)) + '</t>';
     html += '<br/><br/><input type="button" onclick="history.go(-1);" value="&nbsp;&nbsp;Ok&nbsp;&nbsp;"></input>';
     res.send(html);
-    });
+  });
 
   app.get('/query/upload-config', function(req, res) {  
     res.setHeader('content-type', 'text/html');
@@ -222,6 +250,7 @@ function initExpress() {
                     , status: state.status
                     , diColoreStatus: state.diColoreStatus
                     }
+      , username: Session.getSession(req).username
       }
     res.send(JSON.stringify(tagsServerInfo));
   });
@@ -294,7 +323,7 @@ function initExpress() {
   app.get('/query/replay-info', function(req, res) {  
     util.log('Sending replay info to client. (' + new Date() + ')');
     res.setHeader('content-type', 'application/json');
-    logTs('Getting replay directory structure')
+    ServerCommon.log('Getting replay directory structure')
     var replayInfo : Shared.ReplayInfo =
       { contents: file.getRecursiveDirContents(saveDirectoryPath) }; 
       //{ contents: [ { name: '7', contents: [ { name: '1', contents: [{name: '10.45', contents: []}, {name: '11.00', contents: []}] }, { name: '2', contents: [{name: '11.45', contents: []}, {name: '12.00', contents: []}] } ] }
@@ -381,16 +410,16 @@ function connectReaderServer() {
     readerServerConnected(readerServerSocket);
   });
   readerServerSocket.on('error', function(err : any) { // TODO: not typed
-    logTs('Connection to reader server failed (error code: ' + err.code + '), retrying..');
+    ServerCommon.log('Connection to reader server failed (error code: ' + err.code + '), retrying..');
     if (readerServerSocket) 
       readerServerSocket.destroy();
   });
   readerServerSocket.on('close', function() {
-    logTs('Connection closed');
+    ServerCommon.log('Connection closed');
     destroySocketAndRetryConnection();
   });
 
-  logTs('Trying to connect to reader server on '+readerServerHostName+':'+readerServerPortNr);
+  ServerCommon.log('Trying to connect to reader server on '+readerServerHostName+':'+readerServerPortNr);
   readerServerSocket.connect(readerServerPortNr, readerServerHostName);
 }
 
@@ -400,7 +429,7 @@ function destroySocketAndRetryConnection() {
     readerServerSocket.destroy(); // destroy socket if it wasn't already destroyed, just to make sure
   readerServerSocket = null;
   
-  logTs('Connection to reader server lost, reconnecting..');
+  ServerCommon.log('Connection to reader server lost, reconnecting..');
   setTimeout(function() { // automatically try to reconnect
     connectReaderServer();
   }, reconnectInterval);
@@ -413,7 +442,7 @@ function showInvisibles(str : string) {
 
 function readerServerConnected(readerServerSocket : net.Socket) {
   state.status.isConnected = true;
-  logTs('Connected to reader server at: ' + readerServerHostName + ':' + readerServerPortNr);
+  ServerCommon.log('Connected to reader server at: ' + readerServerHostName + ':' + readerServerPortNr);
   
   // raw data listener
   var lineBuffer = '';
@@ -514,13 +543,13 @@ function getEventLogFilePath() : string {
 function logReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
   var desiredEventLogFilePath = getEventLogFilePath(); // TODO: using current time may cause filename to be more recent than timestamp in event
   if (eventLogFileStream && eventLogFilePath != desiredEventLogFilePath) {
-    logTs('Closing file auto-save file:\n' + eventLogFilePath);
+    ServerCommon.log('Closing file auto-save file:\n' + eventLogFilePath);
     eventLogFileStream.end()
     eventLogFileStream = null;
     eventLogFilePath = '';
   }
   if (!eventLogFileStream) {
-    logTs('Opening file new auto-save file:\n' + desiredEventLogFilePath);
+    ServerCommon.log('Opening file new auto-save file:\n' + desiredEventLogFilePath);
     
     if (!fs.existsSync( path.dirname(desiredEventLogFilePath)) ) { // if directory doesn't exist, recursively create all directories on path
       nodefs.mkdirSync( path.dirname(desiredEventLogFilePath), '0755', true); // 0755: rwxr-xr-x, true: recursive
@@ -844,6 +873,7 @@ function reportTagLocations() {
 
 
 function positionAllTags() {
+  Session.pruneSessions();
   positionTags(state.liveTagsState);
   if (theReplaySession.fileReader) { // TODO: wrong condition
     positionTags(theReplaySession.tagsState);
@@ -954,11 +984,4 @@ function getAntennaNr(antennaId : Shared.AntennaId) {
       return i;
   }
   return -1;
-}
-
-
-function logTs(msg : string) {
-  var date = new Date();
-  util.log( util.padZero(4, date.getFullYear()) + '-' + util.padZero(2, date.getMonth()+1) + '-' + util.padZero(2, date.getDate())
-          + ' ' + util.showTime(date) + ': ' + msg);
 }
