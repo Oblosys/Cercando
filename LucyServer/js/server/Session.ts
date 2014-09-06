@@ -37,7 +37,7 @@ export function getOrInitSession(req : Express.Request) : Shared.SessionState {
 export function getSessionInfo(req : Express.Request) : Shared.SessionInfo {
   var session = getSession(req);
   var userInfo = mkUserInfo(session.user);
-  return {userInfo: userInfo};
+  return {userInfo: userInfo, nrOfSessions: getNrOfSessions()};
 }
 
 function mkUserInfo(user : Shared.SessionUser) : Shared.UserInfo {

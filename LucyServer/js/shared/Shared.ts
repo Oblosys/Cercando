@@ -82,7 +82,7 @@ module Shared {
   
   export interface UserInfo { username : string; firstName : string } // part of SessionUser that is sent to client
   
-  export interface SessionInfo { userInfo : UserInfo } // part of SessionState that is sent to client
+  export interface SessionInfo { userInfo : UserInfo; nrOfSessions : number } // part of SessionState that is sent to client
   
   // Object that is sent to the client periodically
   export interface TagsServerInfo { tagsInfo : TagsInfo; serverInfo : ServerInfo; sessionInfo : SessionInfo }

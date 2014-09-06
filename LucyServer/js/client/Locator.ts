@@ -274,6 +274,7 @@ function updateSessionUI(userInfo : Shared.UserInfo) {
 }
 
 function updateLabels() {
+  $('#session-info-label').text('Nr. of sessions: ' + tagsServerInfo.sessionInfo.nrOfSessions);
   $('#event-source-label').text(tagsServerInfo.serverInfo.status.replayFileName ? 'REPLAY' : 'LIVE FEED');
   $('#replay-filename-label').text(tagsServerInfo.serverInfo.status.replayFileName ? 'Replaying: ' + tagsServerInfo.serverInfo.status.replayFileName : '');
   $('#client-time-label').text(ClientCommon.showTime(new Date()));

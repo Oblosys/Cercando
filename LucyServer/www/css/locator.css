@@ -12,6 +12,12 @@
 #user-panel[logged-in] .user-logged-in {
   display: block; 
 }
+#login-button {
+	float: right;
+}
+#logout-button {
+  float: right;
+}
 
 #unknown-antennas {
 	padding-left: 10px;
