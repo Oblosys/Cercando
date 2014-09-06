@@ -28,26 +28,38 @@ export function getOrInitSession(req : Express.Request) : Shared.SessionState {
   var sessionId = (<any>req).session.id;
   var session = _(allSessions).findWhere({sessionId: sessionId});
   if (!session) {
-    session = {sessionId: sessionId, lastAccess: null, username: null}
+    session = {sessionId: sessionId, lastAccess: null, user: null}
     allSessions.push(session);
   }
   return session;  
 }
 
+export function getSessionInfo(req : Express.Request) : Shared.SessionInfo {
+  var session = getSession(req);
+  var userInfo = mkUserInfo(session.user);
+  return {userInfo: userInfo};
+}
+
+function mkUserInfo(user : Shared.SessionUser) : Shared.UserInfo {
+  return user ? {username: user.username, firstName: user.firstName} : null;
+}
+
 export function login(req : Express.Request, username : string, password : string) : Shared.LoginResponse {
   // todo check for existing session?
-  if (username == password) { // poorest man's authentication
+  if (username == password) { // TODO: poorest man's authentication
+    var session = getSession(req);
+    var user = {username: username, firstName: '<first name>'}; // TODO: obtain from user record
+    session.user = user;
     ServerCommon.log('Successful login for ' + username);
-    getSession(req).username = username;
-    return {err: null};
+    return {userInfo: mkUserInfo(user), err: null};
   } else {
     ServerCommon.log('Failed login for ' + username);
-    return {err: 'Incorrect username or password'};
+    return {userInfo: null, err: 'Incorrect username or password'};
   }
 }
 
 export function logout(req : Express.Request) {
-  getSession(req).username = null;  
+  getSession(req).user = null;  
 }
 
 export function pruneSessions() {

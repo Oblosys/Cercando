@@ -266,9 +266,14 @@ function addRemoveSVGElements(oldTagsData : Shared.TagData[], currentTagsData : 
   });
 }
 
+function updateSessionUI(userInfo : Shared.UserInfo) { 
+  $('#username-label').text(userInfo ? userInfo.firstName : '');
+  util.setAttr($('#user-panel'), 'logged-in', userInfo != null);
+  
+  // TODO: disenable gui buttons etc. based on userInfo 
+}
+
 function updateLabels() {
-  util.setAttr($('#user-panel'), 'logged-in', tagsServerInfo.username != null); // TODO: don't use the name
-  $('#username-label').text(tagsServerInfo.username);
   $('#event-source-label').text(tagsServerInfo.serverInfo.status.replayFileName ? 'REPLAY' : 'LIVE FEED');
   $('#replay-filename-label').text(tagsServerInfo.serverInfo.status.replayFileName ? 'Replaying: ' + tagsServerInfo.serverInfo.status.replayFileName : '');
   $('#client-time-label').text(ClientCommon.showTime(new Date()));
@@ -401,11 +406,19 @@ function refresh() {
     //util.log(JSON.stringify('new epcs: '+_(newServerState.tagsData).pluck('epc')));
     addRemoveSVGElements(tagsServerInfo.tagsInfo.tagsData, newTagsServerInfo.tagsInfo.tagsData)
 
-    var oldSelectedAntennaLayoutNr = tagsServerInfo.serverInfo.selectedAntennaLayoutNr;    
+    var oldSelectedAntennaLayoutNr = tagsServerInfo.serverInfo.selectedAntennaLayoutNr;
+    var oldUserInfo = tagsServerInfo.sessionInfo ? tagsServerInfo.sessionInfo.userInfo : null;
+        
     tagsServerInfo = newTagsServerInfo;
     if (tagsServerInfo.serverInfo.selectedAntennaLayoutNr != oldSelectedAntennaLayoutNr) {
       util.log('old layout was ' + oldSelectedAntennaLayoutNr + ' selecting new layout');
       selectLayout(tagsServerInfo.serverInfo.selectedAntennaLayoutNr);
+    }
+    
+    if (oldUserInfo && !tagsServerInfo.sessionInfo.userInfo) {
+      // Session ended (not common, since constant refreshes keep session alive, but may happen during sleep)
+      updateSessionUI(tagsServerInfo.sessionInfo.userInfo); 
+      alert('You have been logged out due to inactivity.');
     }
     updateLabels();
 
@@ -438,11 +451,12 @@ function handleFormLogin() {
   var password = encodeURI($('#password-field').val());
 
   $.get('/query/login', {username: username, password: password}, function(loginResponse : Shared.LoginResponse) {
-    if (!loginResponse.err) {
-      // TODO: immediate refresh, maybe make separate refresh for session data
-      util.log('User ' + username + ' logged in');
+    if (loginResponse.userInfo) {
       $('#username-field').val('');
       $('#password-field').val('');
+      updateSessionUI(loginResponse.userInfo);
+      // TODO: immediate refresh, maybe make separate refresh for session data
+      util.log('User ' + username + ' logged in');
     } else {
       alert('Login failed:\n' + loginResponse.err); // TODO: Maybe flash this error?
     }
@@ -452,10 +466,8 @@ function handleFormLogin() {
 }
 
 function handleLogoutButton() {
-  var username = tagsServerInfo.username;
   $.get('/query/logout', function() {
-    util.log('User ' + username + ' logged out');
-    // TODO: immediate refresh, maybe make separate refresh for session data
+    updateSessionUI(null);
   }).fail(function(data : JQueryXHR) {
     alert('Logout failed:\n'+JSON.parse(data.responseText).error); // internal error
   });

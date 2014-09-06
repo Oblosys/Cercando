@@ -12,7 +12,7 @@ module Shared {
   
   export interface Coord { x: number; y : number }
 
-  export interface LoginResponse { err : string }
+  export interface LoginResponse { userInfo : UserInfo; err : string } // response to login http request
 
   export interface AntennaLayout { name : string; dimensions: {width : number; height : number}; scale: number
                                  ; backgroundImage? : string
@@ -80,8 +80,12 @@ module Shared {
                               ; diColoreStatus : { locationServerOperational : boolean ; shortMidRangeServers : {antennaName : string; operational : boolean}[] }
                               }
   
+  export interface UserInfo { username : string; firstName : string } // part of SessionUser that is sent to client
+  
+  export interface SessionInfo { userInfo : UserInfo } // part of SessionState that is sent to client
+  
   // Object that is sent to the client periodically
-  export interface TagsServerInfo { tagsInfo : TagsInfo; serverInfo : ServerInfo; username : string }
+  export interface TagsServerInfo { tagsInfo : TagsInfo; serverInfo : ServerInfo; sessionInfo : SessionInfo }
   
   export interface ServerState
     { status : { isConnected : boolean; isSaving : boolean; replayFileName : string } // replayFileName is relative to saveDirectoryPath and without .csv extension
@@ -91,11 +95,9 @@ module Shared {
     ; diColoreStatus : { locationServerOperational : boolean ; shortMidRangeServers : {antennaName : string; operational : boolean}[] } 
     }
   
-  export interface SessionState
-    { sessionId : string
-    ; lastAccess : Date
-    ; username : string
-    }
+  export interface SessionState { sessionId : string; lastAccess : Date; user : SessionUser } // user is null if no user is logged in
+  
+  export interface SessionUser { username : string; firstName : string }
   
   export interface ReplaySession { fileReader : any; startClockTime : number; startEventTime : number; tagsState : TagsState }
 
@@ -107,7 +109,7 @@ module Shared {
                unknownAntennaIds: [],
                diColoreStatus: { locationServerOperational: false, shortMidRangeServers : [] }
              }
-           , username: '' 
+           , sessionInfo: null 
            }
   }
   

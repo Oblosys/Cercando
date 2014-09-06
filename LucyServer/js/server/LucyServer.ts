@@ -147,7 +147,7 @@ function initExpress() {
     var session = Session.getOrInitSession(req);
     session.lastAccess = new Date();
     
-    util.log(new Date() + session.sessionId + ' Nr of sessions: '+Session.getNrOfSessions());
+    //util.log(new Date() + session.sessionId + ' Nr of sessions: '+Session.getNrOfSessions());
     next();
   });
   // serve 'client', 'shared', and 'node-modules' directories, but not 'server'
@@ -211,6 +211,7 @@ function initExpress() {
   });
 
   app.get('/query/upload-config', function(req, res) {  
+    // TODO: require authentication
     res.setHeader('content-type', 'text/html');
     var html = '';
     var result = file.readConfigFile(configUploadFilePath);
@@ -250,7 +251,7 @@ function initExpress() {
                     , status: state.status
                     , diColoreStatus: state.diColoreStatus
                     }
-      , username: Session.getSession(req).username
+      , sessionInfo: Session.getSessionInfo(req)
       }
     res.send(JSON.stringify(tagsServerInfo));
   });
@@ -264,6 +265,7 @@ function initExpress() {
   });
   
   app.get('/query/select-layout/:nr', function(req, res) { // return AntennaInfo object for new selection  
+    // TODO: require authentication
     util.log('Selecting antenna layout '+req.params.nr+': '+allAntennaLayouts[req.params.nr].name +
              ',  sending antenna data to client. (' + new Date() + ')');
     initAntennaLayout(req.params.nr);
@@ -272,6 +274,7 @@ function initExpress() {
   });
   
   app.get('/query/connect', function(req, res) {  
+    // TODO: require authentication
     util.log('connect');
     connectReaderServer();
     res.setHeader('content-type', 'text/plain'); 
@@ -281,6 +284,7 @@ function initExpress() {
   });
 
   app.get('/query/disconnect', function(req, res) {  
+    // TODO: require authentication
     util.log('disconnect');
     disconnectReader();
     res.setHeader('content-type', 'text/plain');
@@ -288,7 +292,8 @@ function initExpress() {
     res.end();
   });
 
-  app.get('/query/reset', function(req, res) {  
+  app.get('/query/reset', function(req, res) {
+    // TODO: require authentication  
     util.log('reset');
     resetServerState();
     res.setHeader('content-type', 'text/plain');
@@ -297,6 +302,7 @@ function initExpress() {
   });
 
   app.get('/query/start-saving', function(req, res) {
+    // TODO: require authentication
     util.log('Start-saving request for filename ' + req.query.filename);
     
     var cont = { 
@@ -313,6 +319,7 @@ function initExpress() {
   });
   
   app.get('/query/stop-saving', function(req, res) {
+    // TODO: require authentication
     util.log('Stop-saving request');
     stopSaving();
     res.setHeader('content-type', 'text/plain');
@@ -333,6 +340,7 @@ function initExpress() {
   });
 
   app.get('/query/start-replay', function(req, res) {
+    // TODO: require authentication
     var fileName = req.query.filename + '.csv';
     
     var cont = { 
@@ -351,6 +359,7 @@ function initExpress() {
   });
 
   app.get('/query/stop-replay', function(req, res) {
+    // TODO: require authentication
     util.log('Stop-replay request');
     stopReplay(theReplaySession);
     res.setHeader('content-type', 'text/plain');
