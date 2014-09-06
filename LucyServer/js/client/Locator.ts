@@ -467,6 +467,7 @@ function handleFormLogin() {
 
 function handleLogoutButton() {
   $.get('/query/logout', function() {
+    tagsServerInfo.sessionInfo.userInfo = null; // already set this to null, so we don't create an alert on refresh
     updateSessionUI(null);
   }).fail(function(data : JQueryXHR) {
     alert('Logout failed:\n'+JSON.parse(data.responseText).error); // internal error
