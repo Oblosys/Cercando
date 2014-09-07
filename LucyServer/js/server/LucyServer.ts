@@ -10,30 +10,6 @@
 /// <reference path="../shared/Shared.ts" />
 /// <reference path="./ServerCommon.ts" />
 
-// configuration constants
-
-var defaultServerPortNr = 8080; // port for the Lucy web server
-var remoteHostName = 'lucy.oblomov.com';
-//var remoteHostName = '10.0.0.24';
-var readerServerPortNr       = 8193;
-var diColoreLocationServer = {ip: '10.0.0.26', port: 8198};
-var diColoreShortMidPort = 8199; // ip addresses are specified per short-/midrange antenna in config.json at lucyConfigFilePath
-var diColoreSocketTimeout = 150; // this prevents buildup of open socket connections
-
-var db_config = {
-    host:'10.0.0.20', // replaced by 'localhost' when remoteReader paramater is given
-    user: 'NHMR',
-    password: '',
-    database: 'lucy_test',
-    connectTimeout: 5000
-};
-
-var reconnectInterval = 2000; // time in ms to wait before trying to reconnect to the reader server
-var reportShortMidRangeInterval = 100; // time in ms between sending short-/midrange antenna data to Di Colore
-var positioningInterval = 250; // time in ms between computing coordinates of all tags (and purging old signals/tags)
-
-var useSmoother = true;
-
 import http     = require('http');
 import express  = require('express');
 import net      = require('net');
@@ -91,17 +67,17 @@ initServer();
 function initServer() {
   // usage: LucyServer [portNr] [--remoteReader]
   var portArg = parseInt(process.argv[2]);
-  serverPortNr = portArg || defaultServerPortNr;
+  serverPortNr = portArg || Config.defaultServerPortNr;
   
   if (process.argv[2] == '--remoteReader' || portArg && process.argv[3] == '--remoteReader') {
     // use remoteReader to connect to reader server on lucy.oblomov.com instead of localhost 
-    readerServerHostName = remoteHostName;
-    db_config.host = 'localhost';
+    readerServerHostName = Config.remoteHostName;
+    Config.db_config.host = 'localhost';
 //    db_config.host = '10.0.0.20'; // select this line when we run on the Lucy network (or VPN) and want to use the Synology MySQL server
   } else {
     readerServerHostName = "localhost";
   }
-  dbConnectionPool = mysql.createPool(db_config);
+  dbConnectionPool = mysql.createPool(Config.db_config);
   
   util.log('\n\n');
   ServerCommon.log('Starting Lucy server on port ' + serverPortNr + ', using reader server on ' + readerServerHostName + '\n\n');
@@ -109,8 +85,8 @@ function initServer() {
   allAntennaLayouts = Config.getAllAntennaLayouts();
   resetServerState();
  
-  reportShortMidRangeTimer = <any>setInterval(reportShortMidRangeData, reportShortMidRangeInterval); // annoying cast beacause of Eclipse TypeScript
-  positioningTimer = <any>setInterval(positionAllTags, positioningInterval); // annoying cast beacause of Eclipse TypeScript
+  reportShortMidRangeTimer = <any>setInterval(reportShortMidRangeData, Config.reportShortMidRangeInterval); // annoying cast beacause of Eclipse TypeScript
+  positioningTimer = <any>setInterval(positionAllTags, Config.positioningInterval); // annoying cast beacause of Eclipse TypeScript
 
   initExpress();
   var server = app.listen(serverPortNr, () => { util.log('Web server listening to port ' + serverPortNr);});
@@ -419,8 +395,8 @@ function connectReaderServer() {
     destroySocketAndRetryConnection();
   });
 
-  ServerCommon.log('Trying to connect to reader server on '+readerServerHostName+':'+readerServerPortNr);
-  readerServerSocket.connect(readerServerPortNr, readerServerHostName);
+  ServerCommon.log('Trying to connect to reader server on '+readerServerHostName+':'+Config.readerServerPortNr);
+  readerServerSocket.connect(Config.readerServerPortNr, readerServerHostName);
 }
 
 function destroySocketAndRetryConnection() {
@@ -432,7 +408,7 @@ function destroySocketAndRetryConnection() {
   ServerCommon.log('Connection to reader server lost, reconnecting..');
   setTimeout(function() { // automatically try to reconnect
     connectReaderServer();
-  }, reconnectInterval);
+  }, Config.reconnectInterval);
 }
 
 // Helper function to show \0 and \ufffd characters.
@@ -442,7 +418,7 @@ function showInvisibles(str : string) {
 
 function readerServerConnected(readerServerSocket : net.Socket) {
   state.status.isConnected = true;
-  ServerCommon.log('Connected to reader server at: ' + readerServerHostName + ':' + readerServerPortNr);
+  ServerCommon.log('Connected to reader server at: ' + readerServerHostName + ':' + Config.readerServerPortNr);
   
   // raw data listener
   var lineBuffer = '';
@@ -728,7 +704,7 @@ function processReaderEvent(tagsState : Shared.TagsState, readerEvent : ServerCo
   } else {
     var oldAntennaRssi = getAntennaRssiForAntNr(antNr, tag.antennaRssis);
     
-    var newRssi = !useSmoother ? readerEvent.rssi 
+    var newRssi = !Config.useSmoother ? readerEvent.rssi 
                                : filtered(readerEvent.epc, readerEvent.ant, readerEvent.rssi, timestamp, oldAntennaRssi);
 
     var distance = trilateration.getDistanceForRssi(tag.epc, allAntennas[antNr].name, newRssi);
@@ -802,7 +778,7 @@ function messageDiColoreServer(serverIp : string, serverPort : number, messageOb
   var presentationServerSocket = new net.Socket();
   
   // Failing connections don't cause an error event, so we need an explicit timeout to prevent opening too many sockets
-  presentationServerSocket.setTimeout(diColoreSocketTimeout, () => {
+  presentationServerSocket.setTimeout(Config.diColoreSocketTimeout, () => {
     presentationServerSocket.destroy(); // end() doesn't work if the socket is hanging on connect
   });
   presentationServerSocket.on('data', function(buffer : NodeBuffer) {
@@ -854,7 +830,7 @@ function reportShortMidRangeData() {
 
   _(shortMidTagss).each(shortMidTags => {
     var diColoreTagDistances :Shared.DiColoreTagDistances = {antennaName: shortMidTags.antennaName, tagDistances: shortMidTags.tagDistances};
-    messageDiColoreTagDistances(shortMidTags.shortMidRangeIp, diColoreShortMidPort, diColoreTagDistances);
+    messageDiColoreTagDistances(shortMidTags.shortMidRangeIp, Config.diColoreShortMidPort, diColoreTagDistances);
   });
 }
 
@@ -868,7 +844,7 @@ function reportTagLocations() {
   });
   var now = new Date();
   var diColoreTagLocations : Shared.DiColoreTagLocations = { timestamp: util.showDate(now) + ' ' + util.showTime(now), tagLocations: tagLocations}
-  messageDiColoreTagLocations(diColoreLocationServer.ip, diColoreLocationServer.port, diColoreTagLocations);
+  messageDiColoreTagLocations(Config.diColoreLocationServer.ip, Config.diColoreLocationServer.port, diColoreTagLocations);
 }
 
 

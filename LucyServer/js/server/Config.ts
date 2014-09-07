@@ -6,6 +6,9 @@ import fs       = require('fs');
 
 import file     = require('./File');  
 
+
+// file path constants
+
 export var lucyDirectoryPath = process.env['HOME'] + '/lucy';
 export var lucyDataDirectoryPath = lucyDirectoryPath + '/data';
 export var lucyLogDirectoryPath = lucyDirectoryPath + '/log';
@@ -15,6 +18,31 @@ export var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
 export var userSaveDirectoryPath = saveDirectoryPath + '/userSave';
 export var autoSaveDirectoryPath = saveDirectoryPath + '/autoSave';
 export var cercandoGitDirectory = process.env['HOME'] + '/git/Cercando';
+
+
+// configuration constants
+
+export var defaultServerPortNr = 8080; // port for the Lucy web server
+export var remoteHostName = 'lucy.oblomov.com';
+//export var remoteHostName = '10.0.0.24';
+export var readerServerPortNr       = 8193;
+export var diColoreLocationServer = {ip: '10.0.0.26', port: 8198};
+export var diColoreShortMidPort = 8199; // ip addresses are specified per short-/midrange antenna in config.json at lucyConfigFilePath
+export var diColoreSocketTimeout = 150; // this prevents buildup of open socket connections
+
+export var db_config = {
+    host:'10.0.0.20', // replaced by 'localhost' when remoteReader paramater is given
+    user: 'NHMR',
+    password: '',
+    database: 'lucy_test',
+    connectTimeout: 5000
+};
+
+export var reconnectInterval = 2000; // time in ms to wait before trying to reconnect to the reader server
+export var reportShortMidRangeInterval = 100; // time in ms between sending short-/midrange antenna data to Di Colore
+export var positioningInterval = 250; // time in ms between computing coordinates of all tags (and purging old signals/tags)
+
+export var useSmoother = true;
 
 
 // NOTE: short-/midrange settings apply to all antenna layouts
