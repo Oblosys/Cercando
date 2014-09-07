@@ -6,8 +6,19 @@ import fs       = require('fs');
 
 import file     = require('./File');  
 
+export var lucyDirectoryPath = process.env['HOME'] + '/lucy';
+export var lucyDataDirectoryPath = lucyDirectoryPath + '/data';
+export var lucyLogDirectoryPath = lucyDirectoryPath + '/log';
+export var lucyConfigFilePath = lucyDirectoryPath + '/config/config.json'; // local, so it can't easily be accidentally edited
+export var configUploadFilePath = lucyDataDirectoryPath + '/configUpload/config.json';
+export var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
+export var userSaveDirectoryPath = saveDirectoryPath + '/userSave';
+export var autoSaveDirectoryPath = saveDirectoryPath + '/autoSave';
+export var cercandoGitDirectory = process.env['HOME'] + '/git/Cercando';
+
+
 // NOTE: short-/midrange settings apply to all antenna layouts
-export function getShortMidRangeSpecs(lucyConfigFilePath : string) : Shared.ShortMidRangeSpec[] {
+export function getShortMidRangeSpecs() : Shared.ShortMidRangeSpec[] {
   var config : Shared.ShortMidRangeSpec[] = []; 
   if (!fs.existsSync(lucyConfigFilePath)) {
     util.log('File \'' + lucyConfigFilePath + '\' not found, creating empty config file.');

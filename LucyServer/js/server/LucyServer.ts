@@ -33,15 +33,6 @@ var reportShortMidRangeInterval = 100; // time in ms between sending short-/midr
 var positioningInterval = 250; // time in ms between computing coordinates of all tags (and purging old signals/tags)
 
 var useSmoother = true;
-var lucyDirectoryPath = process.env['HOME'] + '/lucy';
-var lucyDataDirectoryPath = lucyDirectoryPath + '/data';
-var lucyLogDirectoryPath = lucyDirectoryPath + '/log';
-var lucyConfigFilePath = lucyDirectoryPath + '/config/config.json'; // local, so it can't easily be accidentally edited
-var configUploadFilePath = lucyDataDirectoryPath + '/configUpload/config.json';
-var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
-var userSaveDirectoryPath = saveDirectoryPath + '/userSave';
-var autoSaveDirectoryPath = saveDirectoryPath + '/autoSave';
-var cercandoGitDirectory = process.env['HOME'] + '/git/Cercando';
 
 import http     = require('http');
 import express  = require('express');
@@ -154,10 +145,10 @@ function initExpress() {
   app.use('/js/client', express.static(__dirname + '/../client'));
   app.use('/js/shared', express.static(__dirname + '/../shared'));
   app.use('/js/node_modules', express.static(__dirname + '/../node_modules'));
-  app.use('/data', express.directory(lucyDataDirectoryPath));
-  app.use('/data', express.static(lucyDataDirectoryPath));
-  app.use('/logs', express.directory(lucyLogDirectoryPath));
-  app.use('/logs', express.static(lucyLogDirectoryPath));
+  app.use('/data', express.directory(Config.lucyDataDirectoryPath));
+  app.use('/data', express.static(Config.lucyDataDirectoryPath));
+  app.use('/logs', express.directory(Config.lucyLogDirectoryPath));
+  app.use('/logs', express.static(Config.lucyLogDirectoryPath));
   app.get('/', function(req, res) { res.redirect('/locator.html'); }); // redirect '/' to '/locator.html'
   app.use(express.static(__dirname + '/../../www')); //  serve 'www' directory as root directory
 
@@ -171,7 +162,7 @@ function initExpress() {
   });
 
   app.get('/query/version', function(req, res) {  
-    child_pr.exec( cercandoGitDirectory + '/scripts/generateGitInfo.sh'
+    child_pr.exec( Config.cercandoGitDirectory + '/scripts/generateGitInfo.sh'
                  , {cwd: '../..'}
                  , function(error, stdout, stderr) { 
                      res.setHeader('content-type', 'application/json');
@@ -205,7 +196,7 @@ function initExpress() {
     res.setHeader('content-type', 'text/html');    
     var html = 'Current short/mid-range configuration:<br/><br/>';
 
-    html += '<tt>' + JSON.stringify(Config.getShortMidRangeSpecs(lucyConfigFilePath)) + '</t>';
+    html += '<tt>' + JSON.stringify(Config.getShortMidRangeSpecs()) + '</t>';
     html += '<br/><br/><input type="button" onclick="history.go(-1);" value="&nbsp;&nbsp;Ok&nbsp;&nbsp;"></input>';
     res.send(html);
   });
@@ -214,20 +205,20 @@ function initExpress() {
     // TODO: require authentication
     res.setHeader('content-type', 'text/html');
     var html = '';
-    var result = file.readConfigFile(configUploadFilePath);
+    var result = file.readConfigFile(Config.configUploadFilePath);
     if (result.err) {
       html += '<span style="color: red">ERROR: Uploading new configuration from Synology NAS (/web/lucyData/configUpload/config.json) failed:</span><br/>';
       html += '<pre>' + result.err + '</pre>';
     } else {
       try {
-        fs.unlinkSync(configUploadFilePath); // remove upload file, so we won't confuse it with the current config
+        fs.unlinkSync(Config.configUploadFilePath); // remove upload file, so we won't confuse it with the current config
       } catch(err) {
         html += '<span style="color: red">ERROR: Failed to remove upload file: /web/lucyData/configUpload/config.json</span>';
         html += '<pre>' + err + '</pre>';
         html += 'Please remove the file manually.<br/><br/>';
       } // failed removal is not fatal, so we continue
       
-      file.writeConfigFile(lucyConfigFilePath, result.config); // write the new config to the local config file
+      file.writeConfigFile(Config.lucyConfigFilePath, result.config); // write the new config to the local config file
       initAntennaLayout(state.selectedAntennaLayoutNr); // incorporate new short/mid-range specs in antennaLayout
       html += 'Succesfully uploaded short/mid-range configuration from Synology NAS to Lucy server:<br/><br/>';
       html += '<tt>' + JSON.stringify(result.config) + '</tt>';
@@ -332,7 +323,7 @@ function initExpress() {
     res.setHeader('content-type', 'application/json');
     ServerCommon.log('Getting replay directory structure')
     var replayInfo : Shared.ReplayInfo =
-      { contents: file.getRecursiveDirContents(saveDirectoryPath) }; 
+      { contents: file.getRecursiveDirContents(Config.saveDirectoryPath) }; 
       //{ contents: [ { name: '7', contents: [ { name: '1', contents: [{name: '10.45', contents: []}, {name: '11.00', contents: []}] }, { name: '2', contents: [{name: '11.45', contents: []}, {name: '12.00', contents: []}] } ] }
       //            , { name: '8', contents: [ { name: '3', contents: [{name: '13.45', contents: []}, {name: '14.00', contents: []}] }, { name: '4', contents: [{name: '14.45', contents: []}, {name: '15.00', contents: []}] } ] }
       //            ] }
@@ -378,7 +369,7 @@ function initExpress() {
 // set allAntennas by taking the layout specified by nr and combining it with the current shortMidRangeSpecs.
 function initAntennaLayout(nr : number) {
   state.selectedAntennaLayoutNr = util.clip(0, allAntennaLayouts.length-1, nr);
-  var shortMidRangeSpecs = Config.getShortMidRangeSpecs(lucyConfigFilePath);
+  var shortMidRangeSpecs = Config.getShortMidRangeSpecs();
   allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr], shortMidRangeSpecs);
   state.liveTagsState.tagsData = [];
   theReplaySession.tagsState.tagsData = [];
@@ -493,7 +484,7 @@ function startSaving(filePath : string, cont : {success : () => void; error : (m
   if (!file.isSafeFilePath(filePath))
     cont.error('Invalid file path: "'+filePath+'"\nMay only contain letters, digits, spaces, and these characters: \'(\' \')\' \'-\' \'_\'');
   else {
-    var fullFilename = userSaveDirectoryPath + '/' + filePath+'.csv';
+    var fullFilename = Config.userSaveDirectoryPath + '/' + filePath+'.csv';
     file.mkUniqueFilePath(fullFilename, (uniqueFilePath) => {
       outputFileStream = fs.createWriteStream(uniqueFilePath);
       outputFileStream.on('error', function(err : Error) {
@@ -539,7 +530,7 @@ function outputStreamWriteReaderEvent(outputStream : fs.WriteStream, readerEvent
 function getEventLogFilePath() : string {
   var logLength = 60 / 4; // logLength should be a divisor of 60
   var now = new Date();
-  var filePath = autoSaveDirectoryPath + '/' 
+  var filePath = Config.autoSaveDirectoryPath + '/' 
                + util.padZero(4, now.getFullYear()) + '-' + util.padZero(2, now.getMonth()+1) + '/'
                + util.padZero(2, now.getDate()) + '/'
                + 'readerEvents_' +
@@ -587,7 +578,7 @@ function startReplay(replaySession : Shared.ReplaySession, filePath : string, co
     // safety precautions.
     cont.error('Invalid file path: "'+filePath+'"\nMay only contain letters, digits, spaces, and these characters: \'(\' \')\' \'-\' \'_\'  \'/\'  \'.\'');
   } else {
-    var replayFilePath = saveDirectoryPath + '/' + filePath + '.csv';
+    var replayFilePath = Config.saveDirectoryPath + '/' + filePath + '.csv';
 
     if (!fs.existsSync( replayFilePath )) { 
       // Check file existence beforehand, since we cannot use cont.error() after the lineReader has been created (creation 

@@ -207,7 +207,7 @@ function initExpress() {
 
 function initAntennaLayout(nr : number) {
   state.selectedAntennaLayoutNr = util.clip(0, allAntennaLayouts.length-1, nr);
-  var shortMidRangeSpecs = Config.getShortMidRangeSpecs(lucyConfigFilePath);
+  var shortMidRangeSpecs = Config.getShortMidRangeSpecs();
   allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr], shortMidRangeSpecs);
   state.liveTagsState.tagsData = [];
   state.unknownAntennaIds = [];

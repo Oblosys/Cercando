@@ -1,3 +1,4 @@
+/// <reference path="./Config.ts" />
 /// <reference path="../shared/Shared.ts" />
 
 import _        = require('underscore');
@@ -7,20 +8,20 @@ import path     = require('path');
 
 var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 
-export function readConfigFile(lucyConfigFilePath : string) : {config: Shared.ShortMidRangeSpec[]; err: Error} {
+export function readConfigFile(filePath : string) : {config: Shared.ShortMidRangeSpec[]; err: Error} {
   try {
-    var configJSON = <string>fs.readFileSync(lucyConfigFilePath, {encoding:'utf8'});
+    var configJSON = <string>fs.readFileSync(filePath, {encoding:'utf8'});
     return validateConfig(JSON.parse(configJSON));
   } catch (err) {
     return {config: null, err: err};
   }
 }
 
-export function writeConfigFile(lucyConfigFilePath : string, config : Shared.ShortMidRangeSpec[]) { 
+export function writeConfigFile(filePath : string, config : Shared.ShortMidRangeSpec[]) { 
   try {
-    fs.writeFileSync(lucyConfigFilePath, JSON.stringify(config));
+    fs.writeFileSync(filePath, JSON.stringify(config));
   } catch (err) {
-    util.error('Internal error: failed to write config to \'' + lucyConfigFilePath + '\'');
+    util.error('Internal error: failed to write config to \'' + filePath + '\'');
     process.exit(1);
   }
 }
