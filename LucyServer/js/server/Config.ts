@@ -47,21 +47,21 @@ export var useSmoother = true;
 
 // NOTE: short-/midrange settings apply to all antenna layouts
 export function getShortMidRangeSpecs() : Shared.ShortMidRangeSpec[] {
-  var config : Shared.ShortMidRangeSpec[] = []; 
   if (!fs.existsSync(lucyConfigFilePath)) {
     util.log('File \'' + lucyConfigFilePath + '\' not found, creating empty config file.');
+    var config : Shared.ShortMidRangeSpec[] = []; 
     file.writeConfigFile(lucyConfigFilePath, config);
+    return config;
   } else {
     util.log('Using existing config from ' + lucyConfigFilePath);
     var result = file.readConfigFile(lucyConfigFilePath);
     if (result.err) {
       util.error('Internal error: failed to read config from \'' + lucyConfigFilePath + '\':\n'+result.err);
-      process.exit(1);
+      return []; // we will notice the error since no short-/midrange antennas will be shown in the server status area
     } else {
-      config = result.config;
+      return result.config;
     } 
   }
-  return config;
 }
 
 export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
