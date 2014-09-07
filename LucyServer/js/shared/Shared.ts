@@ -12,6 +12,8 @@ module Shared {
   
   export interface Coord { x: number; y : number }
 
+  export interface UserRecord { username : string; passwordHash : string; firstName : string; lastName : string; eMail : string } // information in users.json
+
   export interface LoginResponse { userInfo : UserInfo; err : string } // response to login http request
 
   export interface AntennaLayout { name : string; dimensions: {width : number; height : number}; scale: number
@@ -97,7 +99,7 @@ module Shared {
   
   export interface SessionState { sessionId : string; lastAccess : Date; user : SessionUser } // user is null if no user is logged in
   
-  export interface SessionUser { username : string; firstName : string }
+  export interface SessionUser { username : string; firstName : string; lastName : string; eMail : string } // user information the session keeps track of
   
   export interface ReplaySession { fileReader : any; startClockTime : number; startEventTime : number; tagsState : TagsState }
 

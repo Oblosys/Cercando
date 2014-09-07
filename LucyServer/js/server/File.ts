@@ -47,7 +47,16 @@ export function validateConfig(configObject : any) : {config: Shared.ShortMidRan
   else
     return {config: <Shared.ShortMidRangeSpec[]>configObject, err: null};
 }
- 
+
+export function readUsersFile(filePath : string) : {users: Shared.UserRecord[]; err: Error} {
+  try {
+    var configJSON = <string>fs.readFileSync(filePath, {encoding:'utf8'});
+    return {users: JSON.parse(configJSON), err: null};
+  } catch (err) {
+    return {users: null, err: err};
+  }
+}
+
 // Recursively get the directory trees starting at pth
 // TODO: should be async, since we're running on the web server
 export function getRecursiveDirContents(pth : string) : Shared.DirEntry[] {

@@ -1,9 +1,13 @@
+/// <reference path="./Config.ts" />
 /// <reference path="../shared/Shared.ts" />
 /// <reference path="./ServerCommon.ts" />
 
 import _        = require('underscore');
+import fs       = require('fs');
 import util     = require('oblo-util');
 
+import Config        = require('./Config');
+import File          = require('./File');  
 var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 import ServerCommon  = require('./ServerCommon');
 
@@ -15,6 +19,16 @@ var allSessions : Shared.SessionState[] = [];
 
 export function getNrOfSessions() : number {
   return allSessions.length;
+}
+
+function getUser(username : string) : Shared.UserRecord {
+  var result = File.readUsersFile(Config.lucyUsersFilePath);
+  if (result.err) {
+    util.error('Internal error: failed to read config from \'' + Config.lucyUsersFilePath + '\':\n'+result.err);
+    return null;
+  } else {
+    return _(result.users).findWhere({username: username});
+  }  
 }
 
 export function getSession(req : Express.Request) : Shared.SessionState {
@@ -46,9 +60,9 @@ function mkUserInfo(user : Shared.SessionUser) : Shared.UserInfo {
 
 export function login(req : Express.Request, username : string, password : string) : Shared.LoginResponse {
   // todo check for existing session?
-  if (username == password) { // TODO: poorest man's authentication
+  var user = getUser(username);
+  if (user && password == user.passwordHash) { // TODO: poorest man's authentication
     var session = getSession(req);
-    var user = {username: username, firstName: '<first name>'}; // TODO: obtain from user record
     session.user = user;
     ServerCommon.log('Successful login for ' + username);
     return {userInfo: mkUserInfo(user), err: null};
