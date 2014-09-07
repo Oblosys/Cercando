@@ -57,6 +57,16 @@ export function readUsersFile(filePath : string) : {users: Shared.UserRecord[]; 
   }
 }
 
+export function writeUsersFile(filePath : string, users : Shared.UserRecord[]) { 
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(users));
+  } catch (err) {
+    util.error('Internal error: failed to write config to \'' + filePath + '\'');
+    process.exit(1);
+  }
+}
+
+
 // Recursively get the directory trees starting at pth
 // TODO: should be async, since we're running on the web server
 export function getRecursiveDirContents(pth : string) : Shared.DirEntry[] {

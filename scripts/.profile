@@ -22,3 +22,4 @@ alias unload-lucy="sudo launchctl unload /Library/LaunchDaemons/com.oblomov.lucy
 alias unload-reader="sudo launchctl unload /Library/LaunchDaemons/com.oblomov.readerServer.plist"
 alias load-lucy="sudo launchctl load /Library/LaunchDaemons/com.oblomov.lucyServer.plist"
 alias load-reader="sudo launchctl load /Library/LaunchDaemons/com.oblomov.readerServer.plist"
+alias user-manager="~/git/Cercando/scripts/UserManager.sh"
