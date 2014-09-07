@@ -1,8 +1,10 @@
+/// <reference path="../typings/express/express.d.ts" />
 /// <reference path="./Config.ts" />
 /// <reference path="../shared/Shared.ts" />
 /// <reference path="./ServerCommon.ts" />
 
 import _        = require('underscore');
+import express  = require('express');
 import fs       = require('fs');
 import util     = require('oblo-util');
 
@@ -58,22 +60,30 @@ function mkUserInfo(user : Shared.SessionUser) : Shared.UserInfo {
   return user ? {username: user.username, firstName: user.firstName} : null;
 }
 
-export function login(req : Express.Request, username : string, password : string) : Shared.LoginResponse {
+export function login(req : express.Request, username : string, password : string) : Shared.LoginResponse {
   // todo check for existing session?
+  ServerCommon.log('Login request for \'' + username + '\' from ip ' + req.ip);
+  
   var user = getUser(username);
   if (user && password == user.passwordHash) { // TODO: poorest man's authentication
     var session = getSession(req);
     session.user = user;
-    ServerCommon.log('Successful login for ' + username);
+    ServerCommon.log('Login successful');
     return {userInfo: mkUserInfo(user), err: null};
   } else {
-    ServerCommon.log('Failed login for ' + username);
+    ServerCommon.log('Login failed: incorrect username or password');
     return {userInfo: null, err: 'Incorrect username or password'};
   }
 }
 
-export function logout(req : Express.Request) {
-  getSession(req).user = null;  
+export function logout(req : express.Request) {
+  var session = getSession(req);
+  if (session.user) {
+    ServerCommon.log('User \'' + session.user.username + '\' from ip ' + req.ip + ' logged out.');
+    session.user = null;
+  } else {
+      ServerCommon.log('Invalid logout request from ip ' + req.ip + ': no user logged in');
+  }  
 }
 
 export function pruneSessions() {

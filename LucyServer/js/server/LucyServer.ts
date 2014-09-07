@@ -158,9 +158,7 @@ function initExpress() {
 
   app.get('/query/logout', function(req, res) {
     res.setHeader('content-type', 'application/json');
-    var username = req.query.username;
-    ServerCommon.log('Logout request: ' + username);
-    
+        
     Session.logout(req);
 
     res.setHeader('content-type', 'text/plain');
