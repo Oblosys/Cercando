@@ -21,7 +21,7 @@ import Backbone = require('backbone');
 
 import _        = require('underscore');
 import path     = require('path');
-import file          = require('./File');  
+import File          = require('./File');  
 import Session       = require('./Session');
 import trilateration = require('./Trilateration');
 import Config        = require('./Config');
@@ -181,7 +181,7 @@ function initExpress() {
     // TODO: require authentication
     res.setHeader('content-type', 'text/html');
     var html = '';
-    var result = file.readConfigFile(Config.configUploadFilePath);
+    var result = File.readConfigFile(Config.configUploadFilePath);
     if (result.err) {
       html += '<span style="color: red">ERROR: Uploading new configuration from Synology NAS (/web/lucyData/configUpload/config.json) failed:</span><br/>';
       html += '<pre>' + result.err + '</pre>';
@@ -194,7 +194,7 @@ function initExpress() {
         html += 'Please remove the file manually.<br/><br/>';
       } // failed removal is not fatal, so we continue
       
-      file.writeConfigFile(Config.lucyConfigFilePath, result.config); // write the new config to the local config file
+      File.writeConfigFile(Config.lucyConfigFilePath, result.config); // write the new config to the local config file
       initAntennaLayout(state.selectedAntennaLayoutNr); // incorporate new short/mid-range specs in antennaLayout
       html += 'Succesfully uploaded short/mid-range configuration from Synology NAS to Lucy server:<br/><br/>';
       html += '<tt>' + JSON.stringify(result.config) + '</tt>';
@@ -299,7 +299,7 @@ function initExpress() {
     res.setHeader('content-type', 'application/json');
     ServerCommon.log('Getting replay directory structure')
     var replayInfo : Shared.ReplayInfo =
-      { contents: file.getRecursiveDirContents(Config.saveDirectoryPath) }; 
+      { contents: File.getRecursiveDirContents(Config.saveDirectoryPath) }; 
       //{ contents: [ { name: '7', contents: [ { name: '1', contents: [{name: '10.45', contents: []}, {name: '11.00', contents: []}] }, { name: '2', contents: [{name: '11.45', contents: []}, {name: '12.00', contents: []}] } ] }
       //            , { name: '8', contents: [ { name: '3', contents: [{name: '13.45', contents: []}, {name: '14.00', contents: []}] }, { name: '4', contents: [{name: '14.45', contents: []}, {name: '15.00', contents: []}] } ] }
       //            ] }
@@ -457,11 +457,11 @@ function readerServerConnected(readerServerSocket : net.Socket) {
 }
 
 function startSaving(filePath : string, cont : {success : () => void; error : (message : string) => void}) {
-  if (!file.isSafeFilePath(filePath))
+  if (!File.isSafeFilePath(filePath))
     cont.error('Invalid file path: "'+filePath+'"\nMay only contain letters, digits, spaces, and these characters: \'(\' \')\' \'-\' \'_\'');
   else {
     var fullFilename = Config.userSaveDirectoryPath + '/' + filePath+'.csv';
-    file.mkUniqueFilePath(fullFilename, (uniqueFilePath) => {
+    File.mkUniqueFilePath(fullFilename, (uniqueFilePath) => {
       outputFileStream = fs.createWriteStream(uniqueFilePath);
       outputFileStream.on('error', function(err : Error) {
         util.log('Start-saving failed: ' + err.message);
@@ -549,7 +549,7 @@ function logReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
 // TODO Quickly tapping the start-replay button hangs Firefox. Chrome is fine though. 
 // Note: filePath is relative to saveDirectoryPath and without .csv extension
 function startReplay(replaySession : Shared.ReplaySession, filePath : string, cont : {success : () => void; error : (message : string) => void}) {
-  if (!file.isSafeFilePath(filePath.replace(/[\/,\.]/g,''))) { // first remove / and ., which are allowed in replay file paths
+  if (!File.isSafeFilePath(filePath.replace(/[\/,\.]/g,''))) { // first remove / and ., which are allowed in replay file paths
     // This is safe as long as we only open the file within the server and try to parse it as csv, when csv can be downloaded we need stricter
     // safety precautions.
     cont.error('Invalid file path: "'+filePath+'"\nMay only contain letters, digits, spaces, and these characters: \'(\' \')\' \'-\' \'_\'  \'/\'  \'.\'');
