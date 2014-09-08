@@ -75,9 +75,13 @@ function showHelp() {
 function listUsers() {
   util.log('Lucy user list:');
   var users = readUsersFile();
-  _(users).each(user => {
-    util.log(pad(10, user.username) + user.firstName + ' ' + user.lastName + ' <' + user.eMail + '>');
-  });
+  if (users.length != 0) {
+    _(users).each(user => {
+      util.log(pad(10, user.username) + user.firstName + ' ' + user.lastName + ' <' + user.eMail + '>');
+    });
+  } else {
+    util.log('<no users>');
+  }
 }
 
 function addUser(username : string, firstName : string, lastName : string, eMail : string) {
