@@ -15,5 +15,6 @@
   , "line-by-line": "0.1.x"
   , "node-fs": "0.1.x"
   , "prompt" : "0.2.x"
+  , "bcryptjs" : "2.0.x"
   }
 }

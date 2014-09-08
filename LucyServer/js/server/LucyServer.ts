@@ -151,9 +151,9 @@ function initExpress() {
     var username = req.query.username;
     var password = req.query.password;
     
-    var loginResponse : Shared.LoginResponse = Session.login(req, username, password);
-    
-    res.send(JSON.stringify(loginResponse));
+    Session.login(req, username, password, loginResponse => {
+      res.send(JSON.stringify(loginResponse));
+    });
   });    
 
   app.get('/query/logout', function(req, res) {

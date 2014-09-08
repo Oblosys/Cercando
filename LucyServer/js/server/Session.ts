@@ -8,10 +8,18 @@ import express  = require('express');
 import fs       = require('fs');
 import util     = require('oblo-util');
 
-import Config        = require('./Config');
-import File          = require('./File');  
-var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
-import ServerCommon  = require('./ServerCommon');
+import Config       = require('./Config');
+import File         = require('./File');  
+var shared          = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
+import ServerCommon = require('./ServerCommon');
+
+// Libraries without TypeScript definitions:
+var bcrypt = require('bcryptjs');
+
+
+// Note: Passwords are sent over http without encryption. This is acceptable because we don't require a high level of security.
+// Unauthorized access may lead to some replays to be started (possibly crashing the server and causing an immediate restart), or
+// to a user-save file to be generated, but no real harm can be done. 
 
 var sessionExpirationTimeMs = 5 * 1000;
 export var expressSessionOptions = {secret: 'lucy in the sky', cookie: {maxAge:sessionExpirationTimeMs}, rolling: true};
@@ -60,19 +68,30 @@ function mkUserInfo(user : Shared.SessionUser) : Shared.UserInfo {
   return user ? {username: user.username, firstName: user.firstName} : null;
 }
 
-export function login(req : express.Request, username : string, password : string) : Shared.LoginResponse {
+export function login(req : express.Request, username : string, password : string, cont : (loginResponse : Shared.LoginResponse) => void) {
   // todo check for existing session?
   ServerCommon.log('Login request for \'' + username + '\' from ip ' + req.ip);
   
-  var user = getUser(username);
-  if (user && password == user.passwordHash) { // TODO: poorest man's authentication
-    var session = getSession(req);
-    session.user = user;
-    ServerCommon.log('Login successful');
-    return {userInfo: mkUserInfo(user), err: null};
-  } else {
+  // use same error for incorrect username as for incorrect password, so attackers cannot determine whether username exists
+  function loginFailed() {
     ServerCommon.log('Login failed: incorrect username or password');
-    return {userInfo: null, err: 'Incorrect username or password'};
+    cont({userInfo: null, err: 'Incorrect username or password'});
+  }
+  
+  var user = getUser(username);
+  if (user) {
+    bcrypt.compare(password, user.passwordHash, function(err : Error, res : boolean) {
+      if (res) {
+        var session = getSession(req);
+        session.user = user;
+        ServerCommon.log('Login successful');
+        cont({userInfo: mkUserInfo(user), err: null});
+      } else {
+        loginFailed();
+      }
+    });
+  } else {
+    loginFailed();
   }
 }
 

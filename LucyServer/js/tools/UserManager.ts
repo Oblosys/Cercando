@@ -15,8 +15,9 @@ import Config   = require('../server/Config');
 var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 
 // Libraries without TypeScript definitions:
-
 var prompt = require('prompt');
+var bcrypt = require('bcryptjs');
+
 prompt.colors = false;
 
 main();
@@ -83,7 +84,7 @@ function addUser(username : string, firstName : string, lastName : string, eMail
   var users = readUsersFile();
   if (!_(users).findWhere({username: username})) {
     promptString('Please enter a password for user \'' + username + '\':', true, password => {
-      var passwordHash = password; // TODO: actually hash password
+      var passwordHash = bcrypt.hashSync(password, bcrypt.genSaltSync());
       var user : Shared.UserRecord =
         {username: username, firstName: firstName, lastName: lastName, eMail: eMail, passwordHash: passwordHash};
       users.push(user);
