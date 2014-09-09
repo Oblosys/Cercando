@@ -1,7 +1,7 @@
 @import url("common.css");
 
 #user-panel {
-	height: 6ex;
+	height: 7ex;
 }
 #user-panel > * {
 	display: none;
@@ -12,11 +12,20 @@
 #user-panel[logged-in] .user-logged-in {
   display: block; 
 }
+#username-field {
+  margin-bottom: 2px;
+  height: 13px;
+}
+#password-field {
+  height: 13px;
+}
 #login-button {
+	margin-top: 2px;
 	float: right;
 }
 #logout-button {
-  float: right;
+  margin-top: 2px;
+	float: right;
 }
 
 #unknown-antennas {
