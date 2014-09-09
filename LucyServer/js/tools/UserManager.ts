@@ -25,39 +25,40 @@ main();
 function main() {
   var cmd = process.argv[2]; // argv[0] == 'node', argv[1] == '../UserManager.js'
   if (!cmd) {
-    util.error('Missing command');
+    util.error('Error: Missing command');
     showHelp();
-  }
-  switch(process.argv[2]) {
-    case 'help':
-      showHelp();
-      break;
-    case 'list':
-      if (process.argv.length == 3) 
-        listUsers();
-      else
-        showSyntaxError();
-      break;
-    case 'add':
-      var username = process.argv[3];
-      var firstName = process.argv[4];
-      var lastName = process.argv[5];
-      var eMail = process.argv[6];
-      if (process.argv.length == 7 && username && firstName && lastName && eMail) 
-        addUser(username, firstName, lastName, eMail);
-      else
-        showSyntaxError();
-      break;
-    case 'remove':
-      var username = process.argv[3];
-      if (process.argv.length == 4 && username) 
-        removeUser(username);
-      else
-        showSyntaxError();
-      break;
-    default:
-      util.error('Unknown command: ' + cmd);
-      showHelp();    
+  } else {
+    switch(process.argv[2]) {
+      case 'help':
+        showHelp();
+        break;
+      case 'list':
+        if (process.argv.length == 3) 
+          listUsers();
+        else
+          showSyntaxError();
+        break;
+      case 'add':
+        var username = process.argv[3];
+        var firstName = process.argv[4];
+        var lastName = process.argv[5];
+        var eMail = process.argv[6];
+        if (process.argv.length == 7 && username && firstName && lastName && eMail) 
+          addUser(username, firstName, lastName, eMail);
+        else
+          showSyntaxError();
+        break;
+      case 'remove':
+        var username = process.argv[3];
+        if (process.argv.length == 4 && username) 
+          removeUser(username);
+        else
+          showSyntaxError();
+        break;
+      default:
+        util.error('Unknown command: ' + cmd);
+        showHelp();    
+    }
   }
 }
 function showSyntaxError() {
