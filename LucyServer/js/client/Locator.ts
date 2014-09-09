@@ -33,7 +33,7 @@ var replayInfo : Shared.ReplayInfo; // directory structure of lucyData/savedRead
 var UIState = Backbone.Model.extend({
   defaults: {
     showMaxAntennaRanges: false,
-    showTagZones: true,
+    showTagZones: false,
     showSignals: true,
     showTrails: true,
     showTagSetup: true
