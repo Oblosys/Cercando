@@ -25,7 +25,8 @@ module Shared {
   export interface ReaderAntennaSpec { readerIp : string; antennaSpecs : AntennaSpec[] }
 
   export interface ShortMidRangeSpec { antennaName : string; isShortRange : boolean; serverIp : string }
-  export var shortMidRangeSpecKeys = ['antennaName', 'isShortRange', 'serverIp']; // for dynamically checking uploaded config file
+  // for dynamically checking uploaded config file:
+  export var shortMidRangeSpecType = { antennaName: 'string', isShortRange : 'boolean', serverIp : 'string' };
   
   export interface AntennaSpec { name : string; coord : Coord }
 

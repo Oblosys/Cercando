@@ -28,18 +28,32 @@ export function writeConfigFile(filePath : string, config : Shared.ShortMidRange
 
 export function validateConfig(configObject : any) : {config: Shared.ShortMidRangeSpec[]; err: Error} {
   var errMsg = '';
-  
+  var shortMidRangeSpecKeys = _.keys(shared.shortMidRangeSpecType);
   if (!_.isArray(configObject)) {
     errMsg += 'Object in config.json is not an array.';
   } else {
     for (var i=0; i<configObject.length; i++) {
+      var elementErrs = '';
       var keys = _(configObject[i]).keys();
-      var missingKeys = _.difference(shared.shortMidRangeSpecKeys, keys);
-      var extraKeys = _.difference(keys, shared.shortMidRangeSpecKeys);
-      if (!_.isEmpty(missingKeys))
-        errMsg += 'Element ' + i + ' is missing keys: ' + missingKeys + '\n'; 
+      _(shortMidRangeSpecKeys).each(key => {
+        
+        var val = configObject[i][key];
+        if (configObject[i].hasOwnProperty(key)) {
+          var expectedType = shared.shortMidRangeSpecType[key];
+          if (typeof val != expectedType) {
+            elementErrs += ' - key \'' + key +'\' has type ' + typeof val + ' instead of ' + expectedType + '\n';
+          }
+        } else {
+          elementErrs += ' - key \'' + key + '\' is not specified\n'; 
+        }
+      });
+
+      var extraKeys = _.difference(keys, shortMidRangeSpecKeys);
       if (!_.isEmpty(extraKeys))
-        errMsg += 'Element ' + i + ' has unrecognized keys: ' + extraKeys + '\n'; 
+        elementErrs += ' - unrecognized keys: ' + extraKeys + '\n';
+      if (elementErrs) {
+        errMsg += 'Error in element ' + i + ': ' + JSON.stringify(configObject[i]) + '\n' + elementErrs;
+      }
     }
   }
   if (errMsg)
