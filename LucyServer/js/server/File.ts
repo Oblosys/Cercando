@@ -8,7 +8,7 @@ import path     = require('path');
 
 var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 
-export function readConfigFile(filePath : string) : {config: Shared.ShortMidRangeSpec[]; err: Error} {
+export function readConfigFile(filePath : string) : {config: Shared.ShortMidRangeSpec[]; err: string} {
   try {
     var configJSON = <string>fs.readFileSync(filePath, {encoding:'utf8'});
     return validateConfig(JSON.parse(configJSON));
@@ -26,7 +26,7 @@ export function writeConfigFile(filePath : string, config : Shared.ShortMidRange
   }
 }
 
-export function validateConfig(configObject : any) : {config: Shared.ShortMidRangeSpec[]; err: Error} {
+export function validateConfig(configObject : any) : {config: Shared.ShortMidRangeSpec[]; err: string} {
   var errMsg = '';
   var shortMidRangeSpecKeys = _.keys(shared.shortMidRangeSpecType);
   if (!_.isArray(configObject)) {
@@ -57,7 +57,7 @@ export function validateConfig(configObject : any) : {config: Shared.ShortMidRan
     }
   }
   if (errMsg)
-    return {config: <Shared.ShortMidRangeSpec[]>null, err: new Error(errMsg)};
+    return {config: <Shared.ShortMidRangeSpec[]>null, err: errMsg};
   else
     return {config: <Shared.ShortMidRangeSpec[]>configObject, err: null};
 }
