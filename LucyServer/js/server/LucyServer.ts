@@ -644,7 +644,7 @@ function parseReplayEventCSV(csvLine : string) : ServerCommon.ReaderEvent {
   var values = _(csvLine.split(',')).map(rawField => {return rawField.replace(/^ /,'')});
   
   if (values.length != 10) {
-    util.error('Error: csv line has incorrect nr. of fields:\n' + csvLine);
+    util.error('Error: csv line has incorrect nr. of fields ('+values.length+'):\n' + csvLine);
     return null;
   } else {
     // check format of fields, originally introduced to deal with buggy read-line package, but still useful as an extra check for correctness
