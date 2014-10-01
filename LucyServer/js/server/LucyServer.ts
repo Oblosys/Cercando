@@ -73,7 +73,7 @@ function initServer() {
     // use remoteReader to connect to reader server on lucy.oblomov.com instead of localhost 
     readerServerHostName = Config.remoteHostName;
     Config.db_config.host = 'localhost';
-//    db_config.host = '10.0.0.20'; // select this line when we run on the Lucy network (or VPN) and want to use the Synology MySQL server
+//    Config.db_config.host = '10.0.0.20'; // select this line when we run on the Lucy network (or VPN) and want to use the Synology MySQL server
   } else {
     readerServerHostName = "localhost";
   }
