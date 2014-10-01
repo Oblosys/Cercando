@@ -422,7 +422,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                 }
               , { name: 'A3'
                 , coord:
-                    { x: 2.295327102803739
+                    { x: 4.467289719626168
                     , y: -2.467757009345794
                     }
                 }
