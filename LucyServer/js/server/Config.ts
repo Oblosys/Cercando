@@ -127,7 +127,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
    // All short/mid-range antennas are in a single position (we don't have measured coordinates for those). 
    //Serves as a basis for layout 'rotterdam'.
    var rotterdamRaw : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
-    scaleAndTranslate(1/1110,-8.22,-4.05,
+    scaleAndTranslate(1000/1110,-8.22,-4.05,
     { name: 'Rotterdam raw'
     , dimensions: {width: 17, height: 17 * 1092/2134}
     , scale: 50
@@ -135,52 +135,52 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
     , readerAntennaSpecs: // copied from Antenne layout 3 - RFID Blueprint versie 3.jpg
         [ { readerIp: '10.0.0.30'
           , antennaSpecs:
-            [ {name: 'A1',coord:{x:10450, y:2992}}
-            , {name: 'A2',coord:{x:11993, y:2368}}
-            , {name: 'A3',coord:{x:13768, y:1907}}
-            , {name: 'A4',coord:{x:13083 /*13789*/, y:4438 /*3909*/}}
-            , {name: 'A5', coord: {x:2450,  y:2536}}
-            , {name: 'A6', coord: {x:2450,  y:2536}}
-            , {name: 'A7', coord: {x:2450,  y:2536}}
-            , {name: 'A8', coord: {x:2450,  y:2536}}
+            [ {name: 'A1', coord: {x:10.450, y:2.992}}
+            , {name: 'A2', coord: {x:11.993, y:2.368}}
+            , {name: 'A3', coord: {x:13.768, y:1.907}}
+            , {name: 'A4', coord: {x:13.083 /*13.789*/, y:4.438 /*3.909*/}}
+            , {name: 'A5', coord: {x: 2.450, y:2.536}}
+            , {name: 'A6', coord: {x: 2.450, y:2.536}}
+            , {name: 'A7', coord: {x: 2.450, y:2.536}}
+            , {name: 'A8', coord: {x: 2.450, y:2.536}}
             ]
           }
         , { readerIp: '10.0.0.31'
           , antennaSpecs:
-            [ {name: 'B1',coord: {x:2450, y:2536}}
-            , {name: 'B2',coord:{x:12465 /*12641*/, y:6941 /*4824*/}}
-            , {name: 'B3',coord:{x:9303 /*8950*/, y:5025 /*5201*/}}
-            , {name: 'B4',coord:{x:10094 /*9918*/, y:7692 /*7339*/}}
-            , {name: 'B5',coord:{x:10703 /*10527*/, y:5025 /*4672*/}}
-            , {name: 'B6',coord:{x:7612 /*8723*/, y:7967 /*7967*/}}
-            , {name: 'B7',coord:{x:12050 /*11609*/, y:7939 /*6193*/}}
-            , {name: 'B8', coord: {x:2450, y:2536}}
+            [ {name: 'B1', coord: {x: 2.450, y:2.536}}
+            , {name: 'B2', coord: {x:12.465 /*12.641*/, y:6.941 /*4.824*/}}
+            , {name: 'B3', coord: {x: 9.303 /* 8.950*/, y:5.025 /*5.201*/}}
+            , {name: 'B4', coord: {x:10.094 /* 9.918*/, y:7.692 /*7.339*/}}
+            , {name: 'B5', coord: {x:10.703 /*10.527*/, y:5.025 /*4.672*/}}
+            , {name: 'B6', coord: {x: 7.612 /* 8.723*/, y:7.967 /*7.967*/}}
+            , {name: 'B7', coord: {x:12.050 /*11.609*/, y:7.939 /*6.193*/}}
+            , {name: 'B8', coord: {x: 2.450, y:2.536}}
             ]
           }
         , { readerIp: '10.0.0.32'
           , antennaSpecs:
-            [ {name: 'C1',coord:{x:8885, y:2436}}
-            , {name: 'C2',coord:{x:7365 /*6307*/, y:4953 /*4247*/}}
-            , {name: 'C3',coord:{x:7564, y:6385 /*6032*/}}
-            , {name: 'C4',coord:{x:4181, y:6236}}
-            , {name: 'C5',coord:{x:6188, y:6827}}
-            , {name: 'C6',coord:{x:3391 /*6566*/, y:7949 /*8125*/}}
-            , {name: 'C7', coord: {x:2450, y:2536}}
-            , {name: 'C8', coord: {x:2450, y:2536}}
+            [ {name: 'C1', coord: {x:8.885, y:2.436}}
+            , {name: 'C2', coord: {x:7.365 /*6.307*/, y:4.953 /*4.247*/}}
+            , {name: 'C3', coord: {x:7.564, y:6.385 /*6.032*/}}
+            , {name: 'C4', coord: {x:4.181, y:6.236}}
+            , {name: 'C5', coord: {x:6.188, y:6.827}}
+            , {name: 'C6', coord: {x:3.391 /*6.566*/, y:7.949 /*8.125*/}}
+            , {name: 'C7', coord: {x:2.450, y:2.536}}
+            , {name: 'C8', coord: {x:2.450, y:2.536}}
             ]
           }
         , { readerIp: '10.0.0.33'
           , antennaSpecs:
-            [ {name: 'D1',coord:{x:7310, y:2842}}
-            , {name: 'D2',coord:{x:5800 /*5037*/, y:4310 /*4807*/}}
-            , {name: 'D3',coord:{x:3040, y:4180}}
-            , {name: 'D4',coord:{x:3770, y:2110}}
-            , {name: 'D5',coord:{x:5800, y:900}}
+            [ {name: 'D1', coord: {x:7.310, y:2.842}}
+            , {name: 'D2', coord: {x:5.800 /*5.037*/, y:4.310 /*4.807*/}}
+            , {name: 'D3', coord: {x:3.040, y:4.180}}
+            , {name: 'D4', coord: {x:3.770, y:2.110}}
+            , {name: 'D5', coord: {x:5.800, y:0.900}}
           
-            , {name: 'NW', coord: {x:0,     y:0}}
-            , {name: 'NE', coord: {x:16936, y:0}}
-            , {name: 'SE', coord: {x:16936, y:9045}}
-            , {name: 'SW', coord: {x:0,     y:9045}}
+            , {name: 'NW', coord: {x:0,      y:0}}
+            , {name: 'NE', coord: {x:16.936, y:0}}
+            , {name: 'SE', coord: {x:16.936, y:9.045}}
+            , {name: 'SW', coord: {x:0,      y:9.045}}
             ]
           }      
         ]
