@@ -9,7 +9,9 @@ module Shared {
 
   export var staleAgeMs = 2000;
   export var ancientAgeMs = 5000;
-  
+
+  var defaultAntennaLayoutNr = 0;
+ 
   export interface Coord { x: number; y : number }
 
   export interface UserRecord { username : string; passwordHash : string; firstName : string; lastName : string; eMail : string } // information in users.json
@@ -108,7 +110,7 @@ module Shared {
     return { tagsInfo: { mostRecentEventTimeMs: null, tagsData : []}
            , serverInfo:
              { status: {isConnected: false, isSaving: false, replayFileName: null},
-               selectedAntennaLayoutNr: 0,
+               selectedAntennaLayoutNr: defaultAntennaLayoutNr,
                unknownAntennaIds: [],
                diColoreStatus: { locationServerOperational: false, shortMidRangeServers : [] }
              }
@@ -119,7 +121,7 @@ module Shared {
   export function initialServerState() : ServerState {
     return {
       status: {isConnected: false, isSaving: false, replayFileName: null},
-      selectedAntennaLayoutNr: 0,
+      selectedAntennaLayoutNr: defaultAntennaLayoutNr,
       liveTagsState: {mostRecentEventTimeMs: null, previousPositioningTimeMs: null, mostRecentEventTime: null, tagsData: []},
       unknownAntennaIds: [],
       diColoreStatus: { locationServerOperational: false, shortMidRangeServers : [] }
