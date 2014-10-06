@@ -137,7 +137,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
           , antennaSpecs:
             [ {name: 'A1',coord:{x:10450, y:2992}}
             , {name: 'A2',coord:{x:11993, y:2368}}
-            , {name: 'A3',coord:{x:11444, y:1907}}
+            , {name: 'A3',coord:{x:13768, y:1907}}
             , {name: 'A4',coord:{x:13083 /*13789*/, y:4438 /*3909*/}}
             , {name: 'A5', coord: {x:2450,  y:2536}}
             , {name: 'A6', coord: {x:2450,  y:2536}}
