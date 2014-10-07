@@ -85,22 +85,22 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
             , {name: 'A2', coord: {x:11.993, y:2.368}}
             , {name: 'A3', coord: {x:13.768, y:1.907}}
             , {name: 'A4', coord: {x:13.083 /*13.789*/, y:4.438 /*3.909*/}}
-            , {name: 'A5', coord: {x:10.703, y:0.545}} // mid range, manually positioned
+            , {name: 'A5', coord: {x:10.669, y:0.547}} // mid range, manually positioned
             , {name: 'A6', coord: {x:14.535, y:5.320}} // short range, manually positioned
             , {name: 'A7', coord: {x:15.308, y:3.923}} // short range, manually positioned
-            , {name: 'A8', coord: {x:15.535, y:1.772}} // mid range, manually positioned
+            , {name: 'A8', coord: {x:15.509, y:1.771}} // mid range, manually positioned
             ]
           }
         , { readerIp: '10.0.0.31'
           , antennaSpecs:
-            [ {name: 'B1', coord: {x:10.111, y:7.966}} // mid range, manually positioned
+            [ {name: 'B1', coord: {x:10.104, y:8.004}} // mid range, manually positioned
             , {name: 'B2', coord: {x:12.465 /*12.641*/, y:6.941 /*4.824*/}}
             , {name: 'B3', coord: {x: 9.303 /* 8.950*/, y:5.025 /*5.201*/}}
             , {name: 'B4', coord: {x:10.094 /* 9.918*/, y:7.692 /*7.339*/}}
             , {name: 'B5', coord: {x:10.703 /*10.527*/, y:5.025 /*4.672*/}}
             , {name: 'B6', coord: {x: 7.612 /* 8.723*/, y:7.967 /*7.967*/}}
             , {name: 'B7', coord: {x:12.050 /*11.609*/, y:7.939 /*6.193*/}}
-            , {name: 'B8', coord: {x:12.244, y:7.966}} // mid range, manually positioned
+            , {name: 'B8', coord: {x:12.176, y:7.966}} // mid range, manually positioned
             ]
           }
         , { readerIp: '10.0.0.32'
@@ -111,8 +111,8 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
             , {name: 'C4', coord: {x:4.181, y:6.236}}
             , {name: 'C5', coord: {x:6.188, y:6.827}}
             , {name: 'C6', coord: {x:3.391 /*6.566*/, y:7.949 /*8.125*/}}
-            , {name: 'C7', coord: {x:3.071, y:8.193}} // mid range, manually positioned
-            , {name: 'C8', coord: {x:1.505, y:4.550}} // mid range, manually positioned
+            , {name: 'C7', coord: {x: 3.071, y:8.193}} // mid range, manually positioned
+            , {name: 'C8', coord: {x: 1.505, y:4.550}} // mid range, manually positioned
             ]
           }
         , { readerIp: '10.0.0.33'
