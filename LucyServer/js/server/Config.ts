@@ -123,10 +123,12 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
             , {name: 'D4', coord: {x:3.770, y:2.110}}
             , {name: 'D5', coord: {x:5.800, y:0.900}}
           
-            , {name: 'NW', coord: {x:0,      y:0}}
-            , {name: 'NE', coord: {x:16.936, y:0}}
-            , {name: 'SE', coord: {x:16.936, y:9.045}}
-            , {name: 'SW', coord: {x:0,      y:9.045}}
+// Dummy reference antennas for the corners of the floor
+// 33.872 and 18.09 are x and y coordinates in cm for the border lines in the Lijnen layer of "141006 NHMR_plattegrond_schaal 1-50 - blueprint CS5.ai"
+//            , {name: 'NW', coord: {x:0,      y:0}}
+//            , {name: 'NE', coord: {x:33.872*50/100, y:0}} 
+//            , {name: 'SE', coord: {x:33.872*50/100, y:18.09*50/100}}
+//            , {name: 'SW', coord: {x:0,             y:18.09*50/100}}
             ]
           }      
         ]
