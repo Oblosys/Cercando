@@ -1,4 +1,4 @@
-// Type definitions for oblo-util 0.5.0
+// Type definitions for oblo-util 0.6.1
 // Definitions by: Martijn Schrage <https://github.com/Oblosys/>
 /// <reference path="../jquery/jquery.d.ts" />
 
@@ -11,6 +11,7 @@ interface ObloUtilStatic {
   clip(min : number, max : number, x : number) : number;
   square(x : number) : number;
   replicate<X>(n : number, x : X) : X[];
+  pad(c : string, l : number, str : any) : string;
   padZero(l : number, n : number) : string;
   addslashes(str : string) : string;
   showJSON(json : any, indentStr? : string, maxDepth? : number) : string;
