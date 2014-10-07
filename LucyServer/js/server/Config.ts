@@ -146,7 +146,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
     , backgroundSize: {width: 2340, height: 1257} // in pixels
     , backgroundOrigin: {x: 2340/2, y: 1257/2} // in pixels
     , backgroundScale: 137.70883054892602 // pixels per meter
-    , screenZoomFactor: 850/2340
+    , screenZoomFactor: 1000/2340
     , readerAntennaSpecs:
         [ { readerIp: '10.0.0.30'
           , antennaSpecs:
