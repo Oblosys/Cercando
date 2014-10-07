@@ -190,16 +190,18 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
     , tagConfiguration: 
         []
     };
-/*
+
    // Old layout obtained from '140526 RFID antenne plaatsing' and '140825 RFID antenne plaatsing' after
    // correcting for mistakes and adding short-range antennas 
    var rotterdamOud : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
     scaleAndTranslate(1,0,0,
     { name: 'Rotterdam oud'
-    , dimensions: {width: 17, height: 17 * 734/1365} // dimensions not in line with image dimensions, but antennas were placed by hand, so cannot change
-    , scale: 50
-    , backgroundImage: 'floorPlans/Blueprint Lucy Rotterdam v2.0.png' // width="2134" height="1092"
-    //, backgroundImage: 'floorPlans/Antenne layout 3 - RFID Blueprint versie 3.jpg' // width="1365" height="734"
+    , id: 'rotterdam-2.0'
+    , backgroundImage: 'floorPlans/Blueprint Lucy Rotterdam v2.0.png'
+    , backgroundSize: {width: 2340, height: 1257} // in pixels
+    , backgroundOrigin: {x: 2340/2, y: 1257/2} // in pixels
+    , backgroundScale: 137.70883054892602 // pixels per meter
+    , screenZoomFactor: 850/2340
     , readerAntennaSpecs:
         [ { readerIp: '10.0.0.30'
           , antennaSpecs:
@@ -398,8 +400,6 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
 
   
   return [rotterdam, rotterdamOud];
-*/
-  return [rotterdam];
 }
 
 function scaleAndTranslate( scale : number, translationX : number, translationY : number
