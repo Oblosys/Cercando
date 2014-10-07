@@ -67,10 +67,10 @@ export function getShortMidRangeSpecs() : Shared.ShortMidRangeSpec[] {
 
 export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
   
-   // Layout that is computed from measured coordinates of long range antennas in "140903 RFID antenne plaatsing .pdf",
-   // except for A3, which has incorrect coordinates in this pdf and should be at {x:13.768, y:1.907} (e-mail Denny van Dijk, 6-10-14)
-   // The short/mid range antennas have been manually positioned according to the background image
-   var rotterdam : Shared.AntennaLayout =
+  // Layout that is computed from measured coordinates of long range antennas in "140903 RFID antenne plaatsing .pdf",
+  // except for A3, which has incorrect coordinates in this pdf and should be at {x:13.768, y:1.907} (e-mail Denny van Dijk, 6-10-14)
+  // The short/mid range antennas have been manually positioned according to the background image
+  var rotterdam : Shared.AntennaLayout =
     { name: 'Rotterdam'
     , id: 'rotterdam-3.0'
     , backgroundImage: 'floorPlans/Blueprint-Lucy-Rotterdam-v3.0.png'
@@ -134,9 +134,9 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
         []
     };
 
-   // Old layout obtained from '140526 RFID antenne plaatsing' and '140825 RFID antenne plaatsing' after
-   // correcting for mistakes and adding short-range antennas 
-   var rotterdamOud : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
+  // Old layout obtained from '140526 RFID antenne plaatsing' and '140825 RFID antenne plaatsing' after
+  // correcting for mistakes and adding short-range antennas 
+  var rotterdamOud : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
     scaleAndTranslate(1,0,0,
     { name: 'Rotterdam oud'
     , id: 'rotterdam-2.0'
@@ -341,7 +341,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
         []
     });
 
-    var groningenHorizontaal : Shared.AntennaLayout =
+  var groningenHorizontaal : Shared.AntennaLayout =
     { name: 'Groningen (horizontaal)'
     , id: 'groningen-1.0'
     , backgroundSize: {width:600 , height: 600} // in pixels
