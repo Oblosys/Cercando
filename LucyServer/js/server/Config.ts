@@ -66,65 +66,8 @@ export function getShortMidRangeSpecs() : Shared.ShortMidRangeSpec[] {
 }
 
 export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
-  /*
-  var groningenHorizontaal : Shared.AntennaLayout =
-    { name: 'Groningen (horizontaal)'
-    , dimensions: {width: 6, height: 6}
-    , scale: 60
-    , readerAntennaSpecs:
-        [ { readerIp: '10.0.0.30' 
-          , antennaSpecs: [ {name:'1', coord:{x:1.5,  y:0}}
-                          , {name:'2', coord:{x:0,    y:1.5}}
-                          , {name:'3', coord:{x:-1.5, y:0}}
-                          , {name:'4', coord:{x:0,    y:-1.5}}
-                          ]
-          }
-        ]
-    , tagConfiguration: 
-        [ {epc:'0000000000000000000000000370869', color:'green',     testCoord:null}
-        , {epc:'0000000000000000000000000503968', color:'yellow',    testCoord:null}
-        , {epc:'0000000000000000000000000370802', color:'black',     testCoord:null}
-        , {epc:'0000000000000000000000000103921', color:'purple',    testCoord:null}
-        , {epc:'0000000000000000000000000000795', color:'red',       testCoord:null}
-        , {epc:'0000000000000000000000000370870', color:'orange',    testCoord:null}
-        , {epc:'0000000000000000000000000370845', color:'white',     testCoord:null}
-        , {epc:'0000000000000000000000000100842', color:'brown',     testCoord:null} 
-        , {epc:'0000000000000000000000000503972', color:'gray',      testCoord:null}
-        , {epc:'0000000000000000000000000023040', color:'lightblue', testCoord:null}
-        , {epc:'0000000000000000000000000023140', color:'darkgray',  testCoord:null}
-        ]
-    };
-
-  var groningenSchuin : Shared.AntennaLayout =
-    { name: 'Groningen (schuin)'
-    , dimensions: {width: 6, height: 6}
-    , scale: 60
-
-    , readerAntennaSpecs:
-        [ { readerIp: '10.0.0.30' 
-          , antennaSpecs: [ {name:'1', coord:{x:1.2,  y:1.2}}
-                          , {name:'2', coord:{x:-1.2, y:1.2}}
-                          , {name:'3', coord:{x:-1.2, y:-1.2}}
-                          , {name:'4', coord:{x:1.2,  y:-1.2}}
-                          ]
-          }
-        ]
-    , tagConfiguration: 
-        [ {epc:'0000000000000000000000000370869', color:'green',     testCoord:{x:1.2-0*0.35, y:1.2-0*0.35}}
-        , {epc:'0000000000000000000000000503968', color:'yellow',    testCoord:{x:1.2-1*0.35, y:1.2-1*0.35}}
-        , {epc:'0000000000000000000000000370802', color:'black',     testCoord:{x:1.2-2*0.35-0.03, y:1.2-2*0.35}}
-        , {epc:'0000000000000000000000000103921', color:'purple',    testCoord:{x:1.2-2*0.35+0.03, y:1.2-2*0.35}}
-        , {epc:'0000000000000000000000000000795', color:'red',       testCoord:{x:1.2-3*0.35, y:1.2-3*0.35}}
-        , {epc:'0000000000000000000000000370870', color:'orange',    testCoord:{x:1.2-4*0.35, y:1.2-4*0.35}}
-        , {epc:'0000000000000000000000000370845', color:'white',     testCoord:{x:1.35, y:1.2-0.5-0*0.5}}
-        , {epc:'0000000000000000000000000100842', color:'brown',     testCoord:{x:1.35, y:1.2-0.5-1*0.5}} 
-        , {epc:'0000000000000000000000000503972', color:'gray',      testCoord:{x:1.35, y:1.2-0.5-2*0.5}}
-        , {epc:'0000000000000000000000000023040', color:'lightblue', testCoord:null}
-        , {epc:'0000000000000000000000000023140', color:'darkgray',  testCoord:null}
-        ]
-    };
-    */
-   // Layout that is computed from measured coordinates of long range antennas in "140903 RFID antenne plaatsing ",
+  
+   // Layout that is computed from measured coordinates of long range antennas in "140903 RFID antenne plaatsing .pdf",
    // except for A3, which has incorrect coordinates in this pdf and should be at {x:13.768, y:1.907} (e-mail Denny van Dijk, 6-10-14)
    // The short/mid range antennas have been manually positioned according to the background image
    var rotterdam : Shared.AntennaLayout =
@@ -398,7 +341,69 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
         []
     });
 
-  
+    var groningenHorizontaal : Shared.AntennaLayout =
+    { name: 'Groningen (horizontaal)'
+    , id: 'groningen-1.0'
+    , backgroundSize: {width:600 , height: 600} // in pixels
+    , backgroundOrigin: {x: 300, y: 300} // in pixels
+    , backgroundScale: 100 // pixels per meter
+    , screenZoomFactor: 1
+    , readerAntennaSpecs:
+        [ { readerIp: '10.0.0.30' 
+          , antennaSpecs: [ {name:'1', coord:{x:1.5,  y:0}}
+                          , {name:'2', coord:{x:0,    y:1.5}}
+                          , {name:'3', coord:{x:-1.5, y:0}}
+                          , {name:'4', coord:{x:0,    y:-1.5}}
+                          ]
+          }
+        ]
+    , tagConfiguration: 
+        [ {epc:'0000000000000000000000000370869', color:'green',     testCoord:null}
+        , {epc:'0000000000000000000000000503968', color:'yellow',    testCoord:null}
+        , {epc:'0000000000000000000000000370802', color:'black',     testCoord:null}
+        , {epc:'0000000000000000000000000103921', color:'purple',    testCoord:null}
+        , {epc:'0000000000000000000000000000795', color:'red',       testCoord:null}
+        , {epc:'0000000000000000000000000370870', color:'orange',    testCoord:null}
+        , {epc:'0000000000000000000000000370845', color:'white',     testCoord:null}
+        , {epc:'0000000000000000000000000100842', color:'brown',     testCoord:null} 
+        , {epc:'0000000000000000000000000503972', color:'gray',      testCoord:null}
+        , {epc:'0000000000000000000000000023040', color:'lightblue', testCoord:null}
+        , {epc:'0000000000000000000000000023140', color:'darkgray',  testCoord:null}
+        ]
+    };
+
+  var groningenSchuin : Shared.AntennaLayout =
+    { name: 'Groningen (schuin)'
+    , id: 'groningen-schuin-1.0'
+    , backgroundSize: {width:600 , height: 600} // in pixels
+    , backgroundOrigin: {x: 300, y: 300} // in pixels
+    , backgroundScale: 10 // pixels per meter
+    , screenZoomFactor: 1
+
+    , readerAntennaSpecs:
+        [ { readerIp: '10.0.0.30' 
+          , antennaSpecs: [ {name:'1', coord:{x:1.2,  y:1.2}}
+                          , {name:'2', coord:{x:-1.2, y:1.2}}
+                          , {name:'3', coord:{x:-1.2, y:-1.2}}
+                          , {name:'4', coord:{x:1.2,  y:-1.2}}
+                          ]
+          }
+        ]
+    , tagConfiguration: 
+        [ {epc:'0000000000000000000000000370869', color:'green',     testCoord:{x:1.2-0*0.35, y:1.2-0*0.35}}
+        , {epc:'0000000000000000000000000503968', color:'yellow',    testCoord:{x:1.2-1*0.35, y:1.2-1*0.35}}
+        , {epc:'0000000000000000000000000370802', color:'black',     testCoord:{x:1.2-2*0.35-0.03, y:1.2-2*0.35}}
+        , {epc:'0000000000000000000000000103921', color:'purple',    testCoord:{x:1.2-2*0.35+0.03, y:1.2-2*0.35}}
+        , {epc:'0000000000000000000000000000795', color:'red',       testCoord:{x:1.2-3*0.35, y:1.2-3*0.35}}
+        , {epc:'0000000000000000000000000370870', color:'orange',    testCoord:{x:1.2-4*0.35, y:1.2-4*0.35}}
+        , {epc:'0000000000000000000000000370845', color:'white',     testCoord:{x:1.35, y:1.2-0.5-0*0.5}}
+        , {epc:'0000000000000000000000000100842', color:'brown',     testCoord:{x:1.35, y:1.2-0.5-1*0.5}} 
+        , {epc:'0000000000000000000000000503972', color:'gray',      testCoord:{x:1.35, y:1.2-0.5-2*0.5}}
+        , {epc:'0000000000000000000000000023040', color:'lightblue', testCoord:null}
+        , {epc:'0000000000000000000000000023140', color:'darkgray',  testCoord:null}
+        ]
+    };   
+
   return [rotterdam, rotterdamOud];
 }
 
