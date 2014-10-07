@@ -375,8 +375,7 @@ function selectLayout(layoutNr : number) {
     allAntennas = antennaInfo.antennaSpecs;
     tagConfiguration = antennaInfo.tagConfiguration;
     //util.log(JSON.stringify(antennaInfo));
-    scale = antennaInfo.scale;
-    ClientCommon.resizeFloor(antennaInfo.dimensions);
+    ClientCommon.resizeFloor(antennaInfo);
     ClientCommon.setBackgroundImage(antennaInfo.backgroundImage);
     resetClientState();
     startRefreshInterval();

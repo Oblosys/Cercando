@@ -51,9 +51,10 @@ module ClientCommon {
     floorSVG.append('text').attr('id', 'tag-event-time-label'); // positioned in resizeFloor()
   }
   
-  export function resizeFloor(dim : {width : number; height : number}) {
-    floorWidth = scale*dim.width;
-    floorHeight = scale*dim.height;
+  export function resizeFloor(antennaInfo : Shared.AntennaInfo) {
+    scale = antennaInfo.backgroundScale*antennaInfo.screenZoomFactor;
+    floorWidth = antennaInfo.backgroundSize.width*antennaInfo.screenZoomFactor;
+    floorHeight = antennaInfo.backgroundSize.height*antennaInfo.screenZoomFactor;
     origin = {x: floorWidth/2, y: floorHeight/2};
   
     d3.select('#floor > svg').attr('width', floorWidth).attr('height', floorHeight);

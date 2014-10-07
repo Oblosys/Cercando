@@ -18,8 +18,12 @@ module Shared {
 
   export interface LoginResponse { userInfo : UserInfo; err : string } // response to login http request
 
-  export interface AntennaLayout { name : string; dimensions: {width : number; height : number}; scale: number
-                                 ; backgroundImage? : string
+  export interface AntennaLayout { name : string
+                                 ; backgroundImage : string
+                                 ; backgroundSize : {width : number; height : number} // in pixels
+                                 ; backgroundOrigin : Coord                           // in pixels
+                                 ; backgroundScale: number                            // pixels per meter
+                                 ; screenZoomFactor: number                           // zoom factor by which background is shown on screen
                                  ; tagConfiguration : TagConfiguration[]
                                  ; readerAntennaSpecs : ReaderAntennaSpec[]
                                  }
@@ -43,9 +47,12 @@ module Shared {
   
   export interface TagConfiguration { epc : string; color : string; testCoord : Coord} // testCoord is the actual (non-computed) position of this tag in a test setup
   
-  export interface AntennaInfo { name : string; dimensions: {width : number; height : number}
-                               ; scale: number // pixels per meter
-                               ; backgroundImage? : string
+  export interface AntennaInfo { name : string
+                               ; backgroundImage : string
+                               ; backgroundSize : {width : number; height : number} // in pixels
+                               ; backgroundOrigin : Coord                           // in pixels
+                               ; backgroundScale: number                            // pixels per meter
+                               ; screenZoomFactor: number                           // zoom factor by which background is shown on screen
                                ; tagConfiguration : TagConfiguration[]
                                ; antennaSpecs : Antenna[] }
   

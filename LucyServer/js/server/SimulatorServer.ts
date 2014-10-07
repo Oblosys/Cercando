@@ -215,8 +215,12 @@ function initAntennaLayout(nr : number) {
 
 function getAntennaInfo(nr : number) : Shared.AntennaInfo {
   var antennaLayout = allAntennaLayouts[nr];
-  var info  = { name: antennaLayout.name, dimensions: antennaLayout.dimensions, scale: antennaLayout.scale
+  var info  = { name: antennaLayout.name
               , backgroundImage: antennaLayout.backgroundImage
+              , backgroundSize: antennaLayout.backgroundSize
+              , backgroundOrigin: antennaLayout.backgroundOrigin
+              , backgroundScale: antennaLayout.backgroundScale
+              , screenZoomFactor: antennaLayout.screenZoomFactor
               , antennaSpecs: allAntennas // todo: global allAntennas ref is not elegant
               , tagConfiguration : allAntennaLayouts[state.selectedAntennaLayoutNr].tagConfiguration 
               };
