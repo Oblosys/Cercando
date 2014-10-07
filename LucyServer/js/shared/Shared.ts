@@ -19,6 +19,7 @@ module Shared {
   export interface LoginResponse { userInfo : UserInfo; err : string } // response to login http request
 
   export interface AntennaLayout { name : string
+                                 ; id: string
                                  ; backgroundImage : string
                                  ; backgroundSize : {width : number; height : number} // in pixels
                                  ; backgroundOrigin : Coord                           // in pixels

@@ -129,6 +129,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
    // The short/mid range antennas have been manually positioned according to the background image
    var rotterdam : Shared.AntennaLayout =
     { name: 'Rotterdam'
+    , id: 'rotterdam-3.0'
     , backgroundImage: 'floorPlans/Blueprint-Lucy-Rotterdam-v3.0.png'
     , backgroundSize: {width: 2134, height: 1092} // in pixels
     , backgroundOrigin: {x: 34, y: 34} // in pixels
