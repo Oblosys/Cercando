@@ -128,11 +128,10 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
    // All short/mid-range antennas are in a single position (we don't have measured coordinates for those). 
    //Serves as a basis for layout 'rotterdam'.
    var rotterdamRaw : Shared.AntennaLayout = // TODO: Without this signature, type errors in shortMidRangeTarget are not reported
-    scaleAndTranslate(1,-8.22/(1000/1110),-4.05/(1000/1110),
     { name: 'Rotterdam raw'
     , backgroundImage: 'floorPlans/Blueprint-Lucy-Rotterdam-v3.0.png' // width="2134" height="1092"
-    , backgroundSize : {width : 2134, height : 1092} // in pixels
-    , backgroundOrigin : {x : 2134/2, y: 1092/2} // in pixels
+    , backgroundSize: {width: 2134, height: 1092} // in pixels
+    , backgroundOrigin: {x: 34, y: 34} // in pixels
     , backgroundScale: 125.5 * 1000/1110 // pixels per meter
     , screenZoomFactor: 1000/2134
     , readerAntennaSpecs: // copied from Antenne layout 3 - RFID Blueprint versie 3.jpg
@@ -189,7 +188,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
         ]
     , tagConfiguration: 
         []
-    });
+    };
 /*
    // Old layout obtained from '140526 RFID antenne plaatsing' and '140825 RFID antenne plaatsing' after
    // correcting for mistakes and adding short-range antennas 

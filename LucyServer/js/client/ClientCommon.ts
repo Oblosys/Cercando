@@ -55,7 +55,7 @@ module ClientCommon {
     scale = antennaInfo.backgroundScale*antennaInfo.screenZoomFactor;
     floorWidth = antennaInfo.backgroundSize.width*antennaInfo.screenZoomFactor;
     floorHeight = antennaInfo.backgroundSize.height*antennaInfo.screenZoomFactor;
-    origin = {x: floorWidth/2, y: floorHeight/2};
+    origin = {x: antennaInfo.backgroundOrigin.x*antennaInfo.screenZoomFactor, y: antennaInfo.backgroundOrigin.y*antennaInfo.screenZoomFactor};
   
     d3.select('#floor > svg').attr('width', floorWidth).attr('height', floorHeight);
     d3.select('#floor-background-rect').attr('width', floorWidth).attr('height', floorHeight);
