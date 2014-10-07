@@ -20,7 +20,7 @@ module Shared {
 
   export interface AntennaLayout { name : string
                                  ; id: string
-                                 ; backgroundImage : string
+                                 ; backgroundImage? : string
                                  ; backgroundSize : {width : number; height : number} // in pixels
                                  ; backgroundOrigin : Coord                           // in pixels
                                  ; backgroundScale: number                            // pixels per meter
