@@ -74,9 +74,9 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
     { name: 'Rotterdam'
     , id: 'rotterdam-3.0'
     , backgroundImage: 'floorPlans/Blueprint-Lucy-Rotterdam-v3.0.png'
-    , backgroundSize: {width: 2134, height: 1092} // in pixels
-    , backgroundOrigin: {x: 34, y: 34} // in pixels
-    , backgroundScale: 125.5 * 1000/1110 // pixels per meter
+    , backgroundSize: {width: 2134, height: 1092} // in pixels, actual dimensions of png that was obtained by Save for Web & Devices of "141006 NHMR_plattegrond_schaal 1-50 - blueprint CS5.ai"
+    , backgroundOrigin: {x: 34, y: 34}            // in pixels, left corner, measured in resulting png
+    , backgroundScale:  2134 / (37.66*50/100)     // pixels per meter: png width / (AI artboard width in cm / AI scale / 100))  
     , screenZoomFactor: 1000/2134
     , readerAntennaSpecs: // copied from Antenne layout 3 - RFID Blueprint versie 3.jpg
         [ { readerIp: '10.0.0.30'
