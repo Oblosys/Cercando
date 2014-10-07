@@ -197,12 +197,35 @@ function initExpress() {
     util.log('Sending current reader antenna spec to client. (' + new Date() + ')');
     res.setHeader('content-type', 'text/plain; charset=utf-8');
     
-    var indent = '        ';
-    var spec = '    , readerAntennaSpecs:\n' +
-               indent + util.showJSON(allAntennaLayouts[state.selectedAntennaLayoutNr].readerAntennaSpecs, indent, 20) + '\n';
-    
-    res.send(spec);
+    res.send(showreaderAntennaSpecs(allAntennaLayouts[state.selectedAntennaLayoutNr].readerAntennaSpecs));
   });
+}
+
+// format readerAntennaSpecs for easily pasting in Config.ts
+function showreaderAntennaSpecs(readerAntennaSpecs : Shared.ReaderAntennaSpec[]) : string{
+  var shortMidRangeSpecs = Config.getShortMidRangeSpecs();
+  var res : string;
+  res  = '    , readerAntennaSpecs:\n';
+  
+  _(readerAntennaSpecs).map((readerAntennaSpec,i) => {
+    res += (i==0 ? '        [' : '        ,') +' { readerIp: \''+readerAntennaSpec.readerIp+'\'\n';
+    res += '          , antennaSpecs:\n';
+
+    _(readerAntennaSpec.antennaSpecs).map((spec,i) => {
+      var shortMidRangeSpec = _(shortMidRangeSpecs).findWhere({antennaName:spec.name});
+      var range = shortMidRangeSpec == null ? 'long' : (shortMidRangeSpec.isShortRange ? 'short' : 'mid');
+      res += (i==0 ? '            [' : '            ,') + ' {name: \'' + spec.name + '\''
+                                                        + ', coord: {x:' + util.pad(' ',6, spec.coord.x.toFixed(3))
+                                                                  +', y:' + spec.coord.y.toFixed(3) + '}}'
+                                                                  +' // '+range+' range, manually positioned\n';    
+  });
+    res += '            ]\n';    
+    res += '          }\n';
+  });
+  res += '        ]\n';
+  res += '\n';
+
+  return res;
 }
 
 function initAntennaLayout(nr : number) {
