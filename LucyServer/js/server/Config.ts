@@ -80,7 +80,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
   var rotterdam : Shared.AntennaLayout =
     { name: 'Rotterdam'
     , id: 'rotterdam-3.0'
-    , backgroundImage: 'floorPlans/Blueprint-Lucy-Rotterdam-v3.0.png'
+    , backgroundImage: 'floorPlans/Blueprint-Lucy-Rotterdam-v3.1.png'
     , backgroundSize: {width: 2134, height: 1092} // in pixels, actual dimensions of png that was obtained by Save for Web & Devices of "141006 NHMR_plattegrond_schaal 1-50 - blueprint CS5.ai"
     , backgroundOrigin: {x: 34, y: 34}            // in pixels, left corner, measured in resulting png
     , backgroundScale:  2134 / (37.66*50/100)     // pixels per meter: png width / (AI artboard width in cm / AI scale / 100))  
