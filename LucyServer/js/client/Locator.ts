@@ -86,7 +86,6 @@ function initialize() {
 }
 
 function initSelectorButtons() {
-  
   $('#show-ranges-selector .select-button:eq(0)').on('click', () => {uiState.set('showMaxAntennaRanges', true)});
   $('#show-ranges-selector .select-button:eq(1)').on('click', () => {uiState.set('showMaxAntennaRanges', false)});
   $('#show-tag-zones-selector .select-button:eq(0)').on('click', () => {uiState.set('showTagZones', true)});
@@ -280,22 +279,15 @@ function updateSessionUI(userInfo : Shared.UserInfo) {
   util.setAttr($('#user-panel'), 'logged-in', isLoggedIn);
 
   // disenable input elements (actual authentication happens server side)
-  util.setAttr($('#layout-selector'), 'disabled', !isLoggedIn);
-  util.setAttr($('#view-config-button'), 'disabled', !isLoggedIn);
-  util.setAttr($('#upload-config-button'), 'disabled', !isLoggedIn);
-  util.setAttr($('#start-refresh-button'), 'disabled', !isLoggedIn);
-  util.setAttr($('#stop-refresh-button'), 'disabled', !isLoggedIn);
-  util.setAttr($('#reset-button'), 'disabled', !isLoggedIn);
-  util.setAttr($('#connect-button'), 'disabled', !isLoggedIn);
-  util.setAttr($('#disconnect-button'), 'disabled', !isLoggedIn);
-  util.setAttr($('#save-button'), 'disabled', !isLoggedIn);
-  util.setAttr($('#filename-field'), 'disabled', !isLoggedIn);
-  util.setAttr($('#start-replay-button'), 'disabled', !isLoggedIn);
-  util.setAttr($('#stop-replay-button'), 'disabled', !isLoggedIn);
-  util.setAttr($('#replay-level-1-selector'), 'disabled', !isLoggedIn);
-  util.setAttr($('#replay-level-2-selector'), 'disabled', !isLoggedIn);
-  util.setAttr($('#replay-level-3-selector'), 'disabled', !isLoggedIn);
-  util.setAttr($('#replay-level-4-selector'), 'disabled', !isLoggedIn);
+  var protectedInputElementIds = 
+    [ 'layout-selector', 'view-config-button','view-config-button', 'upload-config-button', 'start-refresh-button', 'stop-refresh-button'
+    , 'reset-button', 'connect-button', 'disconnect-button', 'save-button', 'filename-field', 'start-replay-button', 'stop-replay-button'
+    , 'replay-level-1-selector', 'replay-level-2-selector', 'replay-level-3-selector', 'replay-level-4-selector'
+    ];
+
+  _(protectedInputElementIds).each(inputEltId => {
+    util.setAttr($('#'+inputEltId), 'disabled', !isLoggedIn);
+  });
 }
 
 function updateLabels() {
