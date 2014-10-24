@@ -82,6 +82,7 @@ function initialize() {
   ClientCommon.initFloorSVG();
   
   initLayoutSelector(); // initLayoutSelector calls selectLayout, which finishes client init and starts refresh interval
+  updateSessionUI(null); // update ui to reflect non-logged in state immediately (rather than after receiving first updates)
 }
 
 function initSelectorButtons() {
@@ -273,11 +274,28 @@ function addRemoveSVGElements(oldTagsData : Shared.TagData[], currentTagsData : 
   });
 }
 
-function updateSessionUI(userInfo : Shared.UserInfo) { 
+function updateSessionUI(userInfo : Shared.UserInfo) {
+  var isLoggedIn = userInfo != null; 
   $('#username-label').text(userInfo ? userInfo.firstName : '');
-  util.setAttr($('#user-panel'), 'logged-in', userInfo != null);
-  
-  // TODO: disenable gui buttons etc. based on userInfo 
+  util.setAttr($('#user-panel'), 'logged-in', isLoggedIn);
+
+  // disenable input elements (actual authentication happens server side)
+  util.setAttr($('#layout-selector'), 'disabled', !isLoggedIn);
+  util.setAttr($('#view-config-button'), 'disabled', !isLoggedIn);
+  util.setAttr($('#upload-config-button'), 'disabled', !isLoggedIn);
+  util.setAttr($('#start-refresh-button'), 'disabled', !isLoggedIn);
+  util.setAttr($('#stop-refresh-button'), 'disabled', !isLoggedIn);
+  util.setAttr($('#reset-button'), 'disabled', !isLoggedIn);
+  util.setAttr($('#connect-button'), 'disabled', !isLoggedIn);
+  util.setAttr($('#disconnect-button'), 'disabled', !isLoggedIn);
+  util.setAttr($('#save-button'), 'disabled', !isLoggedIn);
+  util.setAttr($('#filename-field'), 'disabled', !isLoggedIn);
+  util.setAttr($('#start-replay-button'), 'disabled', !isLoggedIn);
+  util.setAttr($('#stop-replay-button'), 'disabled', !isLoggedIn);
+  util.setAttr($('#replay-level-1-selector'), 'disabled', !isLoggedIn);
+  util.setAttr($('#replay-level-2-selector'), 'disabled', !isLoggedIn);
+  util.setAttr($('#replay-level-3-selector'), 'disabled', !isLoggedIn);
+  util.setAttr($('#replay-level-4-selector'), 'disabled', !isLoggedIn);
 }
 
 function updateLabels() {
