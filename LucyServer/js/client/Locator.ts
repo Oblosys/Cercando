@@ -424,11 +424,10 @@ function refresh() {
     
     if (oldUserInfo && !tagsServerInfo.sessionInfo.userInfo) {
       // Session ended (not common, since constant refreshes keep session alive, but may happen during sleep)
-      updateSessionUI(tagsServerInfo.sessionInfo.userInfo); 
       alert('You have been logged out due to inactivity.');
     }
+    updateSessionUI(tagsServerInfo.sessionInfo.userInfo); // need to update ui because of possible page reloads
     updateLabels();
-
     updateTags();
   }).fail(function(jqXHR : JQueryXHR, status : any, err : any) {
     isServerConnected = false;
