@@ -1,4 +1,5 @@
 package readerServer;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -12,11 +13,14 @@ import org.llrp.ltk.net.*;
 import org.llrp.ltk.types.*;
  
 /**
- * Class that initializes an LLRP connection with the RFID reader and passes all read events
- * on to the client socket.
+ * LLRPCLient.java - Class that initializes an LLRP connection with the RFID reader and passes on all read events
+ * to the client socket. Based on example code from:
+ * https://support.impinj.com/hc/communities/public/questions/201883748-How-do-I-create-RFID-applications-with-Java-
  * 
  * @author Martijn Schrage - Oblomov Systems
  * @author Mike Lenehan
+ * 
+ *  Copyright (c) 2013, Mike Lenehan. All Rights Reserved.
  * 
  */
 public class LLRPClient implements LLRPEndpoint {

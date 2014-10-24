@@ -1,3 +1,10 @@
+/*******************************************************************************/
+/* File.ts                                                                     */
+/*                                                                             */
+/* Copyright (c) 2014, Martijn Schrage - Oblomov Systems. All Rights Reserved. */
+/*                                                                             */
+/*******************************************************************************/
+
 /// <reference path="./Config.ts" />
 /// <reference path="../shared/Shared.ts" />
 

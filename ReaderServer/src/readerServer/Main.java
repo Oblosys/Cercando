@@ -9,9 +9,11 @@ import java.util.TimerTask;
 import java.util.Vector;
 
 /**
- * Basic server that connects to RFID reader and redirects all read events to a socket. 
+ * Main.java - Basic server that connects to RFID reader and redirects all read events to a socket. 
  * 
- * @author Martijn Schrage - Oblomov Systems
+ * @author Martijn Schrage
+ * 
+ * Copyright (c) 2014, Martijn Schrage - Oblomov Systems. All Rights Reserved.
  * 
  */
 public class Main {

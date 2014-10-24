@@ -4,13 +4,14 @@ import java.io.DataOutputStream;
 import java.util.Vector;
 
 /**
- * EventEmitter creates a consumer thread that continuously sends queued event to its socket output stream.
+ * EventEmitter.java - EventEmitter creates a consumer thread that continuously sends queued event to its socket output stream.
  * New EventEmitters are added to allEventEmitters list on creation, and removed from this list when they disconnect.
  * 
- * @author Martijn Schrage - Oblomov Systems
+ * @author Martijn Schrage
+ * 
+ * Copyright (c) 2014, Martijn Schrage - Oblomov Systems. All Rights Reserved.
  * 
  */
-
 public class EventEmitter implements Runnable {
 
   private static final int eventBufferSize = 100000;

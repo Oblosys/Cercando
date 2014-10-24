@@ -1,3 +1,10 @@
+/*******************************************************************************/
+/* Trilateration.ts                                                            */
+/*                                                                             */
+/* Copyright (c) 2014, Martijn Schrage - Oblomov Systems. All Rights Reserved. */
+/*                                                                             */
+/*******************************************************************************/
+
 /// <reference path="../shared/Shared.ts" />
 
 var useIncrementalTrilateration = true;

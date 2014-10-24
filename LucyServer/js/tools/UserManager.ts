@@ -1,3 +1,10 @@
+/*******************************************************************************/
+/* UserManager.ts                                                              */
+/*                                                                             */
+/* Copyright (c) 2014, Martijn Schrage - Oblomov Systems. All Rights Reserved. */
+/*                                                                             */
+/*******************************************************************************/
+
 /// <reference path="../typings/backbone/backbone.d.ts" />
 /// <reference path="../typings/underscore/underscore.d.ts" />
 /// <reference path="../typings/node/node.d.ts" />

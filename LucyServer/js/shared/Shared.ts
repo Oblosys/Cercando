@@ -1,3 +1,10 @@
+/*******************************************************************************/
+/* Shared.ts                                                                   */
+/*                                                                             */
+/* Copyright (c) 2014, Martijn Schrage - Oblomov Systems. All Rights Reserved. */
+/*                                                                             */
+/*******************************************************************************/
+
 module Shared {
   // TODO: find a way to import other libs (e.g. underscore) in a type-safe way. Adding import hides Shared namespace.
   

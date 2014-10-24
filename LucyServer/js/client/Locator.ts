@@ -1,3 +1,10 @@
+/*******************************************************************************/
+/* Locator.ts                                                                  */
+/*                                                                             */
+/* Copyright (c) 2014, Martijn Schrage - Oblomov Systems. All Rights Reserved. */
+/*                                                                             */
+/*******************************************************************************/
+
 /// <reference path="../typings/d3/d3.d.ts" />
 /// <reference path="../typings/jquery/jquery.d.ts" />
 /// <reference path="../typings/backbone/backbone.d.ts" />

@@ -5,9 +5,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Utility methods 
+ * Util.java - Utility methods 
  * 
- * @author Martijn Schrage - Oblomov Systems
+ * @author Martijn Schrage
+ * 
+ * Copyright (c) 2014, Martijn Schrage - Oblomov Systems. All Rights Reserved.
  * 
  */
 public class Util {

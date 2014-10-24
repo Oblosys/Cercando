@@ -1,3 +1,10 @@
+/*******************************************************************************/
+/* DummyPresentationServer.ts                                                  */
+/*                                                                             */
+/* Copyright (c) 2014, Martijn Schrage - Oblomov Systems. All Rights Reserved. */
+/*                                                                             */
+/*******************************************************************************/
+
 /// <reference path="../typings/node/node.d.ts" />
 /// <reference path="../typings/express/express.d.ts" />
 /// <reference path="../typings/oblo-util/oblo-util.d.ts" />
