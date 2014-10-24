@@ -117,7 +117,7 @@ function initExpress() {
   app.use(express.cookieParser());
   app.use(express.session(Session.expressSessionOptions));
 
-  app.use('/', (req : Express.Request, res : Express.Response, next:()=>void)=>{
+  app.use('/', (req : express.Request, res : express.Response, next:()=>void)=>{
     var session = Session.getOrInitSession(req);
     session.lastAccess = new Date();
     
@@ -173,7 +173,7 @@ function initExpress() {
     res.end();
   });    
 
-  app.get('/query/view-config', function(req, res) {  
+  app.get('/query/view-config', Session.requireAuthorization(), function(req, res) {  
     res.setHeader('content-type', 'text/html');    
     var html = 'Current short/mid-range configuration:<br/><br/>';
 
@@ -182,7 +182,7 @@ function initExpress() {
     res.send(html);
   });
 
-  app.get('/query/upload-config', function(req, res) {  
+  app.get('/query/upload-config', Session.requireAuthorization(), function(req, res) {  
     // TODO: require authentication
     res.setHeader('content-type', 'text/html');
     var html = '';
@@ -237,7 +237,7 @@ function initExpress() {
   });
   
   app.get('/query/select-layout/:nr', function(req, res) { // return AntennaInfo object for new selection  
-    // TODO: require authentication
+    // TODO: require authentication (needs some refactoring first)
     util.log('Selecting antenna layout '+req.params.nr+': '+allAntennaLayouts[req.params.nr].name +
              ',  sending antenna data to client. (' + new Date() + ')');
     initAntennaLayout(req.params.nr);
@@ -245,8 +245,7 @@ function initExpress() {
     res.send(JSON.stringify( getAntennaInfo(req.params.nr) ));
   });
   
-  app.get('/query/connect', function(req, res) {  
-    // TODO: require authentication
+  app.get('/query/connect', Session.requireAuthorization(), function(req, res) {  
     util.log('connect');
     connectReaderServer();
     res.setHeader('content-type', 'text/plain'); 
@@ -255,8 +254,7 @@ function initExpress() {
     res.end();
   });
 
-  app.get('/query/disconnect', function(req, res) {  
-    // TODO: require authentication
+  app.get('/query/disconnect', Session.requireAuthorization(), function(req, res) {  
     util.log('disconnect');
     disconnectReader();
     res.setHeader('content-type', 'text/plain');
@@ -264,8 +262,7 @@ function initExpress() {
     res.end();
   });
 
-  app.get('/query/reset', function(req, res) {
-    // TODO: require authentication  
+  app.get('/query/reset', Session.requireAuthorization(), function(req, res) {
     util.log('reset');
     resetServerState();
     res.setHeader('content-type', 'text/plain');
@@ -273,8 +270,7 @@ function initExpress() {
     res.end();
   });
 
-  app.get('/query/start-saving', function(req, res) {
-    // TODO: require authentication
+  app.get('/query/start-saving', Session.requireAuthorization(), function(req, res) {
     util.log('Start-saving request for filename ' + req.query.filename);
     
     var cont = { 
@@ -290,8 +286,7 @@ function initExpress() {
     startSaving(decodeURI(req.query.filename), cont);
   });
   
-  app.get('/query/stop-saving', function(req, res) {
-    // TODO: require authentication
+  app.get('/query/stop-saving', Session.requireAuthorization(), function(req, res) {
     util.log('Stop-saving request');
     stopSaving();
     res.setHeader('content-type', 'text/plain');
@@ -311,8 +306,7 @@ function initExpress() {
     res.send(JSON.stringify(replayInfo));
   });
 
-  app.get('/query/start-replay', function(req, res) {
-    // TODO: require authentication
+  app.get('/query/start-replay', Session.requireAuthorization(), function(req, res) {
     var fileName = req.query.filename + '.csv';
     
     var cont = { 
@@ -330,8 +324,7 @@ function initExpress() {
     startReplay(theReplaySession, decodeURI(req.query.filename), cont);
   });
 
-  app.get('/query/stop-replay', function(req, res) {
-    // TODO: require authentication
+  app.get('/query/stop-replay', Session.requireAuthorization(), function(req, res) {
     util.log('Stop-replay request');
     stopReplay(theReplaySession);
     res.setHeader('content-type', 'text/plain');

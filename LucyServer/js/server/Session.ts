@@ -48,14 +48,14 @@ function getUser(username : string) : Shared.UserRecord {
   }  
 }
 
-export function getSession(req : Express.Request) : Shared.SessionState {
+export function getSession(req : express.Request) : Shared.SessionState {
   var sessionId = (<any>req).session.id;
   var session = _(allSessions).findWhere({sessionId: sessionId});
   // throw error if null
   return session;
 }
 
-export function getOrInitSession(req : Express.Request) : Shared.SessionState {
+export function getOrInitSession(req : express.Request) : Shared.SessionState {
   var sessionId = (<any>req).session.id;
   var session = _(allSessions).findWhere({sessionId: sessionId});
   if (!session) {
@@ -65,7 +65,7 @@ export function getOrInitSession(req : Express.Request) : Shared.SessionState {
   return session;  
 }
 
-export function getSessionInfo(req : Express.Request) : Shared.SessionInfo {
+export function getSessionInfo(req : express.Request) : Shared.SessionInfo {
   var session = getSession(req);
   var userInfo = mkUserInfo(session.user);
   return {userInfo: userInfo, nrOfSessions: getNrOfSessions()};
@@ -123,3 +123,15 @@ export function pruneSessions() {
   }); // add a second, to be sure we don't remove sessions before the html session id expires
   //util.log(new Date() + ' Pruned ' + (nrOfSessionsBeforePrune-allSessions.length) + ' sessions');
 }
+
+export function requireAuthorization() {
+  return function(req : express.Request, res : express.Response, next:()=>void) {
+    var session = getSession(req);
+    if (session && session.user) {
+      next();
+    } else {
+      ServerCommon.log('WARNING: Unauthorized request from ' + req.ip + ': ' + req.path);
+      res.send(403);
+    }
+  }
+};
