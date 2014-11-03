@@ -26,9 +26,13 @@ var floorWidth = 0;
 var origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
 var scale = 80; // pixels per meter
 
-var nrOfGeneratedTags = 4;
-
-var refreshRate = 500;
+var nrOfGeneratedTags = 8;
+var randomPositions = false;
+var useAutoMoveTags = true;
+var animationSpeed = 100; // in pixels per second
+var direction = 1;
+ 
+var refreshDelay = 100; 
 var trailLength = 30;
 var tagTrails : Shared.Coord[][] = [];
 
@@ -76,7 +80,10 @@ function initialize() {
   
   ClientCommon.initFloorSVG();
 
-  initLayoutSelector(); // initLayoutSelector calls selectLayout, which finishes client init and starts refresh interval
+  initLayoutSelector(); // initLayoutSelector calls selectLayout, which finishes client init
+  if (useAutoMoveTags) {
+    startRefreshInterval();
+  }
 }
 
 function initSelectorButtons() {
@@ -127,8 +134,9 @@ function setAntennasDragHandler() {
 function generateTags(nrOfGeneratedVisitors : number) {
   var tags : Shared.TagData[] =   
     _(_.range(nrOfGeneratedVisitors)).map((i) => {
-      var coord = i==0 ? {x:0.0, y:0} : { x:ClientCommon.fromScreenX(Math.random()*0.8*floorWidth + 0.1*floorWidth)
-                                        , y:ClientCommon.fromScreenY(Math.random()*0.8*floorHeight + 0.1*floorHeight) }
+      var coord = { x:ClientCommon.fromScreenX((randomPositions ? Math.random() : 0.5)*0.8*floorWidth + 0.1*floorWidth)
+                  , y:ClientCommon.fromScreenY((randomPositions ? Math.random() : i/(nrOfGeneratedVisitors-1))*0.8*floorHeight + 0.1*floorHeight) 
+                  }
       return <Shared.TagData>{epc: util.padZero(31, i), antennaRssis: [], coordinate:{coord: coord, isRecent: true}, metaData: null};
     });
   _(tags).each((tag) => {
@@ -153,6 +161,30 @@ function generateTag(tag : Shared.TagData) {
   tagSVG.attr('r', 8).call(drag);
 }
 
+function autoMoveTags() {
+  var floorPos = $('#floor').position();
+  $('.tag-marker').each((i,tagElem) => {
+    var pos = $(tagElem).position();
+    var tagX = (pos.left - floorPos.left + 6); // hacky way to get translation coordinates (we don't keep these in the similator client)
+    var tagY = (pos.top - floorPos.top + 6);   // hacky way to get translation coordinates
+    
+    // very basic way to go back and forth
+    if (tagX > 0.8*floorWidth)
+      direction = -1;
+    if (tagX < 0.1*floorWidth)
+      direction = 1;
+    
+    var animationOffsetX = direction * animationSpeed /( 1000/refreshDelay);
+    tagX += animationOffsetX;
+    
+    $(tagElem).attr('transform', 'translate('+tagX+','+tagY+')');
+    var x = ClientCommon.fromScreenX(tagX);
+    var y = ClientCommon.fromScreenY(tagY);
+    var epc = ClientCommon.getEpcFromTagId($(tagElem).attr('id'));
+    $.get('/query/set-tag/'+epc+'/'+x+'/'+y, function() {});
+  });
+}
+
 function selectLayout(layoutNr : number) {
   util.log('Selecting layout '+layoutNr);
   (<HTMLSelectElement>$('#layout-selector').get(0)).selectedIndex = layoutNr;
@@ -169,8 +201,8 @@ function selectLayout(layoutNr : number) {
   });
 }
   
-function startRefreshInterval() {
-  refreshInterval = <any>setInterval(refresh, refreshRate); 
+function startRefreshInterval() { // used for auto-moving tags
+  refreshInterval = <any>setInterval(refresh, refreshDelay); 
   // unfortunately Eclipse TypeScript is stupid and doesn't respect reference paths, so it includes all TypeScript
   // declarations in the source tree and assumes a different type for setInterval here
   // (returning NodeTimer instead of number, as declared in node.d.ts)
@@ -181,7 +213,7 @@ function stopRefreshInterval() {
 }
 
 function refresh() {
-  util.error('refresh() not implemented');
+  autoMoveTags();
 }
 
 function handleStartRefreshButton() {
