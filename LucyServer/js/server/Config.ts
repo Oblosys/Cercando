@@ -73,12 +73,79 @@ export function getShortMidRangeSpecs() : Shared.ShortMidRangeSpec[] {
 }
 
 export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
-  
-  // Layout that is computed from measured coordinates of long range antennas in "140903 RFID antenne plaatsing .pdf",
+
+    // Laser-positioned layout, based on "141103 RFID antenne plaatsing opgemeten vandaag.xlsx"
+    var rotterdam : Shared.AntennaLayout =
+    { name: 'Rotterdam'
+    , id: 'rotterdam-4.0'
+    , backgroundImage: 'floorPlans/Blueprint-Lucy-Rotterdam-v3.1.png'
+    , backgroundSize: {width: 2134, height: 1092} // in pixels, actual dimensions of png that was obtained by Save for Web & Devices of "141006 NHMR_plattegrond_schaal 1-50 - blueprint CS5.ai"
+    , backgroundOrigin: {x: 34, y: 34}            // in pixels, left corner, measured in resulting png
+    , backgroundScale:  2134 / (37.66*50/100)     // pixels per meter: png width / (AI artboard width in cm / AI scale / 100))  
+    , screenZoomFactor: 1000/2134
+    , readerAntennaSpecs: // copied from Antenne layout 3 - RFID Blueprint versie 3.jpg
+        [ { readerIp: '10.0.0.30'
+          , antennaSpecs:
+            [ {name: 'A1', coord: {x:10.489, y:2.857}}
+            , {name: 'A2', coord: {x:12.080, y:3.271}}
+            , {name: 'A3', coord: {x:13.686, y:1.859}}
+            , {name: 'A4', coord: {x:12.901, y:4.349}}
+            , {name: 'A5', coord: {x:10.662, y:0.574}} // mid range
+            , {name: 'A6', coord: {x:14.647, y:4.500}} // short range
+            , {name: 'A7', coord: {x:14.647, y:3.358}} // short range
+            , {name: 'A8', coord: {x:15.341, y:1.754}} // mid range
+            ]
+          }
+        , { readerIp: '10.0.0.31'
+          , antennaSpecs:
+            [ {name: 'B1', coord: {x:10.469, y:7.845}} // mid range
+            , {name: 'B2', coord: {x:12.429, y:6.944}}
+            , {name: 'B3', coord: {x:10.719, y:4.998}}
+            , {name: 'B4', coord: {x:10.068, y:7.670}}
+            , {name: 'B5', coord: {x: 9.234, y:4.975}}
+            , {name: 'B6', coord: {x: 7.570, y:8.034}}
+            , {name: 'B7', coord: {x:13.420, y:7.951}}
+            , {name: 'B8', coord: {x:12.270, y:7.845}} // mid range
+            ]
+          }
+        , { readerIp: '10.0.0.32'
+          , antennaSpecs:
+            [ {name: 'C1', coord: {x:8.820, y:2.430}}
+            , {name: 'C2', coord: {x:7.349, y:4.931}}
+            , {name: 'C3', coord: {x:7.499, y:6.373}}
+            , {name: 'C4', coord: {x:4.093, y:6.176}}
+            , {name: 'C5', coord: {x:6.224, y:6.779}}
+            , {name: 'C6', coord: {x:3.344, y:1.799}}
+            , {name: 'C7', coord: {x:2.737, y:8.589}} // mid range
+            , {name: 'C8', coord: {x:1.418, y:4.885}} // mid range
+            ]
+          }
+        , { readerIp: '10.0.0.33'
+          , antennaSpecs:
+            [ {name: 'D1', coord: {x:7.396, y:2.802}}
+            , {name: 'D2', coord: {x:6.024, y:4.413}}
+            , {name: 'D3', coord: {x:3.261, y:4.395}}
+            , {name: 'D4', coord: {x:4.099, y:2.394}}
+            , {name: 'D5', coord: {x:5.932, y:0.932}}
+          
+// Dummy reference antennas for the corners of the floor
+// 33.872 and 18.09 are x and y coordinates in cm for the border lines in the Lijnen layer of "141006 NHMR_plattegrond_schaal 1-50 - blueprint CS5.ai"
+//            , {name: 'NW', coord: {x:0,      y:0}}
+//            , {name: 'NE', coord: {x:33.872*50/100, y:0}} 
+//            , {name: 'SE', coord: {x:33.872*50/100, y:18.09*50/100}}
+//            , {name: 'SW', coord: {x:0,             y:18.09*50/100}}
+            ]
+          }      
+        ]
+    , tagConfiguration: 
+        []
+    };
+
+  // Old layout that is computed from measured coordinates of long range antennas in "140903 RFID antenne plaatsing .pdf",
   // except for A3, which has incorrect coordinates in this pdf and should be at {x:13.768, y:1.907} (e-mail Denny van Dijk, 6-10-14)
   // The short/mid range antennas have been manually positioned according to the background image
-  var rotterdam : Shared.AntennaLayout =
-    { name: 'Rotterdam'
+  var rotterdam140903 : Shared.AntennaLayout =
+    { name: 'Rotterdam 140903'
     , id: 'rotterdam-3.0'
     , backgroundImage: 'floorPlans/Blueprint-Lucy-Rotterdam-v3.1.png'
     , backgroundSize: {width: 2134, height: 1092} // in pixels, actual dimensions of png that was obtained by Save for Web & Devices of "141006 NHMR_plattegrond_schaal 1-50 - blueprint CS5.ai"
@@ -118,8 +185,8 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
             , {name: 'C4', coord: {x:4.181, y:6.236}}
             , {name: 'C5', coord: {x:6.188, y:6.827}}
             , {name: 'C6', coord: {x:3.391 /*6.566*/, y:7.949 /*8.125*/}}
-            , {name: 'C7', coord: {x: 3.071, y:8.193}} // mid range, manually positioned
-            , {name: 'C8', coord: {x: 1.505, y:4.550}} // mid range, manually positioned
+            , {name: 'C7', coord: {x:3.071, y:8.193}} // mid range, manually positioned
+            , {name: 'C8', coord: {x:1.505, y:4.550}} // mid range, manually positioned
             ]
           }
         , { readerIp: '10.0.0.33'
@@ -413,7 +480,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
         ]
     };   
 
-  return [rotterdam, rotterdamOud];
+  return [rotterdam, rotterdam140903, rotterdamOud];
 }
 
 function scaleAndTranslate( scale : number, translationX : number, translationY : number
