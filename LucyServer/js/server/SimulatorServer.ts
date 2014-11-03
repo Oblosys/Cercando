@@ -316,7 +316,7 @@ function stopRefreshInterval() {
 
 function emitEvents() {
   if (clientSocket) {
-    //util.log('Client is connected, emitting event');
+    //ServerCommon.logTS('Client is connected, emitting event');
     var readerEvents : ServerCommon.ReaderEvent[] = [];
     for (var i=0; i<allAntennas.length; i++) {
       for (var j=0; j<allTags.length; j++) {
