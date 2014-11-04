@@ -74,14 +74,14 @@ export function getShortMidRangeSpecs() : Shared.ShortMidRangeSpec[] {
 
 export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
 
-    // Laser-positioned layout, based on "141103 RFID antenne plaatsing opgemeten vandaag.xlsx"
+    // Laser-positioned layout, based on "141104 RFID antenne plaatsing opgemeten, met correcties.xlsx"
     var rotterdam : Shared.AntennaLayout =
     { name: 'Rotterdam'
     , id: 'rotterdam-4.0'
-    , backgroundImage: 'floorPlans/Blueprint-Lucy-Rotterdam-v3.1.png'
-    , backgroundSize: {width: 2134, height: 1092} // in pixels, actual dimensions of png that was obtained by Save for Web & Devices of "141006 NHMR_plattegrond_schaal 1-50 - blueprint CS5.ai"
-    , backgroundOrigin: {x: 34, y: 34}            // in pixels, left corner, measured in resulting png
-    , backgroundScale:  2134 / (37.66*50/100)     // pixels per meter: png width / (AI artboard width in cm / AI scale / 100))  
+    , backgroundImage:  'floorPlans/Blueprint-Lucy-Rotterdam-v3.1.png'
+    , backgroundSize:   {width: 2134, height: 1092} // in pixels, actual dimensions of png that was obtained by Save for Web & Devices of "141006 NHMR_plattegrond_schaal 1-50 - blueprint CS5.ai"
+    , backgroundOrigin: {x: 34, y: 34}              // in pixels, left corner, measured in resulting png
+    , backgroundScale:  2134 / (37.66*50/100)       // pixels per meter: png width / (AI artboard width in cm / AI scale / 100))  
     , screenZoomFactor: 1000/2134
     , readerAntennaSpecs: // copied from Antenne layout 3 - RFID Blueprint versie 3.jpg
         [ { readerIp: '10.0.0.30'
@@ -100,9 +100,9 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
           , antennaSpecs:
             [ {name: 'B1', coord: {x:10.469, y:7.845}} // mid range
             , {name: 'B2', coord: {x:12.429, y:6.944}}
-            , {name: 'B3', coord: {x:10.719, y:4.998}}
+            , {name: 'B3', coord: {x: 9.234, y:4.975}}
             , {name: 'B4', coord: {x:10.068, y:7.670}}
-            , {name: 'B5', coord: {x: 9.234, y:4.975}}
+            , {name: 'B5', coord: {x:10.719, y:4.998}}
             , {name: 'B6', coord: {x: 7.570, y:8.034}}
             , {name: 'B7', coord: {x:13.420, y:7.951}}
             , {name: 'B8', coord: {x:12.270, y:7.845}} // mid range
@@ -115,7 +115,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
             , {name: 'C3', coord: {x:7.499, y:6.373}}
             , {name: 'C4', coord: {x:4.093, y:6.176}}
             , {name: 'C5', coord: {x:6.224, y:6.779}}
-            , {name: 'C6', coord: {x:3.344, y:1.799}}
+            , {name: 'C6', coord: {x:3.344, y:7.799}}
             , {name: 'C7', coord: {x:2.737, y:8.589}} // mid range
             , {name: 'C8', coord: {x:1.418, y:4.885}} // mid range
             ]
