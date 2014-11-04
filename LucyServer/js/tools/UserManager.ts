@@ -78,6 +78,9 @@ function showHelp() {
   util.log('       user-manager list');
   util.log('       user-manager add <username> <first_name> <last_name> <e-mail>');
   util.log('       user-manager remove <username>');
+  util.log('');
+  util.log('Example:');
+  util.log('user-manager add martijn Martijn Schrage martijn@oblomov.com');
 }
 
 function listUsers() {
@@ -96,13 +99,19 @@ function addUser(username : string, firstName : string, lastName : string, eMail
   var users = readUsersFile();
   if (!_(users).findWhere({username: username})) {
     promptString('Please enter a password for user \'' + username + '\':', true, password => {
-      var passwordHash = bcrypt.hashSync(password, bcrypt.genSaltSync());
-      var user : Shared.UserRecord =
-        {username: username, firstName: firstName, lastName: lastName, eMail: eMail, passwordHash: passwordHash};
-      users.push(user);
-      File.writeUsersFile(Config.lucyUsersFilePath, users);
-      util.log('User has been added successfully');
-  });
+      promptString('Please re-enter password to confirm:', true, password2 => {
+        if (password != password2) {
+          util.error('Error: Passwords don\'t match')
+        } else { 
+          var passwordHash = bcrypt.hashSync(password, bcrypt.genSaltSync());
+          var user : Shared.UserRecord =
+            {username: username, firstName: firstName, lastName: lastName, eMail: eMail, passwordHash: passwordHash};
+          users.push(user);
+          File.writeUsersFile(Config.lucyUsersFilePath, users);
+          util.log('User has been added successfully');
+        }
+      });
+    });
   } else {
     util.error('Error: User \'' + username + '\' already exists');
   }
