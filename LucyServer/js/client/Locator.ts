@@ -278,16 +278,11 @@ function updateSessionUI(userInfo : Shared.UserInfo) {
   $('#username-label').text(userInfo ? userInfo.firstName : '');
   util.setAttr($('#user-panel'), 'logged-in', isLoggedIn);
 
-  // disenable input elements (actual authentication happens server side)
-  var protectedInputElementIds = 
-    [ 'layout-selector', 'view-config-button','view-config-button', 'upload-config-button', 'start-refresh-button', 'stop-refresh-button'
-    , 'reset-button', 'connect-button', 'disconnect-button', 'save-button', 'filename-field', 'start-replay-button', 'stop-replay-button'
-    , 'replay-level-1-selector', 'replay-level-2-selector', 'replay-level-3-selector', 'replay-level-4-selector'
-    ];
-
-  _(protectedInputElementIds).each(inputEltId => {
-    util.setAttr($('#'+inputEltId), 'disabled', !isLoggedIn);
-  });
+  // show/hide secure interface elements (actual authentication happens server side)
+  $('#layout-label').css('display', isLoggedIn ? 'none' : 'inline');
+  $('#layout-selector').css('display', isLoggedIn ? 'inline' : 'none');
+  $('#secure-control-panel').css('display', isLoggedIn ? 'block' : 'none');
+  $('#replay-control-panel').css('display', isLoggedIn ? 'block' : 'none');
 }
 
 function updateLabels() {
@@ -386,7 +381,10 @@ function updateTags() {
 function selectLayout(layoutNr : number) {
   util.log('Selecting layout '+layoutNr);
   stopRefreshInterval();
-  (<HTMLSelectElement>$('#layout-selector').get(0)).selectedIndex = layoutNr;
+  var layoutSelector = <HTMLSelectElement>$('#layout-selector').get(0);
+  layoutSelector.selectedIndex = layoutNr;
+  $('#layout-label').text(layoutSelector.value);
+  
   $.getJSON( 'query/select-layout/'+layoutNr, function(antennaInfo : Shared.AntennaInfo) {
     tagsServerInfo.serverInfo.selectedAntennaLayoutNr = layoutNr;
     allAntennas = antennaInfo.antennaSpecs;

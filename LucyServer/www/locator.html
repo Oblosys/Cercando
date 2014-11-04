@@ -33,18 +33,19 @@
 	        </div>
           
         </div>
-        Antenna layout: <select onchange="handleSelectLayout(this);" id="layout-selector"></select><br/>
-        <input type="button" id="view-config-button" onclick="handleViewConfigButton()" value="View antenna config"></input>
-        <input type="button" id="upload-config-button" onclick="handleUploadConfigButton()" value="Upload config"></input>
-        <br/><br/>
-        <input type="button" id="start-refresh-button" onclick="handleStartRefreshButton()" value="Start refresh"></input>
-        <input type="button" id="stop-refresh-button" onclick="handleStopRefreshButton()" value="Stop refresh"></input>
-        <input type="button" id="reset-button" onclick="handleResetButton()" value="Reset"></input><br/>
-        <input type="button" id="connect-button" onclick="handleConnectButton()" value="Connect to reader"></input>
-        <input type="button" id="disconnect-button" onclick="handleDisconnectButton()" value="Disconnect"></input><br/>
-        <input type="button" id="save-button" onclick="handleSaveButton()" value="Start saving"></input>
-        
-        <input type="text" id="filename-field"></input><br/>
+        Antenna layout:&nbsp;<span id="layout-label"></span><select onchange="handleSelectLayout(this);" id="layout-selector"></select><br/>
+        <div id="secure-control-panel">
+	        <input type="button" id="view-config-button" onclick="handleViewConfigButton()" value="View antenna config"></input>
+	        <input type="button" id="upload-config-button" onclick="handleUploadConfigButton()" value="Upload config"></input>
+	        <br/><br/>
+	        <input type="button" id="start-refresh-button" onclick="handleStartRefreshButton()" value="Start refresh"></input>
+	        <input type="button" id="stop-refresh-button" onclick="handleStopRefreshButton()" value="Stop refresh"></input>
+	        <input type="button" id="reset-button" onclick="handleResetButton()" value="Reset"></input><br/>
+	        <input type="button" id="connect-button" onclick="handleConnectButton()" value="Connect to reader"></input>
+	        <input type="button" id="disconnect-button" onclick="handleDisconnectButton()" value="Disconnect"></input><br/>
+	        <input type="button" id="save-button" onclick="handleSaveButton()" value="Start saving"></input>
+	          <input type="text" id="filename-field"></input><br/>
+        </div>
         <br/>
         <span id="show-ranges-selector" class="selector"><div class="select-button">Show</div> <div class="select-button">Hide</div></span>&nbsp;Max ranges<br/>
         <span id="show-tag-zones-selector" class="selector"><div class="select-button">Show</div> <div class="select-button">Hide</div></span>&nbsp;Tag zones<br/>
@@ -67,13 +68,15 @@
         <div id="floor"></div>
 
         <div id="copyright">&copy; 2014 <a href="http://www.oblomov.com">Oblomov&nbsp;Systems</a></div>
-	      <input type="button" id="start-replay-button" onclick="handleStartReplayButton()" value="Start replay"></input>
-        <input type="button" id="stop-replay-button" onclick="handleStopReplayButton()" value="Stop"></input>
-        <select onchange="handleSelectReplayLevel1();" id="replay-level-1-selector" class="replay-level-selector"><option>&nbsp;</option></select>
-	      <select onchange="handleSelectReplayLevel2();" id="replay-level-2-selector" class="replay-level-selector"><option>&nbsp;</option></select>
-	      <select onchange="handleSelectReplayLevel3();" id="replay-level-3-selector" class="replay-level-selector"><option>&nbsp;</option></select>
-	      <select id="replay-level-4-selector" class="replay-level-selector"><option>&nbsp;</option></select><br/>
-	      <div id="replay-filename-label"></div>
+        <div id="replay-control-panel">
+		      <input type="button" id="start-replay-button" onclick="handleStartReplayButton()" value="Start replay"></input>
+	        <input type="button" id="stop-replay-button" onclick="handleStopReplayButton()" value="Stop"></input>
+	        <select onchange="handleSelectReplayLevel1();" id="replay-level-1-selector" class="replay-level-selector"><option>&nbsp;</option></select>
+		      <select onchange="handleSelectReplayLevel2();" id="replay-level-2-selector" class="replay-level-selector"><option>&nbsp;</option></select>
+		      <select onchange="handleSelectReplayLevel3();" id="replay-level-3-selector" class="replay-level-selector"><option>&nbsp;</option></select>
+		      <select id="replay-level-4-selector" class="replay-level-selector"><option>&nbsp;</option></select><br/>
+		      <div id="replay-filename-label"></div>
+		    </div>
       </div><br/>
       
       <table id="tags-data">
