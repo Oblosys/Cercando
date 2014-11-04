@@ -84,13 +84,13 @@ function showHelp() {
 }
 
 function listUsers() {
-  var maxLenUsername = 10;
-  var maxLenFullName = 24;
-  util.log(pad(maxLenUsername, 'USERNAME') + pad(maxLenFullName, 'FIRST + LAST NAME') + 'E-MAIL');
+  var colWidthUsername = 10;
+  var colWidthFullName = 24;
+  util.log(pad(colWidthUsername, 'USERNAME') + pad(colWidthFullName, 'FIRST & LAST NAME') + 'E-MAIL');
   var users = readUsersFile();
   if (users.length != 0) {
     _(users).each(user => {
-      util.log(pad(maxLenUsername, user.username) + pad(maxLenFullName, user.firstName + ' ' + user.lastName) + user.eMail);
+      util.log(pad(colWidthUsername, user.username) + pad(colWidthFullName, user.firstName + ' ' + user.lastName) + user.eMail);
     });
   } else {
     util.log('<no users>');
@@ -100,23 +100,33 @@ function listUsers() {
 function addUser(username : string, firstName : string, lastName : string, eMail : string) {
   var users = readUsersFile();
   if (!_(users).findWhere({username: username})) {
-    promptString('Please enter a password for user \'' + username + '\':', true, password => {
-      promptString('Please re-enter password to confirm:', true, password2 => {
-        if (password != password2) {
-          util.error('Error: Passwords don\'t match')
-        } else { 
-          var passwordHash = bcrypt.hashSync(password, bcrypt.genSaltSync());
-          var user : Shared.UserRecord =
-            {username: username, firstName: firstName, lastName: lastName, eMail: eMail, passwordHash: passwordHash};
-          users.push(user);
-          File.writeUsersFile(Config.lucyUsersFilePath, users);
-          util.log('User has been added successfully');
-        }
-      });
-    });
+    addUserNoCheck(users, username, firstName, lastName, eMail);
   } else {
-    util.error('Error: User \'' + username + '\' already exists');
-  }
+    promptString('User \'' + username + '\' already exists, update record? (answer \'yes\' or \'no\')', false, answer => {
+      if (answer == 'yes') {
+        addUserNoCheck(users, username, firstName, lastName, eMail);
+      } else {
+        console.log('User add canceled');
+      }
+    });
+  } 
+}    
+
+function addUserNoCheck(users : Shared.UserRecord[], username : string, firstName : string, lastName : string, eMail : string) {
+  promptString('Please enter a password for user \'' + username + '\':', true, password => {
+    promptString('Please re-enter password to confirm:', true, password2 => {
+      if (password != password2) {
+        util.error('Error: Passwords don\'t match')
+      } else { 
+        var passwordHash = bcrypt.hashSync(password, bcrypt.genSaltSync());
+        var user : Shared.UserRecord =
+          {username: username, firstName: firstName, lastName: lastName, eMail: eMail, passwordHash: passwordHash};
+        users.push(user);
+        File.writeUsersFile(Config.lucyUsersFilePath, users);
+        util.log('User has been added successfully');
+      }
+    });
+  });
 }
 
 function removeUser(username : string) {
