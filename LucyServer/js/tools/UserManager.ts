@@ -104,7 +104,8 @@ function addUser(username : string, firstName : string, lastName : string, eMail
   } else {
     promptString('User \'' + username + '\' already exists, update record? (answer \'yes\' or \'no\')', false, answer => {
       if (answer == 'yes') {
-        addUserNoCheck(users, username, firstName, lastName, eMail);
+        var newUsers = removeUserNoCheck(users, username);
+        addUserNoCheck(newUsers, username, firstName, lastName, eMail);
       } else {
         console.log('User add canceled');
       }
@@ -134,7 +135,7 @@ function removeUser(username : string) {
   if (_(users).findWhere({username: username})) {
     promptString('Are you sure you wish to remove user \'' + username + '\'? (answer \'yes\' or \'no\')', false, answer => {
       if (answer == 'yes') {
-        var newUsers = _(users).filter(user => {return user.username != username});
+        var newUsers = removeUserNoCheck(users, username);
         File.writeUsersFile(Config.lucyUsersFilePath, newUsers);
         util.log('User has been removed successfully');
       } else {
@@ -146,6 +147,10 @@ function removeUser(username : string) {
   }  
 }
 
+// Note: does not write users file
+function removeUserNoCheck(users : Shared.UserRecord[], username : string) : Shared.UserRecord[] {
+  return _(users).filter(user => {return user.username != username});
+}
 
 // Utilities
 
