@@ -63,7 +63,7 @@ function main() {
           showSyntaxError();
         break;
       default:
-        util.error('Unknown command: ' + cmd);
+        util.error('Unknown command: \'' + cmd + '\'');
         showHelp();    
     }
   }
@@ -84,11 +84,13 @@ function showHelp() {
 }
 
 function listUsers() {
-  util.log('Lucy user list:');
+  var maxLenUsername = 10;
+  var maxLenFullName = 24;
+  util.log(pad(maxLenUsername, 'USERNAME') + pad(maxLenFullName, 'FIRST + LAST NAME') + 'E-MAIL');
   var users = readUsersFile();
   if (users.length != 0) {
     _(users).each(user => {
-      util.log(pad(10, user.username) + user.firstName + ' ' + user.lastName + ' <' + user.eMail + '>');
+      util.log(pad(maxLenUsername, user.username) + pad(maxLenFullName, user.firstName + ' ' + user.lastName) + user.eMail);
     });
   } else {
     util.log('<no users>');
