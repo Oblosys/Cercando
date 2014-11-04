@@ -53,7 +53,6 @@ var readerServerSocket : net.Socket;
 var eventLogFilePath : string; // Based on current time
 var eventLogFileStream : fs.WriteStream;
 var outputFileStream : fs.WriteStream; // for explicitly saving reader events
-var replayFileStream : fs.ReadStream; // if this is non-null, a replay is taking place
 
 var readerServerHostName : string;
 var serverPortNr : number;
