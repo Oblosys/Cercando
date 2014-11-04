@@ -430,10 +430,13 @@ function refresh() {
       selectLayout(tagsServerInfo.serverInfo.selectedAntennaLayoutNr);
     }
     
+    /* Disabled warning, as in a laggy environment in may occur on normal logout 
+       (after clearing userInfo, it will bet set back by refreshes underway, until the server received the logout
     if (oldUserInfo && !tagsServerInfo.sessionInfo.userInfo) {
       // Session ended (not common, since constant refreshes keep session alive, but may happen during sleep)
       alert('You have been logged out due to inactivity.');
     }
+    */
     updateSessionUI(tagsServerInfo.sessionInfo.userInfo); // need to update ui because of possible page reloads
     updateLabels();
     updateTags();
