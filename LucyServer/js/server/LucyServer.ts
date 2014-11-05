@@ -893,7 +893,7 @@ function positionTags(tagsState : Shared.TagsState) {
   _(tagsState.tagsData).each((tag) => {
     var shortMidRangeRssi = _(tag.antennaRssis).find((antennaRssi) => {
       var shortMidRange = allAntennas[antennaRssi.antNr].shortMidRange;
-      return shortMidRange != null && shared.isRecentAntennaRSSI(antennaRssi);
+      return shortMidRange != null && shared.isRecentAntennaRSSI(dynamicConfig, antennaRssi);
     });
     if (shortMidRangeRssi && shortMidRangeRssi.value > shared.shortMidRagneRssiThreshold) {
       //util.log('short mid for tag '+tag.epc);
@@ -916,7 +916,7 @@ function positionTags(tagsState : Shared.TagsState) {
 function purgeOldTags(tagsState : Shared.TagsState) {
   tagsState.tagsData = _(tagsState.tagsData).filter((tag) => {
     tag.antennaRssis = _(tag.antennaRssis).filter(antennaRssi => {
-      var isAncient = antennaRssi.age > shared.ancientAgeMs;
+      var isAncient = antennaRssi.age > dynamicConfig.ancientAgeMs;
       if (isAncient) {
         //util.log('Purging signal for antenna ' + antennaRssi.antNr + ' for tag ' +tag.epc);
       } else {

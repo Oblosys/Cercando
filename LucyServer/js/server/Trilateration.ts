@@ -21,7 +21,7 @@ var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and
 
 export function getPosition(dynConfig : Shared.DynamicConfig, antennas : Shared.Antenna[], epc : string, oldCoord : Shared.Coord, dt : number, antennaRssis : Shared.AntennaRSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
   return useIncrementalTrilateration ?
-         incrementalTrilateration(dynConfig, antennas, epc, oldCoord, dt, antennaRssis) : trilateration(epc, antennas, antennaRssis);
+         incrementalTrilateration(dynConfig, antennas, epc, oldCoord, dt, antennaRssis) : trilateration(dynConfig, epc, antennas, antennaRssis);
 }
 
 
@@ -124,7 +124,7 @@ export function convert3dTo2d(dist3d : number) : number {
 export function incrementalTrilateration(dynConfig : Shared.DynamicConfig, antennas : Shared.Antenna[], epc : string, oldCoord : Shared.Coord, dt : number, antennaRssis : Shared.AntennaRSSI[]): {coord: Shared.Coord; isRecent : boolean} {
   var antennaCoords : {x:number; y:number; signalDistance:number}[] = []; // get positions of antennas that have a signal
   _(antennaRssis).each((antennaRssi) => {
-    if (antennaRssi.value > -100 && shared.isRecentAntennaRSSI(antennaRssi)) {
+    if (antennaRssi.value > -100 && shared.isRecentAntennaRSSI(dynConfig, antennaRssi)) {
       var antNr = antennaRssi.antNr;
       antennaCoords.push({x: antennas[antNr].coord.x, y: antennas[antNr].coord.y, signalDistance: antennaRssi.distance});
     }
@@ -177,10 +177,10 @@ export function incrementalTrilateration(dynConfig : Shared.DynamicConfig, anten
 // Normal Trilateration
 
 
-export function trilateration(epc : string, antennas : Shared.Antenna[], antennaRssis : Shared.AntennaRSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
+export function trilateration(dynConfig : Shared.DynamicConfig, epc : string, antennas : Shared.Antenna[], antennaRssis : Shared.AntennaRSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
   //util.log('Trilaterate'+JSON.stringify(ranges));
-  var recentAntennaRssis = _.filter(antennaRssis, shared.isRecentAntennaRSSI);
-  var outdatedAntennaRssis = _.filter(antennaRssis, (rssi:Shared.AntennaRSSI)=> {return !shared.isRecentAntennaRSSI(rssi);});
+  var recentAntennaRssis   = _.filter(antennaRssis, (rssi:Shared.AntennaRSSI)=> {return shared.isRecentAntennaRSSI(dynConfig, rssi);});
+  var outdatedAntennaRssis = _.filter(antennaRssis, (rssi:Shared.AntennaRSSI)=> {return !shared.isRecentAntennaRSSI(dynConfig, rssi);});
   var isRecent = recentAntennaRssis.length >= 3;
   
   //util.log(recentRssis.length +' outdated:' +outdatedRssis.length);

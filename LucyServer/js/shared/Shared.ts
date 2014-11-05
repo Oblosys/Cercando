@@ -14,9 +14,6 @@ module Shared {
 
   export var shortMidRagneRssiThreshold = -50; // TODO: Maybe we need separate values for short and mid 
 
-  export var staleAgeMs = 2000;
-  export var ancientAgeMs = 5000;
-
   var defaultAntennaLayoutNr = 0;
 
   export interface Coord { x: number; y : number }
@@ -38,15 +35,26 @@ module Shared {
   
   export interface ReaderAntennaSpec { readerIp : string; antennaSpecs : AntennaSpec[] }
 
-  export var defaultDynamicConfig : DynamicConfig = {positioningInterval: 250, smootherRC: 0.5, walkingSpeedKmHr: 5.0, shortMidRangeSpecs: <ShortMidRangeSpec[]>[]};
+  export var defaultDynamicConfig : DynamicConfig = { positioningInterval: 250
+                                                    , smootherRC: 0.5
+                                                    , staleAgeMs: 2000
+                                                    , ancientAgeMs: 5000
+                                                    , walkingSpeedKmHr: 5.0
+                                                    , shortMidRangeSpecs: <ShortMidRangeSpec[]>[]
+                                                    };
 
   export interface DynamicConfig { positioningInterval : number // time in ms between computing coordinates of all tags (and purging old signals/tags)
-                                 ; smootherRC: number           // filter constant for smoother
-                                 ; walkingSpeedKmHr: number     // maximum assumed movement speed of (carriers of) tags
+                                 ; smootherRC : number           // filter constant for smoother
+                                 ; staleAgeMs : number           // TODO: Explain
+                                 ; ancientAgeMs: number          // TODO: Explain
+                                 ; walkingSpeedKmHr : number     // maximum assumed movement speed of (carriers of) tags
                                  ; shortMidRangeSpecs : ShortMidRangeSpec[]
                                  }
   // for dynamically checking uploaded config file:
-  export var dynamicConfigType = {positioningInterval: 'number', smootherRC: 'number', walkingSpeedKmHr: 'number', shortMidRangeSpecs: 'object'};
+  export var dynamicConfigType = { positioningInterval: 'number', smootherRC: 'number'
+                                 , staleAgeMs: 'number', ancientAgeMs: 'number'
+                                 , walkingSpeedKmHr: 'number', shortMidRangeSpecs: 'object' 
+                                 };
   
   export interface ShortMidRangeSpec { antennaName : string; isShortRange : boolean; serverIp : string }
   // for dynamically checking uploaded config file:
@@ -158,8 +166,8 @@ module Shared {
                                  : maxAntennaRangeLong;
   }
   
-  export function isRecentAntennaRSSI(antennaRssi : AntennaRSSI) : boolean {
-    return antennaRssi.age < staleAgeMs;
+  export function isRecentAntennaRSSI(dynConfig : DynamicConfig, antennaRssi : AntennaRSSI) : boolean {
+    return antennaRssi.age < dynConfig.staleAgeMs;
   }
 
 } 
