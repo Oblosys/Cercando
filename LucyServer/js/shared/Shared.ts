@@ -38,15 +38,18 @@ module Shared {
   
   export interface ReaderAntennaSpec { readerIp : string; antennaSpecs : AntennaSpec[] }
 
-  export var defaultLucyConfig : LucyConfig = { walkingSpeedKmHr: 5.0, shortMidRangeSpecs: <ShortMidRangeSpec[]>[] };
+  export var defaultLucyConfig : LucyConfig = {smootherRC: 0.5, walkingSpeedKmHr: 5.0, shortMidRangeSpecs: <ShortMidRangeSpec[]>[]};
 
-  export interface LucyConfig { walkingSpeedKmHr: number; shortMidRangeSpecs : ShortMidRangeSpec[] }
+  export interface LucyConfig { smootherRC: number // filter constant for smoother
+                              ; walkingSpeedKmHr: number
+                              ; shortMidRangeSpecs : ShortMidRangeSpec[]
+                              }
   // for dynamically checking uploaded config file:
-  export var lucyConfigType = { walkingSpeedKmHr: 'number', shortMidRangeSpecs: 'object' };
+  export var lucyConfigType = {smootherRC: 'number', walkingSpeedKmHr: 'number', shortMidRangeSpecs: 'object'};
   
   export interface ShortMidRangeSpec { antennaName : string; isShortRange : boolean; serverIp : string }
   // for dynamically checking uploaded config file:
-  export var shortMidRangeSpecType = { antennaName: 'string', isShortRange: 'boolean', serverIp: 'string' };
+  export var shortMidRangeSpecType = {antennaName: 'string', isShortRange: 'boolean', serverIp: 'string'};
   
   export interface AntennaSpec { name : string; coord : Coord }
 

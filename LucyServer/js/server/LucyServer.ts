@@ -746,13 +746,13 @@ function updateAntennaRssi(newAntennaRssi : Shared.AntennaRSSI, antennaRssis : S
 
 // epc : string, antNr : number just for logging
 function filtered(epc : string, readerIp : string, ant : number, rssi : number, timestamp : Date, previousAntennaRssi : Shared.AntennaRSSI) {
-  var RC = 1/2;
+  var RC = dynamicConfig.smootherRC;
 
   var dT = (previousAntennaRssi ? timestamp.getTime() - previousAntennaRssi.timestamp.getTime() : 100)/1000;
   var previousRssi = previousAntennaRssi ? previousAntennaRssi.value : rssi;
   
   var alpha = dT / (dT + RC);
-  
+  util.log(RC);
   var newRssi = rssi * alpha + previousRssi * (1.0 - alpha);
   //if (epc == '0000000000000000000000000503968' && ant == 1) {
   //  util.log(new Date().getSeconds() + ' ' + epc + ' ant '+ant + ' prevRssi: '+previousRssi.toFixed(1) + ' rawRssi: '+rssi.toFixed(1) + ' newDist: '+
