@@ -19,8 +19,6 @@ module Shared {
 
   var defaultAntennaLayoutNr = 0;
 
-  export var defaultLucyConfig = { dummy: 'Dummy string', shortMidRangeSpecs: <ShortMidRangeSpec[]>[] };
- 
   export interface Coord { x: number; y : number }
 
   export interface UserRecord { username : string; passwordHash : string; firstName : string; lastName : string; eMail : string } // information in users.json
@@ -40,9 +38,11 @@ module Shared {
   
   export interface ReaderAntennaSpec { readerIp : string; antennaSpecs : AntennaSpec[] }
 
-  export interface LucyConfig { dummy : string; shortMidRangeSpecs : ShortMidRangeSpec[] }
+  export var defaultLucyConfig : LucyConfig = { walkingSpeedKmHr: 5.0, shortMidRangeSpecs: <ShortMidRangeSpec[]>[] };
+
+  export interface LucyConfig { walkingSpeedKmHr: number; shortMidRangeSpecs : ShortMidRangeSpec[] }
   // for dynamically checking uploaded config file:
-  export var lucyConfigType = { dummy: 'string', shortMidRangeSpecs: 'object' };
+  export var lucyConfigType = { walkingSpeedKmHr: 'number', shortMidRangeSpecs: 'object' };
   
   export interface ShortMidRangeSpec { antennaName : string; isShortRange : boolean; serverIp : string }
   // for dynamically checking uploaded config file:

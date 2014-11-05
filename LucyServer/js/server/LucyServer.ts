@@ -892,7 +892,7 @@ function positionTags(tagsState : Shared.TagsState) {
       tag.coordinate = {coord: allAntennas[shortMidRangeRssi.antNr].coord, isRecent:true};
     } else { // TODO: don't use short/mid-range antennas for trilateration
       var oldCoord = tag.coordinate ? tag.coordinate.coord : null;
-      tag.coordinate = trilateration.getPosition(tag.epc, allAntennas, oldCoord, dt, tag.antennaRssis);
+      tag.coordinate = trilateration.getPosition(dynamicConfig, allAntennas, tag.epc, oldCoord, dt, tag.antennaRssis);
     }
   });
   

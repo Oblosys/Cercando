@@ -19,9 +19,9 @@ import util     = require('oblo-util');
 
 var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 
-export function getPosition(epc : string, antennas : Shared.Antenna[], oldCoord : Shared.Coord, dt : number, antennaRssis : Shared.AntennaRSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
+export function getPosition(dynConfig : Shared.LucyConfig, antennas : Shared.Antenna[], epc : string, oldCoord : Shared.Coord, dt : number, antennaRssis : Shared.AntennaRSSI[]) : {coord: Shared.Coord; isRecent : boolean} {
   return useIncrementalTrilateration ?
-         incrementalTrilateration(epc, antennas, oldCoord, dt, antennaRssis) : trilateration(epc, antennas, antennaRssis);
+         incrementalTrilateration(dynConfig, antennas, epc, oldCoord, dt, antennaRssis) : trilateration(epc, antennas, antennaRssis);
 }
 
 
@@ -121,7 +121,7 @@ export function convert3dTo2d(dist3d : number) : number {
 // Incremental trilateration 
 
 
-export function incrementalTrilateration(epc : string, antennas : Shared.Antenna[], oldCoord : Shared.Coord, dt : number, antennaRssis : Shared.AntennaRSSI[]): {coord: Shared.Coord; isRecent : boolean} {
+export function incrementalTrilateration(dynConfig : Shared.LucyConfig, antennas : Shared.Antenna[], epc : string, oldCoord : Shared.Coord, dt : number, antennaRssis : Shared.AntennaRSSI[]): {coord: Shared.Coord; isRecent : boolean} {
   var antennaCoords : {x:number; y:number; signalDistance:number}[] = []; // get positions of antennas that have a signal
   _(antennaRssis).each((antennaRssi) => {
     if (antennaRssi.value > -100 && shared.isRecentAntennaRSSI(antennaRssi)) {
@@ -134,7 +134,7 @@ export function incrementalTrilateration(epc : string, antennas : Shared.Antenna
     return {coord: oldCoord, isRecent: false};
   } 
   
-  var walkingSpeedKmHr = 5;
+  var walkingSpeedKmHr = dynConfig.walkingSpeedKmHr;
   
   var oldCoordWasNull = oldCoord == null
   oldCoord = oldCoordWasNull ? {x: 0, y:0} : oldCoord;
