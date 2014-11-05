@@ -18,6 +18,8 @@ module Shared {
   export var ancientAgeMs = 5000;
 
   var defaultAntennaLayoutNr = 0;
+
+  export var defaultLucyConfig = { dummy: 'Dummy string', shortMidRangeSpecs: <ShortMidRangeSpec[]>[] };
  
   export interface Coord { x: number; y : number }
 
@@ -38,9 +40,13 @@ module Shared {
   
   export interface ReaderAntennaSpec { readerIp : string; antennaSpecs : AntennaSpec[] }
 
+  export interface LucyConfig { dummy : string; shortMidRangeSpecs : ShortMidRangeSpec[] }
+  // for dynamically checking uploaded config file:
+  export var lucyConfigType = { dummy: 'string', shortMidRangeSpecs: 'object' };
+  
   export interface ShortMidRangeSpec { antennaName : string; isShortRange : boolean; serverIp : string }
   // for dynamically checking uploaded config file:
-  export var shortMidRangeSpecType = { antennaName: 'string', isShortRange : 'boolean', serverIp : 'string' };
+  export var shortMidRangeSpecType = { antennaName: 'string', isShortRange: 'boolean', serverIp: 'string' };
   
   export interface AntennaSpec { name : string; coord : Coord }
 

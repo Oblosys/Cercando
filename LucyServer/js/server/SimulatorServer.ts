@@ -54,6 +54,7 @@ var readerServerSocket : net.Socket;
 
 
 var state : Shared.ServerState
+var dynamicConfig : Shared.LucyConfig; // read from file on initialize and query/upload-config handler
 var allAntennaLayouts : Shared.AntennaLayout[];
 var allAntennas : Shared.Antenna[];
 
@@ -72,6 +73,8 @@ function initServer() {
   
   util.log('\n\n\nStarting Simulator server on port ' + serverPortNr);
   
+  dynamicConfig = Config.getDynamicConfig();
+
   allAntennaLayouts = Config.getAllAntennaLayouts();
   resetServerState();
   startReaderServer();
@@ -210,7 +213,7 @@ function initExpress() {
 
 // format readerAntennaSpecs for easily pasting in Config.ts
 function showreaderAntennaSpecs(readerAntennaSpecs : Shared.ReaderAntennaSpec[]) : string{
-  var shortMidRangeSpecs = Config.getShortMidRangeSpecs();
+  var shortMidRangeSpecs = dynamicConfig.shortMidRangeSpecs;
   var res : string;
   res  = '    , readerAntennaSpecs:\n';
   
@@ -237,7 +240,7 @@ function showreaderAntennaSpecs(readerAntennaSpecs : Shared.ReaderAntennaSpec[])
 
 function initAntennaLayout(nr : number) {
   state.selectedAntennaLayoutNr = util.clip(0, allAntennaLayouts.length-1, nr);
-  var shortMidRangeSpecs = Config.getShortMidRangeSpecs();
+  var shortMidRangeSpecs = dynamicConfig.shortMidRangeSpecs;
   allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr], shortMidRangeSpecs);
   state.liveTagsState.tagsData = [];
   state.unknownAntennaIds = [];

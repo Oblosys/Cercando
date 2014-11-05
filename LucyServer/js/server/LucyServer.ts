@@ -44,8 +44,8 @@ var app = express();
 
 // global state variables
 
-var state : Shared.ServerState
-
+var state : Shared.ServerState;
+var dynamicConfig : Shared.LucyConfig; // read from file on initialize and query/upload-config handler
 var allAntennaLayouts : Shared.AntennaLayout[];
 var allAntennas : Shared.Antenna[];
 
@@ -87,6 +87,8 @@ function initServer() {
   
   util.log('\n\n');
   ServerCommon.log('Starting Lucy server on port ' + serverPortNr + ', using reader server on ' + readerServerHostName + '\n\n');
+  
+  dynamicConfig = Config.getDynamicConfig();
   
   allAntennaLayouts = Config.getAllAntennaLayouts();
   resetServerState();
@@ -174,10 +176,16 @@ function initExpress() {
 
   app.get('/query/view-config', Session.requireAuthorization(), function(req, res) {  
     res.setHeader('content-type', 'text/html');    
-    var html = 'Current short/mid-range configuration:<br/><br/>';
+    var html = 'Current dynamic Lucy configuration:<br/><br/>';
 
-    html += '<tt>' + JSON.stringify(Config.getShortMidRangeSpecs()) + '</t>';
-    html += '<br/><br/><input type="button" onclick="history.go(-1);" value="&nbsp;&nbsp;Ok&nbsp;&nbsp;"></input>';
+    var result = File.readConfigFile(Config.configUploadFilePath);
+    if (result.err) {
+      html += '<span style="color: red">ERROR: Reading configuration from Synology NAS (/web/lucyData/configUpload/config.json) failed:</span><br/>';
+      html += '<pre>' + result.err + '</pre>';
+    } else {
+      html += '<tt>' + JSON.stringify(result.config) + '</t>';
+      html += '<br/><br/><input type="button" onclick="history.go(-1);" value="&nbsp;&nbsp;Ok&nbsp;&nbsp;"></input>';
+    }
     res.send(html);
   });
 
@@ -199,6 +207,8 @@ function initExpress() {
       } // failed removal is not fatal, so we continue
       
       File.writeConfigFile(Config.lucyConfigFilePath, result.config); // write the new config to the local config file
+      dynamicConfig = Config.getDynamicConfig();                      // and update dynamicConfig
+
       initAntennaLayout(state.selectedAntennaLayoutNr); // incorporate new short/mid-range specs in antennaLayout
       html += 'Succesfully uploaded short/mid-range configuration from Synology NAS to Lucy server:<br/><br/>';
       html += '<tt>' + JSON.stringify(result.config) + '</tt>';
@@ -207,7 +217,7 @@ function initExpress() {
     res.send(html);
   });
 
-  app.get('/query/tags', function(req, res) {  
+  app.get('/query/tags', function(req, res) {
     //util.log('Sending tag data to client. (' + new Date() + ')');
     //util.log('Session id: '+(<any>req.session).id);
     res.setHeader('content-type', 'application/json');
@@ -342,12 +352,11 @@ function initExpress() {
 // set allAntennas by taking the layout specified by nr and combining it with the current shortMidRangeSpecs.
 function initAntennaLayout(nr : number) {
   state.selectedAntennaLayoutNr = util.clip(0, allAntennaLayouts.length-1, nr);
-  var shortMidRangeSpecs = Config.getShortMidRangeSpecs();
-  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr], shortMidRangeSpecs);
+  allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr], dynamicConfig.shortMidRangeSpecs);
   state.liveTagsState.tagsData = [];
   theReplaySession.tagsState.tagsData = [];
   state.unknownAntennaIds = [];
-  state.diColoreStatus.shortMidRangeServers = _(shortMidRangeSpecs).map(spec => {
+  state.diColoreStatus.shortMidRangeServers = _(dynamicConfig.shortMidRangeSpecs).map(spec => {
     return {antennaName: spec.antennaName, operational: false};
   });
 }

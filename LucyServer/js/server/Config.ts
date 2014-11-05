@@ -12,6 +12,7 @@ import util     = require('oblo-util');
 import fs       = require('fs');
 
 import file     = require('./File');  
+var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 
 
 // file path constants
@@ -54,10 +55,10 @@ export var useSmoother = true;
 
 
 // NOTE: short-/midrange settings apply to all antenna layouts
-export function getShortMidRangeSpecs() : Shared.ShortMidRangeSpec[] {
+export function getDynamicConfig() : Shared.LucyConfig {
   if (!fs.existsSync(lucyConfigFilePath)) {
     util.log('File \'' + lucyConfigFilePath + '\' not found, creating empty config file.');
-    var config : Shared.ShortMidRangeSpec[] = []; 
+    var config = shared.defaultLucyConfig; 
     file.writeConfigFile(lucyConfigFilePath, config);
     return config;
   } else {
@@ -65,7 +66,7 @@ export function getShortMidRangeSpecs() : Shared.ShortMidRangeSpec[] {
     var result = file.readConfigFile(lucyConfigFilePath);
     if (result.err) {
       util.error('Internal error: failed to read config from \'' + lucyConfigFilePath + '\':\n'+result.err);
-      return []; // we will notice the error since no short-/midrange antennas will be shown in the server status area
+      return shared.defaultLucyConfig; // we will notice the error since no short-/midrange antennas will be shown in the server status area
     } else {
       return result.config;
     } 

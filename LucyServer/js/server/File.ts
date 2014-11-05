@@ -15,7 +15,7 @@ import path     = require('path');
 
 var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 
-export function readConfigFile(filePath : string) : {config: Shared.ShortMidRangeSpec[]; err: string} {
+export function readConfigFile(filePath : string) : {config: Shared.LucyConfig; err: string} {
   try {
     var configJSON = <string>fs.readFileSync(filePath, {encoding:'utf8'});
     return validateConfig(JSON.parse(configJSON));
@@ -24,7 +24,7 @@ export function readConfigFile(filePath : string) : {config: Shared.ShortMidRang
   }
 }
 
-export function writeConfigFile(filePath : string, config : Shared.ShortMidRangeSpec[]) { 
+export function writeConfigFile(filePath : string, config : Shared.LucyConfig) { 
   try {
     fs.writeFileSync(filePath, JSON.stringify(config));
   } catch (err) {
@@ -33,40 +33,57 @@ export function writeConfigFile(filePath : string, config : Shared.ShortMidRange
   }
 }
 
-export function validateConfig(configObject : any) : {config: Shared.ShortMidRangeSpec[]; err: string} {
+export function validateConfig(configObject : any) : {config: Shared.LucyConfig; err: string} {
+  var err = checkObjectKeys(shared.lucyConfigType, configObject);
+  if (!err)
+    err = validateShortMidRangeSpecs(<Shared.LucyConfig>configObject.shortMidRangeSpecs);
+  
+  if (err)
+    return {config: <Shared.LucyConfig>null, err: err};
+  else
+    return {config: <Shared.LucyConfig>configObject, err: null};
+}
+
+export function validateShortMidRangeSpecs(configObject : any) : string {
   var errMsg = '';
-  var shortMidRangeSpecKeys = _.keys(shared.shortMidRangeSpecType);
+  var shortMidRangeSpecKeys = _.keys(shared.shortMidRangeSpecType); // TODO: remove
   if (!_.isArray(configObject)) {
     errMsg += 'Object in config.json is not an array.';
   } else {
     for (var i=0; i<configObject.length; i++) {
-      var elementErrs = '';
-      var keys = _(configObject[i]).keys();
-      _(shortMidRangeSpecKeys).each(key => {
-        
-        var val = configObject[i][key];
-        if (configObject[i].hasOwnProperty(key)) {
-          var expectedType = shared.shortMidRangeSpecType[key];
-          if (typeof val != expectedType) {
-            elementErrs += ' - key \'' + key +'\' has type ' + typeof val + ' instead of ' + expectedType + '\n';
-          }
-        } else {
-          elementErrs += ' - key \'' + key + '\' is not specified\n'; 
-        }
-      });
-
-      var extraKeys = _.difference(keys, shortMidRangeSpecKeys);
-      if (!_.isEmpty(extraKeys))
-        elementErrs += ' - unrecognized keys: ' + extraKeys + '\n';
+      var elementErrs = checkObjectKeys(shared.shortMidRangeSpecType, configObject[i]);
+  
       if (elementErrs) {
-        errMsg += 'Error in element ' + i + ': ' + JSON.stringify(configObject[i]) + '\n' + elementErrs;
+        errMsg += 'Error in shortMidRangeSpecs[' + i + ']: ' + JSON.stringify(configObject[i]) + '\n' + elementErrs;
       }
     }
   }
-  if (errMsg)
-    return {config: <Shared.ShortMidRangeSpec[]>null, err: errMsg};
-  else
-    return {config: <Shared.ShortMidRangeSpec[]>configObject, err: null};
+  return errMsg;
+}
+
+// check that keys of obj are exactly the same as keys of typeDesc, and that for each key k: typeof obj[k] == typeDesc[k]
+function checkObjectKeys(typeDesc : any, obj : any) : string {
+  var validationKeys = _.keys(typeDesc);
+  var keys = _(obj).keys();
+  var keyErrs = '';
+  _(validationKeys).each(key => {
+    
+    var val = obj[key];
+    if (obj.hasOwnProperty(key)) {
+      var expectedType = typeDesc[key];
+      if (typeof val != expectedType) {
+        keyErrs += ' - key \'' + key +'\' has type ' + typeof val + ' instead of ' + expectedType + '\n';
+      }
+    } else {
+      keyErrs += ' - key \'' + key + '\' is not specified\n'; 
+    }
+  });
+
+  var extraKeys = _.difference(keys, validationKeys);
+  if (!_.isEmpty(extraKeys))
+    keyErrs += ' - unrecognized keys: ' + _(extraKeys).map(k => {return '\''+k+'\''}) + '\n';
+  
+  return keyErrs;
 }
 
 export function readUsersFile(filePath : string) : {users: Shared.UserRecord[]; err: Error} {
