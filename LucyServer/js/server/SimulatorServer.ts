@@ -54,7 +54,7 @@ var readerServerSocket : net.Socket;
 
 
 var state : Shared.ServerState
-var dynamicConfig : Shared.LucyConfig; // read from file on initialize and query/upload-config handler
+var dynamicConfig : Shared.DynamicConfig; // read from file on initialize and query/upload-config handler
 var allAntennaLayouts : Shared.AntennaLayout[];
 var allAntennas : Shared.Antenna[];
 

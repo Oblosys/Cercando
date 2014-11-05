@@ -45,7 +45,7 @@ var app = express();
 // global state variables
 
 var state : Shared.ServerState;
-var dynamicConfig : Shared.LucyConfig; // read from file on initialize and query/upload-config handler
+var dynamicConfig : Shared.DynamicConfig; // read from file on initialize and query/upload-config handler
 var allAntennaLayouts : Shared.AntennaLayout[];
 var allAntennas : Shared.Antenna[];
 

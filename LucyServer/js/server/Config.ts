@@ -55,10 +55,10 @@ export var useSmoother = true;
 
 
 // NOTE: short-/midrange settings apply to all antenna layouts
-export function getDynamicConfig() : Shared.LucyConfig {
+export function getDynamicConfig() : Shared.DynamicConfig {
   if (!fs.existsSync(lucyConfigFilePath)) {
     util.log('File \'' + lucyConfigFilePath + '\' not found, creating empty config file.');
-    var config = shared.defaultLucyConfig; 
+    var config = shared.defaultDynamicConfig; 
     file.writeConfigFile(lucyConfigFilePath, config);
     return config;
   } else {
@@ -66,7 +66,7 @@ export function getDynamicConfig() : Shared.LucyConfig {
     var result = file.readConfigFile(lucyConfigFilePath);
     if (result.err) {
       util.error('Internal error: failed to read config from \'' + lucyConfigFilePath + '\':\n'+result.err);
-      return shared.defaultLucyConfig; // we will notice the error since no short-/midrange antennas will be shown in the server status area
+      return shared.defaultDynamicConfig; // we will notice the error since no short-/midrange antennas will be shown in the server status area
     } else {
       return result.config;
     } 

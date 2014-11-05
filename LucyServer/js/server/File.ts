@@ -15,7 +15,7 @@ import path     = require('path');
 
 var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 
-export function readConfigFile(filePath : string) : {config: Shared.LucyConfig; err: string} {
+export function readConfigFile(filePath : string) : {config: Shared.DynamicConfig; err: string} {
   try {
     var configJSON = <string>fs.readFileSync(filePath, {encoding:'utf8'});
     return validateConfig(JSON.parse(configJSON));
@@ -24,7 +24,7 @@ export function readConfigFile(filePath : string) : {config: Shared.LucyConfig; 
   }
 }
 
-export function writeConfigFile(filePath : string, config : Shared.LucyConfig) { 
+export function writeConfigFile(filePath : string, config : Shared.DynamicConfig) { 
   try {
     fs.writeFileSync(filePath, JSON.stringify(config));
   } catch (err) {
@@ -33,15 +33,15 @@ export function writeConfigFile(filePath : string, config : Shared.LucyConfig) {
   }
 }
 
-export function validateConfig(configObject : any) : {config: Shared.LucyConfig; err: string} {
-  var err = checkObjectKeys(shared.lucyConfigType, configObject);
+export function validateConfig(configObject : any) : {config: Shared.DynamicConfig; err: string} {
+  var err = checkObjectKeys(shared.dynamicConfigType, configObject);
   if (!err)
-    err = validateShortMidRangeSpecs(<Shared.LucyConfig>configObject.shortMidRangeSpecs);
+    err = validateShortMidRangeSpecs(<Shared.DynamicConfig>configObject.shortMidRangeSpecs);
   
   if (err)
-    return {config: <Shared.LucyConfig>null, err: err};
+    return {config: <Shared.DynamicConfig>null, err: err};
   else
-    return {config: <Shared.LucyConfig>configObject, err: null};
+    return {config: <Shared.DynamicConfig>configObject, err: null};
 }
 
 export function validateShortMidRangeSpecs(configObject : any) : string {
