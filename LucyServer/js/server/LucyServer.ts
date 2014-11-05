@@ -682,7 +682,9 @@ function parseReplayEventCSV(csvLine : string) : ServerCommon.ReaderEvent {
 
 // Process ReaderEvent coming from a reader server (not from a replay)
 function processReaderServerEvent(readerEvent : ServerCommon.ReaderEvent) {
-  //util.log('Reader event: ' + JSON.stringify(readerEvent));
+  if (false && readerEvent.readerIp=='10.0.0.31' && readerEvent.ant == 3) // '10.0.0.30-33'  A=30, B=31, C=32, D=33, e.g. 10.0.0.31:3 = B3  
+    util.log('Reader event: ' + JSON.stringify(readerEvent));
+   
   logReaderEvent(readerEvent);
   processReaderEvent(state.liveTagsState, readerEvent);
 }
@@ -691,7 +693,7 @@ function processReaderServerEvent(readerEvent : ServerCommon.ReaderEvent) {
 function processReaderEvent(tagsState : Shared.TagsState, readerEvent : ServerCommon.ReaderEvent) {
   var timestamp = new Date(readerEvent.timestamp);
   tagsState.mostRecentEventTimeMs = timestamp.getTime();
-  //util.log('Reader event: ' + JSON.stringify(readerEvent));
+  //ServerCommon.log('Reader event: ' + JSON.stringify(readerEvent));
   if (outputFileStream) {
     outputStreamWriteReaderEvent(outputFileStream, readerEvent);
   }
@@ -756,7 +758,10 @@ function filtered(epc : string, readerIp : string, ant : number, rssi : number, 
   //  util.log(new Date().getSeconds() + ' ' + epc + ' ant '+ant + ' prevRssi: '+previousRssi.toFixed(1) + ' rawRssi: '+rssi.toFixed(1) + ' newDist: '+
   //           trilateration.getDistanceForRssi(epc, ''+ant, newRssi).toFixed(1) + ' newRssi: '+newRssi.toFixed(1));
   //}
-  
+  if (false && readerIp=='10.0.0.31' && ant == 3 // '10.0.0.30-33'  A=30, B=31, C=32, D=33, e.g. 10.0.0.31:3 = B3  
+            && epc == '0000000000000000000000000000000') { // '0000000000000000000000000000000' is yellow in simulator
+    util.log(epc + ':' + ant + ' ' + JSON.stringify(newRssi) );
+  }
   //util.log(util.padZero(3,dT) + JSON.stringify(previousRssi) );
   //util.log(util.padZero(3,dT) + JSON.stringify(previousRssi.value) );
   return newRssi;
@@ -778,6 +783,7 @@ function messageDiColoreTagDistances(serverIp : string, serverPort : number, tag
 
 // type-safe shorthand function
 function messageDiColoreTagLocations(serverIp : string, serverPort : number, tagLocations : Shared.DiColoreTagLocations) {
+  //util.log('message Di Colore'+JSON.stringify(tagLocations));
   messageDiColoreServer(serverIp, serverPort, tagLocations, successful => {
     state.diColoreStatus.locationServerOperational = successful;
   });
@@ -893,6 +899,11 @@ function positionTags(tagsState : Shared.TagsState) {
     } else { // TODO: don't use short/mid-range antennas for trilateration
       var oldCoord = tag.coordinate ? tag.coordinate.coord : null;
       tag.coordinate = trilateration.getPosition(dynamicConfig, allAntennas, tag.epc, oldCoord, dt, tag.antennaRssis);
+      if (false && tag.epc == '0000000000000000000000000000001') { // '0000000000000000000000000000000' is yellow in simulator
+        util.log(util.replicate((tag.coordinate.coord.x-4) *10, '#').join(''));
+        //util.log('Computed coordinate: '+JSON.stringify(tag.coordinate));
+      }
+
     }
   });
   
