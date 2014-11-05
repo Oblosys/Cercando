@@ -157,13 +157,13 @@ module ClientCommon {
     $('#'+mkSignalId(antennaRssi, tag)).remove();
   }
 
-  export function setSignalMarkerRssi(antennaRssi : Shared.AntennaRSSI, tag : Shared.TagData) {
+  export function setSignalMarkerRssi(serverInfo : Shared.ServerInfo, antennaRssi : Shared.AntennaRSSI, tag : Shared.TagData) {
     var dashArray : string;
-    if (Shared.isRecentAntennaRSSI(antennaRssi)) 
+    if (Shared.isRecentAntennaRSSI(serverInfo.staleAgeMs, antennaRssi)) 
       dashArray = 'none';
     else {
-      var maxStalePeriod = Shared.ancientAgeMs - Shared.staleAgeMs;
-      var staleIndex = Math.floor(((util.clip(0,maxStalePeriod-1,antennaRssi.age-Shared.staleAgeMs) / maxStalePeriod)*9))+1;
+      var maxStalePeriod = serverInfo.ancientAgeMs - serverInfo.staleAgeMs;
+      var staleIndex = Math.floor(((util.clip(0,maxStalePeriod-1,antennaRssi.age-serverInfo.staleAgeMs) / maxStalePeriod)*9))+1;
       // staleIndex lies between 1 and 9, 1: just became stale, 9: almost ancient
       dashArray = ''+(10-staleIndex)+','+staleIndex;
     }

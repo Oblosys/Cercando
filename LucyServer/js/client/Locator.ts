@@ -341,7 +341,7 @@ function updateTags() {
       //util.log('epc:'+tagData.epc+'  '+tagNr);
       var rssi = antRssi.value;
       var dist =  antRssi.distance;
-      var isSignalRecent = Shared.isRecentAntennaRSSI(antRssi);
+      var isSignalRecent = Shared.isRecentAntennaRSSI(tagsServerInfo.serverInfo.staleAgeMs, antRssi);
         
       // show in table
       if (rssi) {
@@ -358,7 +358,7 @@ function updateTags() {
         ClientCommon.createSignalMarker(antRssi, tagData);
         
       //util.log('A'+ant+': tag'+tagNr+': '+dist);
-      ClientCommon.setSignalMarkerRssi(antRssi, tagData);
+      ClientCommon.setSignalMarkerRssi(tagsServerInfo.serverInfo, antRssi, tagData);
     }
     var markerD3 = d3.select('#' + ClientCommon.mkTagId(tagData));
     

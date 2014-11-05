@@ -230,7 +230,9 @@ function initExpress() {
       { tagsInfo: { mostRecentEventTimeMs: tagsState.mostRecentEventTimeMs
                   , tagsData: _(tagsState.tagsData).filter(tagData => {return tagData.coordinate != null}) // don't send tags that don't have a coordinate yet
                   } 
-      , serverInfo: { selectedAntennaLayoutNr: state.selectedAntennaLayoutNr
+      , serverInfo: { staleAgeMs: dynamicConfig.staleAgeMs
+                    , ancientAgeMs: dynamicConfig.ancientAgeMs
+                    , selectedAntennaLayoutNr: state.selectedAntennaLayoutNr
                     , unknownAntennaIds: state.unknownAntennaIds
                     , status: state.status
                     , diColoreStatus: state.diColoreStatus
@@ -893,7 +895,7 @@ function positionTags(tagsState : Shared.TagsState) {
   _(tagsState.tagsData).each((tag) => {
     var shortMidRangeRssi = _(tag.antennaRssis).find((antennaRssi) => {
       var shortMidRange = allAntennas[antennaRssi.antNr].shortMidRange;
-      return shortMidRange != null && shared.isRecentAntennaRSSI(dynamicConfig, antennaRssi);
+      return shortMidRange != null && shared.isRecentAntennaRSSI(dynamicConfig.staleAgeMs, antennaRssi);
     });
     if (shortMidRangeRssi && shortMidRangeRssi.value > shared.shortMidRagneRssiThreshold) {
       //util.log('short mid for tag '+tag.epc);

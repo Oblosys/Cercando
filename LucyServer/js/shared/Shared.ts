@@ -113,6 +113,8 @@ module Shared {
 
   // The part of ServerState that is sent to the client
   export interface ServerInfo { status : { isConnected : boolean; isSaving : boolean; replayFileName : string }
+                              ; staleAgeMs : number
+                              ; ancientAgeMs: number
                               ; selectedAntennaLayoutNr : number
                               ; unknownAntennaIds : AntennaId[]
                               ; diColoreStatus : { locationServerOperational : boolean ; shortMidRangeServers : {antennaName : string; operational : boolean}[] }
@@ -142,10 +144,12 @@ module Shared {
   export function initialTagsServerInfo() : TagsServerInfo {
     return { tagsInfo: { mostRecentEventTimeMs: null, tagsData : []}
            , serverInfo:
-             { status: {isConnected: false, isSaving: false, replayFileName: null},
-               selectedAntennaLayoutNr: defaultAntennaLayoutNr,
-               unknownAntennaIds: [],
-               diColoreStatus: { locationServerOperational: false, shortMidRangeServers : [] }
+             { status: {isConnected: false, isSaving: false, replayFileName: null}
+             , staleAgeMs:   0
+             , ancientAgeMs: 0
+             , selectedAntennaLayoutNr: defaultAntennaLayoutNr
+             , unknownAntennaIds: []
+             , diColoreStatus: { locationServerOperational: false, shortMidRangeServers : [] }
              }
            , sessionInfo: null 
            }
@@ -166,8 +170,8 @@ module Shared {
                                  : maxAntennaRangeLong;
   }
   
-  export function isRecentAntennaRSSI(dynConfig : DynamicConfig, antennaRssi : AntennaRSSI) : boolean {
-    return antennaRssi.age < dynConfig.staleAgeMs;
+  export function isRecentAntennaRSSI(staleAgeMs : number, antennaRssi : AntennaRSSI) : boolean {
+    return antennaRssi.age < staleAgeMs;
   }
 
 } 
