@@ -49,7 +49,7 @@ export var db_config = {
 
 export var reconnectInterval = 2000; // time in ms to wait before trying to reconnect to the reader server
 export var reportShortMidRangeInterval = 100; // time in ms between sending short-/midrange antenna data to Di Colore
-export var positioningInterval = 250; // time in ms between computing coordinates of all tags (and purging old signals/tags)
+// positioningInterval is in dynamicConfig
 
 export var useSmoother = true;
 

@@ -94,7 +94,7 @@ function initServer() {
   resetServerState();
  
   reportShortMidRangeTimer = <any>setInterval(reportShortMidRangeData, Config.reportShortMidRangeInterval); // annoying cast beacause of Eclipse TypeScript
-  positioningTimer = <any>setInterval(positionAllTags, Config.positioningInterval); // annoying cast beacause of Eclipse TypeScript
+  positioningTimer = <any>setInterval(positionAllTags, dynamicConfig.positioningInterval); // annoying cast beacause of Eclipse TypeScript
 
   initExpress();
   var server = app.listen(serverPortNr, () => { util.log('Web server listening to port ' + serverPortNr);});
@@ -208,6 +208,9 @@ function initExpress() {
       
       File.writeConfigFile(Config.lucyConfigFilePath, result.config); // write the new config to the local config file
       dynamicConfig = Config.getDynamicConfig();                      // and update dynamicConfig
+      // restart interval according to current interval from uploaded config
+      clearInterval(positioningTimer);
+      positioningTimer = <any>setInterval(positionAllTags, dynamicConfig.positioningInterval); // annoying cast beacause of Eclipse TypeScript
 
       initAntennaLayout(state.selectedAntennaLayoutNr); // incorporate new short/mid-range specs in antennaLayout
       html += 'Succesfully uploaded short/mid-range configuration from Synology NAS to Lucy server:<br/><br/>';
@@ -752,7 +755,6 @@ function filtered(epc : string, readerIp : string, ant : number, rssi : number, 
   var previousRssi = previousAntennaRssi ? previousAntennaRssi.value : rssi;
   
   var alpha = dT / (dT + RC);
-  util.log(RC);
   var newRssi = rssi * alpha + previousRssi * (1.0 - alpha);
   //if (epc == '0000000000000000000000000503968' && ant == 1) {
   //  util.log(new Date().getSeconds() + ' ' + epc + ' ant '+ant + ' prevRssi: '+previousRssi.toFixed(1) + ' rawRssi: '+rssi.toFixed(1) + ' newDist: '+
