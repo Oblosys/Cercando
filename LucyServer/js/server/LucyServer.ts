@@ -715,7 +715,7 @@ function processReaderEvent(tagsState : Shared.TagsState, readerEvent : ServerCo
     var oldAntennaRssi = getAntennaRssiForAntNr(antNr, tag.antennaRssis);
     
     var newRssi = !Config.useSmoother ? readerEvent.rssi 
-                               : filtered(readerEvent.epc, readerEvent.ant, readerEvent.rssi, timestamp, oldAntennaRssi);
+                                      : filtered(readerEvent.epc, readerEvent.readerIp, readerEvent.ant, readerEvent.rssi, timestamp, oldAntennaRssi);
 
     var distance = trilateration.getDistanceForRssi(tag.epc, allAntennas[antNr].name, newRssi);
     var newAntennaRssi : Shared.AntennaRSSI = {antNr: antNr, value: newRssi, timestamp: timestamp, distance: distance, age: 0};
@@ -743,7 +743,7 @@ function updateAntennaRssi(newAntennaRssi : Shared.AntennaRSSI, antennaRssis : S
 }
 
 // epc : string, antNr : number just for logging
-function filtered(epc : string, ant : number, rssi : number, timestamp : Date, previousAntennaRssi : Shared.AntennaRSSI) {
+function filtered(epc : string, readerIp : string, ant : number, rssi : number, timestamp : Date, previousAntennaRssi : Shared.AntennaRSSI) {
   var RC = 1/2;
 
   var dT = (previousAntennaRssi ? timestamp.getTime() - previousAntennaRssi.timestamp.getTime() : 100)/1000;
