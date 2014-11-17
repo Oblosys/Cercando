@@ -26,7 +26,7 @@ var floorWidth = 0;
 var nrOfGeneratedTags = 3;
 var randomPositions = false;
 var useAutoMoveTags = true;
-var animationSpeed = 100; // in pixels per second
+var animationSpeed = 4; // in km/hr
 var direction = 1;
  
 var refreshDelay = 100; 
@@ -171,7 +171,9 @@ function autoMoveTags() {
     if (tagX < 0.1*floorWidth)
       direction = 1;
     
-    var animationOffsetX = direction * animationSpeed /( 1000/refreshDelay);
+    var pixelsPerMeter = ClientCommon.toScreenX(1) - ClientCommon.toScreenX(0); // dynamic because scale depends on antenna selection
+    
+    var animationOffsetX = direction * animationSpeed / 3.6 * pixelsPerMeter / ( 1000/refreshDelay);
     tagX += animationOffsetX;
     
     $(tagElem).attr('transform', 'translate('+tagX+','+tagY+')');
