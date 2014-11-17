@@ -178,9 +178,9 @@ function initExpress() {
     res.setHeader('content-type', 'text/html');    
     var html = 'Current dynamic Lucy configuration:<br/><br/>';
 
-    var result = File.readConfigFile(Config.configUploadFilePath);
+    var result = File.readConfigFile(Config.lucyConfigFilePath);
     if (result.err) {
-      html += '<span style="color: red">ERROR: Reading configuration from Synology NAS (/web/lucyData/configUpload/config.json) failed:</span><br/>';
+      html += '<span style="color: red">ERROR: Reading configuration from Synology NAS ('+Config.lucyConfigFilePath+') failed:</span><br/>';
       html += '<pre>' + result.err + '</pre>';
     } else {
       html += '<tt>' + JSON.stringify(result.config) + '</t>';
@@ -195,7 +195,7 @@ function initExpress() {
     var html = '';
     var result = File.readConfigFile(Config.configUploadFilePath);
     if (result.err) {
-      html += '<span style="color: red">ERROR: Uploading new configuration from Synology NAS (/web/lucyData/configUpload/config.json) failed:</span><br/>';
+      html += '<span style="color: red">ERROR: Uploading new configuration from Synology NAS ('+Config.configUploadFilePath+') failed:</span><br/>';
       html += '<pre>' + result.err + '</pre>';
     } else {
       try {
