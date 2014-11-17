@@ -23,9 +23,6 @@ var debug = true;
 var floorHeight = 0;
 var floorWidth = 0;
 
-var origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
-var scale = 80; // pixels per meter
-
 var nrOfGeneratedTags = 3;
 var randomPositions = false;
 var useAutoMoveTags = true;
