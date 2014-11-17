@@ -120,11 +120,20 @@ export function convert3dTo2d(dist3d : number) : number {
 
 // Incremental trilateration 
 
+/* For all antennas with a non-stale signal (higher than -100) determine where the signal circle crosses the line between
+   the old tag position and the antenna's coordinates. This point may be towards the antenna or away from it (if the tag is
+   inside the circle.) Consider these points as vectors starting at the old tag position, and compute the mean vector (variable 'movementVector'
+   below).
+
+   The mean vector is applied to the old position, while taking into account dt and the maximum movement speed.
+
+   The resulting algorithm converges to trilateration, when the latter has a solution, but is more robust when it doesn't.
+  */
 
 export function incrementalTrilateration(dynConfig : Shared.DynamicConfig, antennas : Shared.Antenna[], epc : string, oldCoord : Shared.Coord, dt : number, antennaRssis : Shared.AntennaRSSI[]): {coord: Shared.Coord; isRecent : boolean} {
   var antennaCoords : {x:number; y:number; signalDistance:number}[] = []; // get positions of antennas that have a signal
   _(antennaRssis).each((antennaRssi) => {
-    if (antennaRssi.value > -100 && shared.isRecentAntennaRSSI(dynConfig.staleAgeMs, antennaRssi)) {
+    if (antennaRssi.value > -100 && shared.isRecentAntennaRSSI(dynConfig.staleAgeMs, antennaRssi)) { // -100 is never reached, could be made dynamic if we need to vary it.
       var antNr = antennaRssi.antNr;
       antennaCoords.push({x: antennas[antNr].coord.x, y: antennas[antNr].coord.y, signalDistance: antennaRssi.distance});
     }
