@@ -39,7 +39,6 @@ var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and
 
 var mysql            = require('mysql');
 var lineByLineReader = require('line-by-line');
-var nodefs           = require('node-fs'); // for recursive dir creation
 var app = express();
 
 // global state variables
@@ -50,8 +49,7 @@ var allAntennaLayouts : Shared.AntennaLayout[];
 var allAntennas : Shared.Antenna[];
 
 var readerServerSocket : net.Socket;
-var eventLogFilePath : string; // Based on current time
-var eventLogFileStream : fs.WriteStream;
+var eventLogAutoSaveStream : ServerCommon.AutoSaveStream;
 var outputFileStream : fs.WriteStream; // for explicitly saving reader events
 
 var readerServerHostName : string;
@@ -93,6 +91,8 @@ function initServer() {
   allAntennaLayouts = Config.getAllAntennaLayouts();
   resetServerState();
  
+  eventLogAutoSaveStream = File.createAutoSaveStream(Config.autoSaveLogLength, Config.autoSaveDirectoryPath, File.eventLogHeader);
+  
   reportShortMidRangeTimer = <any>setInterval(reportShortMidRangeData, Config.reportShortMidRangeInterval); // annoying cast beacause of Eclipse TypeScript
   positioningTimer = <any>setInterval(positionAllTags, dynamicConfig.positioningInterval); // annoying cast beacause of Eclipse TypeScript
 
@@ -484,8 +484,8 @@ function startSaving(filePath : string, cont : {success : () => void; error : (m
       });
       outputFileStream.once('open', function(fd :  number) {
         state.status.isSaving = true;
-        // Mimic the save format created by Motorola SessionOne app, but add the reader ip in an extra column (ip is not saved by SessionOne) 
-        outputStreamWriteHeader(outputFileStream);
+         
+        outputFileStream.write(File.eventLogHeader);
         util.log('Started saving events to "'+fullFilename+'"');
         cont.success();
       });
@@ -497,10 +497,6 @@ function stopSaving() {
   outputFileStream.end()
   outputFileStream = null;
   state.status.isSaving = false;
-}
-
-function outputStreamWriteHeader(outputStream : fs.WriteStream) {
-  outputStream.write('EPC, Time, Date, Antenna, RSSI, Channel index, Memory bank, PC, CRC, ReaderIp\n')
 }
 
 function outputStreamWriteReaderEvent(outputStream : fs.WriteStream, readerEvent : ServerCommon.ReaderEvent) {
@@ -518,42 +514,10 @@ function outputStreamWriteReaderEvent(outputStream : fs.WriteStream, readerEvent
   outputStream.write(eventStr + '\n');
 }
 
-function getEventLogFilePath() : string {
-  var logLength = 60 / 4; // logLength should be a divisor of 60
-  var now = new Date();
-  var filePath = Config.autoSaveDirectoryPath + '/' 
-               + util.padZero(4, now.getFullYear()) + '-' + util.padZero(2, now.getMonth()+1) + '/'
-               + util.padZero(2, now.getDate()) + '/'
-               + 'readerEvents_' +
-               + util.padZero(4, now.getFullYear()) + '-' + util.padZero(2, now.getMonth()+1) + '-' + util.padZero(2, now.getDate()) + '_'
-               + util.padZero(2, now.getHours()) + '.' + util.padZero(2, Math.floor(Math.floor(now.getMinutes() / logLength) * logLength) )
-               + '.csv';
-  return filePath;
-}
-
+// NOTE: filename is based on current time, not on event time, so at the start, a log file may contain some events older than the time in the filename 
 function logReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
-  var desiredEventLogFilePath = getEventLogFilePath(); // TODO: using current time may cause filename to be more recent than timestamp in event
-  if (eventLogFileStream && eventLogFilePath != desiredEventLogFilePath) {
-    ServerCommon.log('Closing file auto-save file:\n' + eventLogFilePath);
-    eventLogFileStream.end()
-    eventLogFileStream = null;
-    eventLogFilePath = '';
-  }
-  if (!eventLogFileStream) {
-    ServerCommon.log('Opening file new auto-save file:\n' + desiredEventLogFilePath);
-    
-    if (!fs.existsSync( path.dirname(desiredEventLogFilePath)) ) { // if directory doesn't exist, recursively create all directories on path
-      nodefs.mkdirSync( path.dirname(desiredEventLogFilePath), '0755', true); // 0755: rwxr-xr-x, true: recursive
-    } 
-    
-    eventLogFilePath = desiredEventLogFilePath;
-    var logFileWasAlreadyCreated = fs.existsSync( desiredEventLogFilePath); // only happens if the server was interrupted during this log period
-    eventLogFileStream = fs.createWriteStream(eventLogFilePath, {flags: 'a'}); // 'a': append if file exists  
-    
-    if (!logFileWasAlreadyCreated) // don't add header if the file already existed
-      outputStreamWriteHeader(eventLogFileStream);
-  }
-  outputStreamWriteReaderEvent(eventLogFileStream, readerEvent);
+  File.updateAutoSaveStream(eventLogAutoSaveStream);
+  outputStreamWriteReaderEvent(eventLogAutoSaveStream.outputStream, readerEvent);
 }
 
 

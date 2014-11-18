@@ -23,11 +23,12 @@ export var lucyLogDirectoryPath = lucyDirectoryPath + '/log';
 export var lucyConfigFilePath = lucyDirectoryPath + '/config/config.json'; // local, so it can't easily be accidentally edited
 export var configUploadFilePath = lucyDataDirectoryPath + '/configUpload/config.json';
 export var lucyUsersFilePath = lucyDirectoryPath + '/config/users.json';
+export var cercandoGitDirectory = process.env['HOME'] + '/git/Cercando';
 export var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
 export var userSaveDirectoryPath = saveDirectoryPath + '/userSave';
 export var autoSaveDirectoryPath = saveDirectoryPath + '/autoSave';
-export var cercandoGitDirectory = process.env['HOME'] + '/git/Cercando';
 
+export var autoSaveLogLength = 60/4; // needs to be a divisor of 60 for equal log length
 
 // configuration constants
 

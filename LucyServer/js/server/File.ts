@@ -6,14 +6,21 @@
 /*******************************************************************************/
 
 /// <reference path="./Config.ts" />
+/// <reference path="./ServerCommon.ts" />
 /// <reference path="../shared/Shared.ts" />
 
 import _        = require('underscore');
 import util     = require('oblo-util');
 import fs       = require('fs');
 import path     = require('path');
-
+import Config        = require('./Config');
+import ServerCommon  = require('./ServerCommon');
 var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
+
+// Libraries without TypeScript definitions:
+
+var nodefs           = require('node-fs'); // for recursive dir creation
+
 
 export function readConfigFile(filePath : string) : {config: Shared.DynamicConfig; err: string} {
   try {
@@ -127,6 +134,59 @@ export function getRecursiveDirContents(pth : string) : Shared.DirEntry[] {
      return [];
    }  
 }
+
+// Mimic the save format created by Motorola SessionOne app, but add the reader ip in an extra column (ip is not saved by SessionOne)
+export var eventLogHeader = 'EPC, Time, Date, Antenna, RSSI, Channel index, Memory bank, PC, CRC, ReaderIp\n';
+
+// createAutoSaveStream() does not actually create the output stream, this is done in updateAutoSaveStream()
+export function createAutoSaveStream(minutesPerLog : number, basePath : string, header : string) : ServerCommon.AutoSaveStream {
+  return { minutesPerLog: minutesPerLog
+         , basePath: basePath
+         , header: header
+         , filePath: null
+         , outputStream: null
+         };
+}
+
+export function getTimeBasedFilePath(autoSaveStream : ServerCommon.AutoSaveStream) : string {
+  var now = new Date();
+  var filePath = autoSaveStream.basePath + '/' 
+               + util.padZero(4, now.getFullYear()) + '-' + util.padZero(2, now.getMonth()+1) + '/'
+               + util.padZero(2, now.getDate()) + '/'
+               + 'readerEvents_' +
+               + util.padZero(4, now.getFullYear()) + '-' + util.padZero(2, now.getMonth()+1) + '-' + util.padZero(2, now.getDate()) + '_'
+               + util.padZero(2, now.getHours()) + '.'
+               + util.padZero(2, Math.floor(Math.floor(now.getMinutes() / autoSaveStream.minutesPerLog) * autoSaveStream.minutesPerLog))
+               + '.csv';
+  return filePath;
+}
+
+// updateAutoSaveStream() guarantees that the autoSaveStream has an output file that corresponds to the current time slot
+export function updateAutoSaveStream(autoSaveStream : ServerCommon.AutoSaveStream) {
+  var desiredEventLogFilePath = getTimeBasedFilePath(autoSaveStream); 
+  if (autoSaveStream.outputStream && autoSaveStream.filePath != desiredEventLogFilePath) {
+    ServerCommon.log('Closing auto-save file:\n' + autoSaveStream.filePath);
+    autoSaveStream.outputStream.end()
+    autoSaveStream.outputStream = null;
+    autoSaveStream.filePath = '';
+  }
+  if (!autoSaveStream.outputStream) {
+    ServerCommon.log('Opening new auto-save file:\n' + desiredEventLogFilePath);
+    
+    if (!fs.existsSync( path.dirname(desiredEventLogFilePath)) ) { // if directory doesn't exist, recursively create all directories on path
+      nodefs.mkdirSync( path.dirname(desiredEventLogFilePath), '0755', true); // 0755: rwxr-xr-x, true: recursive
+    } 
+    
+    autoSaveStream.filePath = desiredEventLogFilePath;
+    var logFileWasAlreadyCreated = fs.existsSync( desiredEventLogFilePath); // only happens if the server was interrupted during this log period
+    autoSaveStream.outputStream = fs.createWriteStream(autoSaveStream.filePath, {flags: 'a'}); // 'a': append if file exists  
+    
+    if (!logFileWasAlreadyCreated) // don't add header if the file already existed
+      autoSaveStream.outputStream.write(autoSaveStream.header);
+  }
+}
+
+// File utils
 
 // Only allow letters, digits, and slashes
 export function isSafeFilePath(filePath : string) : boolean {

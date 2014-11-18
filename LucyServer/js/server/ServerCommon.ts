@@ -8,11 +8,17 @@
 /// <reference path="../shared/Shared.ts" />
 
 import _        = require('underscore');
+import fs       = require('fs');
 import util     = require('oblo-util');
 
 var Shared = require('../shared/Shared.js');
  
 export interface ReaderEvent { readerIp : string; ant : number; epc : string; rssi : number; timestamp : string }
+
+export interface AutoSaveStream { minutesPerLog : number // should be a divisor of 60 to guarantee equal length for all logs
+                                ; basePath : string
+                                ; header : string
+                                ; filePath: string; outputStream : fs.WriteStream } // filePath and outputStream are managed automatically
 
 export function mkReaderAntennas(readerAntennaLayout : Shared.AntennaLayout, shortMidRangeSpecs : Shared.ShortMidRangeSpec[]) : Shared.Antenna[] {
   var antennas = _.map(readerAntennaLayout.readerAntennaSpecs, (readerAntennaSpec) => {return mkAntennas(readerAntennaSpec.readerIp, readerAntennaSpec.antennaSpecs, shortMidRangeSpecs);});
