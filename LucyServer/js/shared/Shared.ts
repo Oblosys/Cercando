@@ -44,11 +44,12 @@ module Shared {
                                                     , shortMidRangeSpecs: <ShortMidRangeSpec[]>[]
                                                     };
 
-  export interface DynamicConfig { positioningInterval : number // time in ms between computing coordinates of all tags (and purging old signals/tags)
+  // NOTE: keep this documentation in sync with explanation in LucyServer.ts at app.get('/query/view-config', ..
+  export interface DynamicConfig { positioningInterval : number  // time in ms between computing coordinates of all tags (and purging old signals/tags)
                                  ; positionSaveInterval : number // keep this a multiple of positioningInterval to keep time between saves constant (save is only done on positioning)
                                  ; smootherRC : number           // filter constant for smoother
-                                 ; staleAgeMs : number           // Time before antenna signal is no longer used for positioning
-                                 ; ancientAgeMs: number          // Time before tag is purged
+                                 ; staleAgeMs : number           // time before antenna signal is no longer used for positioning
+                                 ; ancientAgeMs: number          // time before tag is purged
                                  ; walkingSpeedKmHr : number     // maximum assumed movement speed of (carriers of) tags
                                  ; shortMidRangeSpecs : ShortMidRangeSpec[]
                                  }

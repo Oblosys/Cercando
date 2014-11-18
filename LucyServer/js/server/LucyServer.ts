@@ -188,8 +188,18 @@ function initExpress() {
       html += '<span style="color: red">ERROR: Reading configuration from Synology NAS ('+Config.lucyConfigFilePath+') failed:</span><br/>';
       html += '<pre>' + result.err + '</pre>';
     } else {
-      html += '<tt>' + JSON.stringify(result.config) + '</t>';
-      html += '<br/><br/><input type="button" onclick="history.go(-1);" value="&nbsp;&nbsp;Ok&nbsp;&nbsp;"></input>';
+      html += '<tt>' + JSON.stringify(result.config) + '</tt>';
+      html += '<br/><br/>Meaning of fields:<br/><pre>';
+      // NOTE:  keep this documentation in sync with explanation in Shared.ts at export interface DynamicConfig
+      html += 'positioningInterval : number  // time in ms between computing coordinates of all tags (and purging old signals/tags)\n'
+            + 'positionSaveInterval : number // keep this a multiple of positioningInterval to keep time between saves constant (save is only done on positioning)\n'
+            + 'smootherRC : number           // filter constant for smoother\n'
+            + 'staleAgeMs : number           // time before antenna signal is no longer used for positioning\n'
+            + 'ancientAgeMs: number          // time before tag is purged\n'
+            + 'walkingSpeedKmHr : number     // maximum assumed movement speed of (carriers of) tags\n'
+            + 'shortMidRangeSpecs : ShortMidRangeSpec[] // array of short/mid-range specifications\n\n'
+            + 'interface ShortMidRangeSpec { antennaName : string; isShortRange : boolean; serverIp : string }'
+      html += '</pre><br/><br/><input type="button" onclick="history.go(-1);" value="&nbsp;&nbsp;Ok&nbsp;&nbsp;"></input>';
     }
     res.send(html);
   });
