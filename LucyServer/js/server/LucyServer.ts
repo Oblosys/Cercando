@@ -839,7 +839,7 @@ function positionAllTags() {
   Session.pruneSessions();
   positionTags(state.liveTagsState);
 
-  File.saveTagPositions(tagPositionAutoSaveStream, state.liveTagsState.tagsData);
+  File.saveTagPositions(tagPositionAutoSaveStream, state.liveTagsState);
   
   reportTagLocations();
  

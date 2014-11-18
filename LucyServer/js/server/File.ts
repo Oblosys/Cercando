@@ -138,8 +138,6 @@ export function getRecursiveDirContents(pth : string) : Shared.DirEntry[] {
 // Mimic the save format created by Motorola SessionOne app, but add the reader ip in an extra column (ip is not saved by SessionOne)
 export var eventLogHeader = 'EPC, Time, Date, Antenna, RSSI, Channel index, Memory bank, PC, CRC, ReaderIp\n';
 
-export var savedPositionsHeader = 'EPC, X, Y, Recent\n';
-
 // createAutoSaveStream() does not actually create the output stream, this is done in updateAutoSaveStream()
 export function createAutoSaveStream(minutesPerLog : number, basePath : string, filePrefix : string, header : string) : ServerCommon.AutoSaveStream {
   return { minutesPerLog: minutesPerLog
@@ -189,15 +187,21 @@ export function updateAutoSaveStream(autoSaveStream : ServerCommon.AutoSaveStrea
   }
 }
 
-export function saveTagPositions(autoSaveStream : ServerCommon.AutoSaveStream, tagsData : Shared.TagData[]) {
-  updateAutoSaveStream(autoSaveStream);
-  var tagLocations : {epc:string; x:number; y:number}[] = [];
-  _(tagsData).each(tag => {
-      if (tag.coordinate) { // in case no location was computed yet
-        var line = [tag.epc, tag.coordinate.coord.x.toFixed(4), tag.coordinate.coord.y.toFixed(4), tag.coordinate.isRecent ? 1 : 0].join(', ');
-        autoSaveStream.outputStream.write(line+'\n');
-      }
-  });
+export var savedPositionsHeader = 'Date, Time, EPC, X, Y, Recent\n';
+
+export function saveTagPositions(autoSaveStream : ServerCommon.AutoSaveStream, tagsState : Shared.TagsState) {
+  if (tagsState.previousPositioningTimeMs) { // don't save until we have a correct previous positioning (this way we skip the initialization)
+    updateAutoSaveStream(autoSaveStream);
+    var timestamp = new Date(tagsState.previousPositioningTimeMs);
+    var timeStr = util.showTime(timestamp)+'.'+timestamp.getMilliseconds();
+    var tagLocations : {epc:string; x:number; y:number}[] = [];
+    _(tagsState.tagsData).each(tag => {
+        if (tag.coordinate) { // in case no location was computed yet
+          var line = [util.showDate(timestamp), timeStr, tag.epc, tag.coordinate.coord.x.toFixed(4), tag.coordinate.coord.y.toFixed(4), tag.coordinate.isRecent ? 1 : 0].join(', ');
+          autoSaveStream.outputStream.write(line+'\n');
+        }
+    });
+  }
 }
 
 // File utils
