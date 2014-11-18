@@ -17,6 +17,7 @@ export interface ReaderEvent { readerIp : string; ant : number; epc : string; rs
 
 export interface AutoSaveStream { minutesPerLog : number // should be a divisor of 60 to guarantee equal length for all logs
                                 ; basePath : string
+                                ; filePrefix : string
                                 ; header : string
                                 ; filePath: string; outputStream : fs.WriteStream } // filePath and outputStream are managed automatically
 

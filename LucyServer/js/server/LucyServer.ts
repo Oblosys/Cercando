@@ -49,7 +49,8 @@ var allAntennaLayouts : Shared.AntennaLayout[];
 var allAntennas : Shared.Antenna[];
 
 var readerServerSocket : net.Socket;
-var eventLogAutoSaveStream : ServerCommon.AutoSaveStream;
+var eventLogAutoSaveStream : ServerCommon.AutoSaveStream; // for logging all reader events
+var tagPositionAutoSaveStream : ServerCommon.AutoSaveStream; // for logging all computed tag positions
 var outputFileStream : fs.WriteStream; // for explicitly saving reader events
 
 var readerServerHostName : string;
@@ -91,7 +92,8 @@ function initServer() {
   allAntennaLayouts = Config.getAllAntennaLayouts();
   resetServerState();
  
-  eventLogAutoSaveStream = File.createAutoSaveStream(Config.autoSaveLogLength, Config.autoSaveDirectoryPath, File.eventLogHeader);
+  eventLogAutoSaveStream = Config.initEventLogAutoSaveStream;
+  tagPositionAutoSaveStream = Config.initTagPositionAutoSaveStream;
   
   reportShortMidRangeTimer = <any>setInterval(reportShortMidRangeData, Config.reportShortMidRangeInterval); // annoying cast beacause of Eclipse TypeScript
   positioningTimer = <any>setInterval(positionAllTags, dynamicConfig.positioningInterval); // annoying cast beacause of Eclipse TypeScript
@@ -831,10 +833,14 @@ function reportTagLocations() {
   messageDiColoreTagLocations(Config.diColoreLocationServer.ip, Config.diColoreLocationServer.port, diColoreTagLocations);
 }
 
-
 function positionAllTags() {
   Session.pruneSessions();
   positionTags(state.liveTagsState);
+
+  File.saveTagPositions(tagPositionAutoSaveStream, state.liveTagsState.tagsData);
+  
+  reportTagLocations();
+ 
   if (theReplaySession.fileReader) { // TODO: wrong condition
     positionTags(theReplaySession.tagsState);
   }
@@ -874,8 +880,6 @@ function positionTags(tagsState : Shared.TagsState) {
 
     }
   });
-  
-  reportTagLocations();
 }
 
 // remove all tags that only have timestamps larger than ancientAge

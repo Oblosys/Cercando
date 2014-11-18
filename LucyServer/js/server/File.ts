@@ -138,10 +138,13 @@ export function getRecursiveDirContents(pth : string) : Shared.DirEntry[] {
 // Mimic the save format created by Motorola SessionOne app, but add the reader ip in an extra column (ip is not saved by SessionOne)
 export var eventLogHeader = 'EPC, Time, Date, Antenna, RSSI, Channel index, Memory bank, PC, CRC, ReaderIp\n';
 
+export var savedPositionsHeader = 'EPC, X, Y, Recent\n';
+
 // createAutoSaveStream() does not actually create the output stream, this is done in updateAutoSaveStream()
-export function createAutoSaveStream(minutesPerLog : number, basePath : string, header : string) : ServerCommon.AutoSaveStream {
+export function createAutoSaveStream(minutesPerLog : number, basePath : string, filePrefix : string, header : string) : ServerCommon.AutoSaveStream {
   return { minutesPerLog: minutesPerLog
          , basePath: basePath
+         , filePrefix: filePrefix
          , header: header
          , filePath: null
          , outputStream: null
@@ -153,7 +156,7 @@ export function getTimeBasedFilePath(autoSaveStream : ServerCommon.AutoSaveStrea
   var filePath = autoSaveStream.basePath + '/' 
                + util.padZero(4, now.getFullYear()) + '-' + util.padZero(2, now.getMonth()+1) + '/'
                + util.padZero(2, now.getDate()) + '/'
-               + 'readerEvents_' +
+               + autoSaveStream.filePrefix +
                + util.padZero(4, now.getFullYear()) + '-' + util.padZero(2, now.getMonth()+1) + '-' + util.padZero(2, now.getDate()) + '_'
                + util.padZero(2, now.getHours()) + '.'
                + util.padZero(2, Math.floor(Math.floor(now.getMinutes() / autoSaveStream.minutesPerLog) * autoSaveStream.minutesPerLog))
@@ -184,6 +187,17 @@ export function updateAutoSaveStream(autoSaveStream : ServerCommon.AutoSaveStrea
     if (!logFileWasAlreadyCreated) // don't add header if the file already existed
       autoSaveStream.outputStream.write(autoSaveStream.header);
   }
+}
+
+export function saveTagPositions(autoSaveStream : ServerCommon.AutoSaveStream, tagsData : Shared.TagData[]) {
+  updateAutoSaveStream(autoSaveStream);
+  var tagLocations : {epc:string; x:number; y:number}[] = [];
+  _(tagsData).each(tag => {
+      if (tag.coordinate) { // in case no location was computed yet
+        var line = [tag.epc, tag.coordinate.coord.x.toFixed(4), tag.coordinate.coord.y.toFixed(4), tag.coordinate.isRecent ? 1 : 0].join(', ');
+        autoSaveStream.outputStream.write(line+'\n');
+      }
+  });
 }
 
 // File utils

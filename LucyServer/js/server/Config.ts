@@ -5,13 +5,16 @@
 /*                                                                             */
 /*******************************************************************************/
 
+/// <reference path="./File.ts" />
+/// <reference path="./ServerCommon.ts" />
 /// <reference path="../shared/Shared.ts" />
 
 import _        = require('underscore');
 import util     = require('oblo-util');
 import fs       = require('fs');
 
-import file     = require('./File');  
+import File     = require('./File');  
+import ServerCommon = require('./ServerCommon');  
 var shared = <typeof Shared>require('../shared/Shared.js'); // for functions and vars we need to use lower case, otherwise Eclipse autocomplete fails
 
 
@@ -27,8 +30,18 @@ export var cercandoGitDirectory = process.env['HOME'] + '/git/Cercando';
 export var saveDirectoryPath = lucyDataDirectoryPath + '/savedReaderEvents';
 export var userSaveDirectoryPath = saveDirectoryPath + '/userSave';
 export var autoSaveDirectoryPath = saveDirectoryPath + '/autoSave';
+export var savedPositionsDirectoryPath = lucyDataDirectoryPath + '/savedTagPositions';
 
 export var autoSaveLogLength = 60/4; // needs to be a divisor of 60 for equal log length
+export var savedPositionsLogLength = 60/4; // needs to be a divisor of 60 for equal log length
+
+export var initEventLogAutoSaveStream : ServerCommon.AutoSaveStream = 
+  { minutesPerLog: autoSaveLogLength, basePath: autoSaveDirectoryPath, filePrefix: 'readerEvents_', header: File.eventLogHeader
+  , filePath: null, outputStream: null }
+
+export var initTagPositionAutoSaveStream : ServerCommon.AutoSaveStream = 
+  { minutesPerLog: savedPositionsLogLength, basePath: savedPositionsDirectoryPath, filePrefix: 'tagPositions_', header: File.savedPositionsHeader
+  , filePath: null, outputStream: null }
 
 // configuration constants
 
@@ -60,11 +73,11 @@ export function getDynamicConfig() : Shared.DynamicConfig {
   if (!fs.existsSync(lucyConfigFilePath)) {
     util.log('File \'' + lucyConfigFilePath + '\' not found, creating empty config file.');
     var config = shared.defaultDynamicConfig; 
-    file.writeConfigFile(lucyConfigFilePath, config);
+    File.writeConfigFile(lucyConfigFilePath, config);
     return config;
   } else {
     util.log('Using existing config from ' + lucyConfigFilePath);
-    var result = file.readConfigFile(lucyConfigFilePath);
+    var result = File.readConfigFile(lucyConfigFilePath);
     if (result.err) {
       util.error('Internal error: failed to read config from \'' + lucyConfigFilePath + '\':\n'+result.err);
       return shared.defaultDynamicConfig; // we will notice the error since no short-/midrange antennas will be shown in the server status area
