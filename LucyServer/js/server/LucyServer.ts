@@ -64,7 +64,7 @@ var positionSaveIntervalElapsed = 0; // counter that allows position save to be 
 
 // For now, we have just one replay session, until this object is associated with an http session
 var theReplaySession : Shared.ReplaySession = { fileReader: null, startClockTime: null, startEventTime: null 
-                                              , tagsState: {mostRecentEventTimeMs: null, previousPositioningTimeMs: null, mostRecentEventTime : null, tagsData: []} 
+                                              , tagsState: {mostRecentEventTimeMs: null, previousPositioningTimeMs: null, tagsData: []} 
                                               };
 
 
