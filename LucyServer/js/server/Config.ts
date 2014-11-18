@@ -392,7 +392,7 @@ export function getAllAntennaLayouts() : Shared.AntennaLayout[] {
                     }
                 }
               ]
-          },
+          }
         , { readerIp: '10.0.0.33'
           , antennaSpecs:
               [ { name: 'D1'
