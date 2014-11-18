@@ -138,7 +138,7 @@ module Shared {
     ; diColoreStatus : { locationServerOperational : boolean ; shortMidRangeServers : {antennaName : string; operational : boolean}[] } 
     }
   
-  export interface SessionState { sessionId : string; lastAccess : Date; user : SessionUser } // user is null if no user is logged in
+  export interface SessionState { sessionId : string; lastAccess : Date; user : SessionUser; tagsState : TagsState } // user is null if no user is logged in
   
   export interface SessionUser { username : string; firstName : string; lastName : string; eMail : string } // user information the session keeps track of
   

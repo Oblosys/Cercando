@@ -239,20 +239,22 @@ function initExpress() {
     //util.log('Sending tag data to client. (' + new Date() + ')');
     //util.log('Session id: '+(<any>req.session).id);
     res.setHeader('content-type', 'application/json');
-    
-    var tagsState = theReplaySession.fileReader ? theReplaySession.tagsState : state.liveTagsState;
+
+
+    var session = Session.getOrInitSession(req);
+
     var tagsServerInfo : Shared.TagsServerInfo =
-      { tagsInfo: { mostRecentEventTimeMs: tagsState.mostRecentEventTimeMs
-                  , tagsData: _(tagsState.tagsData).filter(tagData => {return tagData.coordinate != null}) // don't send tags that don't have a coordinate yet
+      { tagsInfo: { mostRecentEventTimeMs: session.tagsState.mostRecentEventTimeMs
+                  , tagsData: _(session.tagsState.tagsData).filter(tagData => {return tagData.coordinate != null}) // don't send tags that don't have a coordinate yet
                   } 
       , serverInfo: { staleAgeMs: dynamicConfig.staleAgeMs
                     , ancientAgeMs: dynamicConfig.ancientAgeMs
-                    , selectedAntennaLayoutNr: state.selectedAntennaLayoutNr
-                    , unknownAntennaIds: state.unknownAntennaIds
+                    , selectedAntennaLayoutNr: state.selectedAntennaLayoutNr // TODO: move to SessionState
+                    , unknownAntennaIds: state.unknownAntennaIds // TODO: move to SessionState
                     , status: state.status
                     , diColoreStatus: state.diColoreStatus
                     }
-      , sessionInfo: Session.getSessionInfo(req)
+      , sessionInfo: Session.getSessionInfo(req) // TODO: maybe create this one from session directly
       }
     res.send(JSON.stringify(tagsServerInfo));
   });
@@ -860,9 +862,14 @@ function positionAllTags() {
   
   reportTagLocations();
  
-  if (theReplaySession.fileReader) { // TODO: wrong condition
-    positionTags(theReplaySession.tagsState);
-  }
+  Session.eachSession(session => {
+    //util.log('assigning tagsState for session '+session.sessionId);
+    session.tagsState = state.liveTagsState;
+  });
+  
+//  if (theReplaySession.fileReader) { // TODO: wrong condition
+//    positionTags(theReplaySession.tagsState);
+//  }
 }
 
 // trilaterate all tags in tagsInfo and set age and distance for each rssi value
