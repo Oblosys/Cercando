@@ -12,7 +12,7 @@ module Shared {
   export var maxAntennaRangeMid = 0.5;
   export var maxAntennaRangeLong = 1.5;
 
-  export var shortMidRagneRssiThreshold = -50; // TODO: Maybe we need separate values for short and mid 
+  export var shortMidRangeRssiThreshold = -50; // TODO: Maybe we need separate values for short and mid 
 
   var defaultAntennaLayoutNr = 0;
 

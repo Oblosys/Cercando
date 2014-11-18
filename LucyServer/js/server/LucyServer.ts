@@ -897,7 +897,7 @@ function positionTags(tagsState : Shared.TagsState) {
       var shortMidRange = allAntennas[antennaRssi.antNr].shortMidRange;
       return shortMidRange != null && shared.isRecentAntennaRSSI(dynamicConfig.staleAgeMs, antennaRssi);
     });
-    if (shortMidRangeRssi && shortMidRangeRssi.value > shared.shortMidRagneRssiThreshold) {
+    if (shortMidRangeRssi && shortMidRangeRssi.value > shared.shortMidRangeRssiThreshold) {
       //util.log('short mid for tag '+tag.epc);
       tag.coordinate = {coord: allAntennas[shortMidRangeRssi.antNr].coord, isRecent:true};
     } else { // TODO: don't use short/mid-range antennas for trilateration
