@@ -38,6 +38,10 @@ export function getNrOfSessions() : number {
   return allSessions.length;
 }
 
+export function eachSession(f : (session : Shared.SessionState) => void) {
+  _(allSessions).each(f);
+}
+  
 function getUser(username : string) : Shared.UserRecord {
   var result = File.readUsersFile(Config.lucyUsersFilePath);
   if (result.err) {
@@ -48,13 +52,15 @@ function getUser(username : string) : Shared.UserRecord {
   }  
 }
 
-export function getSession(req : express.Request) : Shared.SessionState {
+function getSession(req : express.Request) : Shared.SessionState {
   var sessionId = (<any>req).session.id;
   var session = _(allSessions).findWhere({sessionId: sessionId});
   // throw error if null
   return session;
 }
 
+
+// TODO: rename this one to getSession and use different name for current getSession
 export function getOrInitSession(req : express.Request) : Shared.SessionState {
   var sessionId = (<any>req).session.id;
   var session = _(allSessions).findWhere({sessionId: sessionId});
