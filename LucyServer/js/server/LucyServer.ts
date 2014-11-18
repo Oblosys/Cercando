@@ -60,6 +60,7 @@ var dbConnectionPool : any;
 
 var reportShortMidRangeTimer : NodeTimer;
 var positioningTimer : NodeTimer;
+var positionSaveIntervalElapsed = 0; // counter that allows position save to be done in positioning timer
 
 // For now, we have just one replay session, until this object is associated with an http session
 var theReplaySession : Shared.ReplaySession = { fileReader: null, startClockTime: null, startEventTime: null 
@@ -840,7 +841,12 @@ function positionAllTags() {
   Session.pruneSessions();
   positionTags(state.liveTagsState);
 
-  File.saveTagPositions(tagPositionAutoSaveStream, state.liveTagsState);
+  // use positionSaveIntervalElapsed to only save when the entire positionSaveInterval has elapsed
+  positionSaveIntervalElapsed += dynamicConfig.positioningInterval;
+  if (positionSaveIntervalElapsed >= dynamicConfig.positionSaveInterval) {
+    positionSaveIntervalElapsed %= dynamicConfig.positionSaveInterval; 
+    File.saveTagPositions(tagPositionAutoSaveStream, state.liveTagsState);
+  }
   
   reportTagLocations();
  

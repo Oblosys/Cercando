@@ -36,6 +36,7 @@ module Shared {
   export interface ReaderAntennaSpec { readerIp : string; antennaSpecs : AntennaSpec[] }
 
   export var defaultDynamicConfig : DynamicConfig = { positioningInterval: 250
+                                                    , positionSaveInterval: 1000
                                                     , smootherRC: 0.5
                                                     , staleAgeMs: 2000
                                                     , ancientAgeMs: 5000
@@ -44,14 +45,15 @@ module Shared {
                                                     };
 
   export interface DynamicConfig { positioningInterval : number // time in ms between computing coordinates of all tags (and purging old signals/tags)
+                                 ; positionSaveInterval : number // keep this a multiple of positioningInterval to keep time between saves constant (save is only done on positioning)
                                  ; smootherRC : number           // filter constant for smoother
-                                 ; staleAgeMs : number           // TODO: Explain
-                                 ; ancientAgeMs: number          // TODO: Explain
+                                 ; staleAgeMs : number           // Time before tag position becomes non-recent
+                                 ; ancientAgeMs: number          // Time before tag is purged
                                  ; walkingSpeedKmHr : number     // maximum assumed movement speed of (carriers of) tags
                                  ; shortMidRangeSpecs : ShortMidRangeSpec[]
                                  }
   // for dynamically checking uploaded config file:
-  export var dynamicConfigType = { positioningInterval: 'number', smootherRC: 'number'
+  export var dynamicConfigType = { positioningInterval: 'number', positionSaveInterval: 'number', smootherRC: 'number'
                                  , staleAgeMs: 'number', ancientAgeMs: 'number'
                                  , walkingSpeedKmHr: 'number', shortMidRangeSpecs: 'object' 
                                  };
