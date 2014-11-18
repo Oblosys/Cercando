@@ -135,6 +135,8 @@ function initExpress() {
   app.use('/data', express.static(Config.lucyDataDirectoryPath));
   app.use('/logs', express.directory(Config.lucyLogDirectoryPath));
   app.use('/logs', express.static(Config.lucyLogDirectoryPath));
+  app.use('/saved-positions', express.directory(Config.savedPositionsDirectoryPath));
+  app.use('/saved-positions', express.static(Config.savedPositionsDirectoryPath));
   app.get('/', function(req, res) { res.redirect('/locator.html'); }); // redirect '/' to '/locator.html'
   app.use(express.static(__dirname + '/../../www')); //  serve 'www' directory as root directory
 
