@@ -65,6 +65,10 @@ export function getOrInitSession(req : express.Request) : Shared.SessionState {
   return session;  
 }
 
+function expireSession(session : Shared.SessionState) : void {
+  util.log('Expiring session: '+session.sessionId + (session.user ? ' from user ' + session.user.username : ' without login')); 
+}
+
 export function getSessionInfo(req : express.Request) : Shared.SessionInfo {
   var session = getSession(req);
   var userInfo = mkUserInfo(session.user);
@@ -118,9 +122,18 @@ export function pruneSessions() {
     //util.log(session.lastAccess + ', age: ' + (nowMs - session.lastAccess.getTime()));
   });
   var nrOfSessionsBeforePrune = allSessions.length;
-  allSessions = _(allSessions).filter(session => {
-    return (nowMs - session.lastAccess.getTime()) < sessionExpirationTimeMs + 1000;
-  }); // add a second, to be sure we don't remove sessions before the html session id expires
+  var activeSessions : Shared.SessionState[] = [];
+  
+  _(allSessions).each(session => {
+    if (nowMs - session.lastAccess.getTime() < sessionExpirationTimeMs + 1000) // add a second, to be sure we don't remove sessions before the html session id expires
+      activeSessions.push(session);
+    else
+      expireSession(session);
+  });
+  
+  allSessions = activeSessions;
+  //var nrOfLoginSessions = _(activeSessions).filter(session => {return session.user != null;}).length;
+  //util.log('Active sessions: '+activeSessions.length+' login sessions: '+nrOfLoginSessions);
   //util.log(new Date() + ' Pruned ' + (nrOfSessionsBeforePrune-allSessions.length) + ' sessions');
 }
 
