@@ -213,7 +213,7 @@ function initExpress() {
       File.writeConfigFile(Config.lucyConfigFilePath, result.config); // write the new config to the local config file
       dynamicConfig = Config.getDynamicConfig();                      // and update dynamicConfig
       // restart interval according to current interval from uploaded config
-      clearInterval(positioningTimer);
+      clearInterval(<any>positioningTimer);
       positioningTimer = <any>setInterval(positionAllTags, dynamicConfig.positioningInterval); // annoying cast beacause of Eclipse TypeScript
 
       initAntennaLayout(state.selectedAntennaLayoutNr); // incorporate new short/mid-range specs in antennaLayout
