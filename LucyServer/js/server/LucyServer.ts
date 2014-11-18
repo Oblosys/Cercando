@@ -721,6 +721,7 @@ function updateAntennaRssi(newAntennaRssi : Shared.AntennaRSSI, antennaRssis : S
 function filtered(epc : string, readerIp : string, ant : number, rssi : number, timestamp : Date, previousAntennaRssi : Shared.AntennaRSSI) {
   var RC = dynamicConfig.smootherRC;
 
+  // dT based on event time
   var dT = (previousAntennaRssi ? timestamp.getTime() - previousAntennaRssi.timestamp.getTime() : 100)/1000;
   var previousRssi = previousAntennaRssi ? previousAntennaRssi.value : rssi;
   
@@ -850,8 +851,9 @@ function positionAllTags() {
 
 // trilaterate all tags in tagsInfo and set age and distance for each rssi value
 function positionTags(tagsState : Shared.TagsState) {
-  var dt = tagsState.previousPositioningTimeMs ? (tagsState.mostRecentEventTimeMs - tagsState.previousPositioningTimeMs) / 1000 :  0
-  tagsState.previousPositioningTimeMs = tagsState.mostRecentEventTimeMs; 
+  var positioningTimeMs = new Date().getTime(); // dt based on actual time
+  var dt = tagsState.previousPositioningTimeMs ? (positioningTimeMs - tagsState.previousPositioningTimeMs) / 1000 :  0
+  tagsState.previousPositioningTimeMs = positioningTimeMs; 
 
   // set the age for each antennaRssi for each tag
   _(tagsState.tagsData).each((tag) => {
