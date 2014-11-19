@@ -65,7 +65,10 @@ export function getOrInitSession(req : express.Request) : Shared.SessionState {
   var sessionId = (<any>req).session.id;
   var session = _(allSessions).findWhere({sessionId: sessionId});
   if (!session) {
-    session = {sessionId: sessionId, lastAccess: null, user: null, tagsState: {mostRecentEventTimeMs: null, previousPositioningTimeMs: null, tagsData: []}}
+    session = { sessionId: sessionId, lastAccess: null, user: null 
+              , tagsState: {mostRecentEventTimeMs: null, previousPositioningTimeMs: null, tagsData: []}
+              , replaySession: {fileReader: null, startClockTime: null, startEventTime: null}
+    }
     allSessions.push(session);
   }
   return session;  
@@ -139,7 +142,8 @@ export function pruneSessions() {
   
   allSessions = activeSessions;
   //var nrOfLoginSessions = _(activeSessions).filter(session => {return session.user != null;}).length;
-  //util.log('Active sessions: '+activeSessions.length+' login sessions: '+nrOfLoginSessions);
+  //var nrOfReplayingSessions = _(activeSessions).filter(session => {return session.replaySession.fileReader != null;}).length;
+  //util.log('Active sessions: '+activeSessions.length+' login sessions: '+nrOfLoginSessions+' replaying sessions: '+nrOfReplayingSessions);
   //util.log(new Date() + ' Pruned ' + (nrOfSessionsBeforePrune-allSessions.length) + ' sessions');
 }
 

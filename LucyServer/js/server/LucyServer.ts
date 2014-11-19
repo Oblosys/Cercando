@@ -62,11 +62,6 @@ var reportShortMidRangeTimer : NodeTimer;
 var positioningTimer : NodeTimer;
 var positionSaveIntervalElapsed = 0; // counter that allows position save to be done in positioning timer
 
-// For now, we have just one replay session, until this object is associated with an http session
-var theReplaySession : Shared.ReplaySession = { fileReader: null, startClockTime: null, startEventTime: null 
-                                              , tagsState: {mostRecentEventTimeMs: null, previousPositioningTimeMs: null, tagsData: []} 
-                                              };
-
 
 initServer();
 
@@ -240,9 +235,8 @@ function initExpress() {
     //util.log('Session id: '+(<any>req.session).id);
     res.setHeader('content-type', 'application/json');
 
-
     var session = Session.getOrInitSession(req);
-
+    
     var tagsServerInfo : Shared.TagsServerInfo =
       { tagsInfo: { mostRecentEventTimeMs: session.tagsState.mostRecentEventTimeMs
                   , tagsData: _(session.tagsState.tagsData).filter(tagData => {return tagData.coordinate != null}) // don't send tags that don't have a coordinate yet
@@ -338,6 +332,7 @@ function initExpress() {
   });
 
   app.get('/query/start-replay', Session.requireAuthorization(), function(req, res) {
+    var session = Session.getOrInitSession(req);
     var fileName = req.query.filename + '.csv';
     
     var cont = { 
@@ -352,12 +347,13 @@ function initExpress() {
     };
     util.log(new Date() + ' Start-replay request\nFile: "' + decodeURI(req.query.filename + '"') + 
              '\nOriginating IP: ' + req.ip + '  user-agent: '+ (req.headers['user-agent'] ? '"' + req.headers['user-agent'].slice(0,20) + '.."' : '<Unknown user agent>'));
-    startReplay(theReplaySession, decodeURI(req.query.filename), cont);
+    startReplay(session, decodeURI(req.query.filename), cont);
   });
 
   app.get('/query/stop-replay', Session.requireAuthorization(), function(req, res) {
     util.log('Stop-replay request');
-    stopReplay(theReplaySession);
+    var session = Session.getOrInitSession(req);
+    stopReplay(session);
     res.setHeader('content-type', 'text/plain');
     res.writeHead(204);
     res.end();
@@ -376,7 +372,6 @@ function initAntennaLayout(nr : number) {
   state.selectedAntennaLayoutNr = util.clip(0, allAntennaLayouts.length-1, nr);
   allAntennas = ServerCommon.mkReaderAntennas(allAntennaLayouts[state.selectedAntennaLayoutNr], dynamicConfig.shortMidRangeSpecs);
   state.liveTagsState.tagsData = [];
-  theReplaySession.tagsState.tagsData = [];
   state.unknownAntennaIds = [];
   state.diColoreStatus.shortMidRangeServers = _(dynamicConfig.shortMidRangeSpecs).map(spec => {
     return {antennaName: spec.antennaName, operational: false};
@@ -544,7 +539,7 @@ function logReaderEvent(readerEvent : ServerCommon.ReaderEvent) {
 // chunk, meaning we lose the last 5 seconds of each replay and cannot replay files under 5 seconds (determined by nr of lines, so actual time may vary) 
 // TODO Quickly tapping the start-replay button hangs Firefox. Chrome is fine though. 
 // Note: filePath is relative to saveDirectoryPath and without .csv extension
-function startReplay(replaySession : Shared.ReplaySession, filePath : string, cont : {success : () => void; error : (message : string) => void}) {
+function startReplay(session : Shared.SessionState, filePath : string, cont : {success : () => void; error : (message : string) => void}) {
   if (!File.isSafeFilePath(filePath.replace(/[\/,\.]/g,''))) { // first remove / and ., which are allowed in replay file paths
     // This is safe as long as we only open the file within the server and try to parse it as csv, when csv can be downloaded we need stricter
     // safety precautions.
@@ -561,19 +556,19 @@ function startReplay(replaySession : Shared.ReplaySession, filePath : string, co
     } else {
       // Because line-by-line does not distinguish automatic close (after error or eof) from user-initiated close, and the 'end' event
       // is emited after a delay, we need to disable 'end' handling, since otherwise the new file reader will be cleared at this event.
-      if (replaySession.fileReader) {
-        replaySession.fileReader.removeAllListeners('end');    
-        replaySession.fileReader.close();
-        clearReplay(replaySession);
+      if (session.replaySession.fileReader) {
+        session.replaySession.fileReader.removeAllListeners('end');    
+        session.replaySession.fileReader.close();
+        clearReplay(session);
       }
       
-      replaySession.tagsState.tagsData = [];
+      session.tagsState.tagsData = [];
       state.status.replayFileName = filePath;
 
       // TODO: drop header line more elegantly
       var lineReader = new lineByLineReader(replayFilePath);
       
-      replaySession.fileReader = lineReader;
+      session.replaySession.fileReader = lineReader;
       
       lineReader.on('error', (err : Error) => {
         //clearReplay();
@@ -584,52 +579,52 @@ function startReplay(replaySession : Shared.ReplaySession, filePath : string, co
       lineReader.on('line', (line : string) => {
         //util.log('line');
         lineReader.pause(); // replayFileReader is resumed by readReplayEvent()
-        readReplayEvent(replaySession, line, lineReader);
+        readReplayEvent(session, line, lineReader);
       });
         
       lineReader.on('end', () => {
         util.log('Ending replay'); // TODO: apparently called several times
-        clearReplay(replaySession);
+        clearReplay(session);
       });
       cont.success();
     }
   }
 }
 
-function stopReplay(replaySession : Shared.ReplaySession) {
-  if (replaySession.fileReader)
-    replaySession.fileReader.close();
+function stopReplay(session : Shared.SessionState) {
+  if (session.replaySession.fileReader)
+    session.replaySession.fileReader.close();
 }
 
-function clearReplay(replaySession : Shared.ReplaySession) {
-  replaySession.fileReader = null;
-  replaySession.tagsState.tagsData = [];
+function clearReplay(session : Shared.SessionState) {
+  session.replaySession.fileReader = null;
+  session.tagsState.tagsData = [];
   state.status.replayFileName = null;
-  replaySession.startClockTime = null;
-  replaySession.startEventTime = null;
+  session.replaySession.startClockTime = null;
+  session.replaySession.startEventTime = null;
 }
 
-function readReplayEvent(replaySession : Shared.ReplaySession, line : string, lineReader : any) {
+function readReplayEvent(session : Shared.SessionState, line : string, lineReader : any) {
   //util.log('Read replay line: ' + line);
   var replayEvent = parseReplayEventCSV(line);
   if (!replayEvent) {
     lineReader.resume();
   } else {
     var replayEventTime = new Date(replayEvent.timestamp).getTime();
-    if (!replaySession.startClockTime) { // This means we're reading the first event
-      replaySession.startClockTime = new Date().getTime();
-      replaySession.startEventTime = replayEventTime;
+    if (!session.replaySession.startClockTime) { // This means we're reading the first event
+      session.replaySession.startClockTime = new Date().getTime();
+      session.replaySession.startEventTime = replayEventTime;
       //util.log('Replay first event timestamp: ' + new Date(replayEventTime));
-      replaySession.tagsState.tagsData = [];
+      session.tagsState.tagsData = [];
     }
     
-    var replayEventRelativeTime = new Date(replayEvent.timestamp).getTime() - replaySession.startEventTime;
-    var replayEventClockTime = replaySession.startClockTime + replayEventRelativeTime;
+    var replayEventRelativeTime = new Date(replayEvent.timestamp).getTime() - session.replaySession.startEventTime;
+    var replayEventClockTime = session.replaySession.startClockTime + replayEventRelativeTime;
     var eventDelay = util.clip(0, Number.MAX_VALUE, replayEventClockTime - new Date().getTime());
     //util.log(replayEventRelativeTime + '  ' + eventDelay);
 
     //util.log('Emit event: ' + JSON.stringify(replayEvent));
-    processReaderEvent(replaySession.tagsState, replayEvent);
+    processReaderEvent(session.tagsState, replayEvent);
     
     setTimeout(() => {
       lineReader.resume();
@@ -863,13 +858,13 @@ function positionAllTags() {
   reportTagLocations();
  
   Session.eachSession(session => {
-    //util.log('assigning tagsState for session '+session.sessionId);
-    session.tagsState = state.liveTagsState;
+    //util.log('updating tagsState for session '+session.sessionId+(session.replaySession.fileReader ? ' (replay)' : ' (live)') );
+    if (session.replaySession.fileReader) { // compute tag positions if the session is running a replay
+      positionTags(session.tagsState);
+    } else {
+      session.tagsState = _.clone(state.liveTagsState); // otherwise copy the live tags
+    }
   });
-  
-//  if (theReplaySession.fileReader) { // TODO: wrong condition
-//    positionTags(theReplaySession.tagsState);
-//  }
 }
 
 // trilaterate all tags in tagsInfo and set age and distance for each rssi value
