@@ -324,7 +324,8 @@ function updateTags() {
   $('#unknown-antennas').html(unknownAntennasHtml);
  
   $('.tag-zone').css('fill', '').css('stroke', 'none'); // remove background overrides coming from strongest signals
-
+  $('.data-row:not(:first-child) .ant-rssi').html('').css('background-color',''); // clear previous values and background in table (spans are deleted, so no need to remove their formatting)
+    
   _.map(tagsServerInfo.tagsInfo.tagsData, (tagData) => {
     var tagNr = getTagNr(tagData.epc);
     
@@ -343,12 +344,13 @@ function updateTags() {
       var dist =  antRssi.distance;
       var isSignalRecent = Shared.isRecentAntennaRSSI(tagsServerInfo.serverInfo.staleAgeMs, antRssi);
         
-      // show in table
+      // show in table:
       if (rssi) {
         var $dataCell = $('#'+ClientCommon.mkDataRowId(tagData)+' .ant-rssi:eq('+antNr+')');
         $dataCell.html('<span class="dist-label">' + dist.toFixed(1) + 'm</span>' +
                        '<span class="rssi-label">(' + rssi.toFixed(1) + ')</span>');
-        $dataCell.css('background-color', antNr == strongestAntennaNr ? '#333' : 'transparent')
+        if (antNr == strongestAntennaNr)
+          $dataCell.css('background-color','#333');
         $('#'+ClientCommon.mkDataRowId(tagData)+' .ant-rssi:eq('+antNr+') .dist-label').css('color', isSignalRecent ? 'white' : 'red');
         $('#'+ClientCommon.mkDataRowId(tagData)+' .ant-rssi:eq('+antNr+') .rssi-label').css('color', isSignalRecent ? '#bbb' : 'red');
       }
