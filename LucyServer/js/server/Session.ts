@@ -28,7 +28,7 @@ var bcrypt = require('bcryptjs');
 // Unauthorized access may lead to some replays to be started (possibly crashing the server and causing an immediate restart), or
 // to a user-save file to be generated, but no real harm can be done. 
 
-var sessionExpirationTimeMs = 5*1000; // 10 * 60 * 1000; // session expires after leaving the page for 10 minutes
+var sessionExpirationTimeMs = 10 * 60 * 1000; // session expires after leaving the page for 10 minutes
 export var expressSessionOptions = {secret: 'lucy in the sky', cookie: {maxAge:sessionExpirationTimeMs}, rolling: true};
 // rolling: keep resetting expiration on each response
 
