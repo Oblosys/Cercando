@@ -349,8 +349,8 @@ function updateTags() {
         $dataCell.html('<span class="dist-label">' + dist.toFixed(1) + 'm</span>' +
                        '<span class="rssi-label">(' + rssi.toFixed(1) + ')</span>');
         $dataCell.css('background-color', antNr == strongestAntennaNr ? '#333' : 'transparent')
-        $('#'+ClientCommon.mkDataRowId(tagData)+' .dist-label').css('color', isSignalRecent ? 'white' : 'red');
-        $('#'+ClientCommon.mkDataRowId(tagData)+' .rssi-label').css('color', isSignalRecent ? '#bbb' : 'red');
+        $('#'+ClientCommon.mkDataRowId(tagData)+' .ant-rssi:eq('+antNr+') .dist-label').css('color', isSignalRecent ? 'white' : 'red');
+        $('#'+ClientCommon.mkDataRowId(tagData)+' .ant-rssi:eq('+antNr+') .rssi-label').css('color', isSignalRecent ? '#bbb' : 'red');
       }
       
       var signal = d3.select('#'+ClientCommon.mkSignalId(antRssi, tagData));
