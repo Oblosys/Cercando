@@ -132,7 +132,8 @@ function generateTags(nrOfGeneratedVisitors : number) {
   var tags : Shared.TagData[] =   
     _(_.range(nrOfGeneratedVisitors)).map((i) => {
       var coord = { x:ClientCommon.fromScreenX((randomPositions ? Math.random() : 0.5)*0.8*floorWidth + 0.1*floorWidth)
-                  , y:ClientCommon.fromScreenY((randomPositions ? Math.random() : i/(nrOfGeneratedVisitors-1))*0.8*floorHeight + 0.1*floorHeight) 
+                  , y:ClientCommon.fromScreenY((randomPositions ? Math.random() : (nrOfGeneratedVisitors>1 ? i/(nrOfGeneratedVisitors-1) : 0.5))
+                                              *0.8*floorHeight + 0.1*floorHeight) 
                   }
       return <Shared.TagData>{epc: util.padZero(31, i), antennaRssis: [], coordinate:{coord: coord, isRecent: true}, metaData: null};
     });
