@@ -188,7 +188,7 @@ function initExpress() {
       // NOTE:  keep this documentation in sync with explanation in Shared.ts at export interface DynamicConfig
       html += 'positioningInterval : number  // time in ms between computing coordinates of all tags (and purging old signals/tags)\n'
             + 'positionSaveInterval : number // keep this a multiple of positioningInterval to keep time between saves constant (save is only done on positioning)\n'
-            + 'smootherRC : number           // filter constant for smoother\n'
+            + 'smootherRC : number           // filter constant for smoother (closer to 0.0 is more responsive but less stable, above 0.5 is already quite slow)\n'
             + 'staleAgeMs : number           // time before antenna signal is no longer used for positioning\n'
             + 'ancientAgeMs: number          // time before tag is purged\n'
             + 'walkingSpeedKmHr : number     // maximum assumed movement speed of (carriers of) tags\n'
