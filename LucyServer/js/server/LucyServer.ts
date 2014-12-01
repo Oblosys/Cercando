@@ -200,22 +200,13 @@ function initExpress() {
   });
 
   app.get('/query/upload-config', Session.requireAuthorization(), function(req, res) {  
-    // TODO: require authentication
     res.setHeader('content-type', 'text/html');
     var html = '';
     var result = File.readConfigFile(Config.configUploadFilePath);
     if (result.err) {
       html += '<span style="color: red">ERROR: Uploading new configuration from Synology NAS ('+Config.configUploadFilePath+') failed:</span><br/>';
       html += '<pre>' + result.err + '</pre>';
-    } else {
-      try {
-        fs.unlinkSync(Config.configUploadFilePath); // remove upload file, so we won't confuse it with the current config
-      } catch(err) {
-        html += '<span style="color: red">ERROR: Failed to remove upload file: /web/lucyData/configUpload/config.json</span>';
-        html += '<pre>' + err + '</pre>';
-        html += 'Please remove the file manually.<br/><br/>';
-      } // failed removal is not fatal, so we continue
-      
+    } else {      
       File.writeConfigFile(Config.lucyConfigFilePath, result.config); // write the new config to the local config file
       dynamicConfig = Config.getDynamicConfig();                      // and update dynamicConfig
       // restart interval according to current interval from uploaded config
