@@ -34,6 +34,11 @@ public class LLRPClient implements LLRPEndpoint {
   private long nrOfReadEvents = 0;
   private long nrOfReadEventsSinceLastReport = 0;
 
+  // Log the reader events for the combination below 
+  private String debugEpc = "5955";
+  private String debugReaderIP ="10.0.0.30";
+  private String debugAntStr = "5";
+  
   public LLRPClient(String readerIP) {
     this.readerIP = readerIP;
   }
@@ -252,7 +257,7 @@ public class LLRPClient implements LLRPEndpoint {
 
   // This function gets called asynchronously from an anonymous thread when a tag report is available.
   public void messageReceived(LLRPMessage message) {
-  	//Util.log("Message received");
+    //Util.log("Message received");
         
     try {
       if (message.getTypeNum() == RO_ACCESS_REPORT.TYPENUM) {
@@ -296,18 +301,23 @@ public class LLRPClient implements LLRPEndpoint {
           // Upon_N_Tags_Or_End_Of_ROSpec = 1 in the ROSpec.
           
           DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
-
-        	String json =
-        	  "{\"readerIp\":\"" + readerIP + "\"" +
-            ",\"ant\":" + tag.getAntennaID().getAntennaID().toString() +
+          String antStr = tag.getAntennaID().getAntennaID().toString();
+          String rssiStr = tag.getPeakRSSI().getPeakRSSI().toString();
+          String json =
+            "{\"readerIp\":\"" + readerIP + "\"" +
+            ",\"ant\":" + antStr +
             ",\"epc\":\"" + epcStr + "\"" +
-            ",\"rssi\":" + tag.getPeakRSSI().getPeakRSSI().toString() +
+            ",\"rssi\":" + rssiStr +
             ",\"timestamp\":\"" + dateFormat.format(timestamp) + "\"" +
             "}";
-        	sendLine(json);
-            //System.out.println(tag.getEPCParameter());
-            //System.out.println(tag.getPeakRSSI());
-            //System.out.println(tag.getLastSeenTimestampUTC());
+          sendLine(json);
+
+          //Util.log(readerIP+"/"+antStr+": "+epcStr+" rssi "+rssiStr);
+          if(epcStr.equals(debugEpc) && readerIP.equals(debugReaderIP) && antStr.equals(debugAntStr))
+            Util.log(rssiStr);
+          //System.out.println(tag.getEPCParameter());
+          //System.out.println(tag.getPeakRSSI());
+          //System.out.println(tag.getLastSeenTimestampUTC());
         }
       } else if (message.getTypeNum() == READER_EVENT_NOTIFICATION.TYPENUM) {
         READER_EVENT_NOTIFICATION notification = (READER_EVENT_NOTIFICATION)message;
