@@ -34,8 +34,8 @@ public class LLRPClient implements LLRPEndpoint {
   private long nrOfReadEvents = 0;
   private long nrOfReadEventsSinceLastReport = 0;
 
-  // Log the reader events for the combination below 
-  private String debugEpc = "5955";
+  // Log the reader events for the combination below (use epc=null for no debug) 
+  private String debugEpc = null;
   private String debugReaderIP ="10.0.0.30";
   private String debugAntStr = "5";
   
