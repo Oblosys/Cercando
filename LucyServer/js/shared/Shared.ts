@@ -180,17 +180,13 @@ module Shared {
 
 } 
 
-// Workaround for preventing typescript warning about implicit any on index signature
-// See: http://typescript.codeplex.com/discussions/535628
-interface Object {
-  [idx: string]: any;
-}
-
 // Automatically export all declarations in this module. (Necessary, because in node modules we import this as a .js module instead of .ts)  
 declare var exports : any;
 if (typeof exports != 'undefined') {
   for (var decl in Shared) {
-    if (Shared.hasOwnProperty(decl))
-      exports[decl] = Shared[decl];
+    if (Shared.hasOwnProperty(decl)) {
+      var p = (<any>Shared)[decl]; // signature to prevent warning about index signature 'any' type
+      exports[decl] = p;
+    }
   }
 }
