@@ -20,7 +20,7 @@ declare var floorWidth : number;
 declare var floorHeight : number;
 declare var allAntennas : Shared.Antenna[];
 declare var tagConfiguration : Shared.TagConfiguration[];
-declare var allTagTrails : {}; // Object that has epc keys for Shared.Coord[] values (can't easily enforce this in TypeScript)
+declare var allTagTrails : {[index:string]: Shared.Coord[]}; // Object that has epc string keys for Shared.Coord[] values
 declare var trailLength : number;
 
 var uiState : Backbone.Model;
