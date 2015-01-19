@@ -119,7 +119,7 @@ export function getRecursiveDirContents(pth : string) : Shared.DirEntry[] {
     var names = _(fs.readdirSync(pth)).filter(name => {return _.head(name) != '.'}); // filter out names starting with '.'
     
     var entries = _(names).map(name => {
-        var contents = [];
+        var contents : Shared.DirEntry[] = [];
         if (fs.statSync(path.join(pth, name)).isDirectory()) {
           contents = getRecursiveDirContents(path.join(pth, name));
         } else {
