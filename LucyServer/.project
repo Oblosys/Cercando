@@ -20,4 +20,16 @@
 		<nature>org.eclipse.wst.jsdt.core.jsNature</nature>
 		<nature>com.palantir.typescript.typeScriptNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>std-lib</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>std-lib/lib.d.ts</name>
+			<type>1</type>
+			<location>/Applications/eclipseLuna/plugins/com.axmor.eclipse.typescript.core_3.1.0.201502192009/lib/bridge/ts/lib.d.ts</location>
+		</link>
+	</linkedResources>
 </projectDescription>
