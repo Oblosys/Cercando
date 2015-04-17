@@ -5,6 +5,9 @@
 /*                                                                             */
 /*******************************************************************************/
 
+/// <reference path="../typings/underscore/underscore.d.ts" />
+/// <reference path="../typings/node/node.d.ts" />
+/// <reference path="../typings/oblo-util/oblo-util.d.ts" />
 /// <reference path="./File.ts" />
 /// <reference path="./ServerCommon.ts" />
 /// <reference path="../shared/Shared.ts" />
