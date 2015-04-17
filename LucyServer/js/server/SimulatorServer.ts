@@ -310,7 +310,7 @@ function startReaderServer() {
 }
 
 function startEmittingEvents() {
-    eventInterval = <any>setInterval(emitEvents, eventEmissionDelay); // annoying cast beacause of Eclipse TypeScript 
+    eventInterval = setInterval(emitEvents, eventEmissionDelay); 
 }
   
 function stopRefreshInterval() {

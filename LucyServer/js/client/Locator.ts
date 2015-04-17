@@ -403,15 +403,12 @@ function selectLayout(layoutNr : number) {
   
 function startRefreshInterval() {
   util.log('Starting refresh interval');
-  refreshInterval = setInterval(<any>refresh, refreshDelay); 
-  // unfortunately Eclipse TypeScript doesn't respect reference paths and includes all TypeScript
-  // declarations in the source tree, which causes setInterval from Node.js to be visible here as well.
-  // By using <any> on the handler argument, we select the correct overload.
+  refreshInterval = setInterval(refresh, refreshDelay); 
 }
 
 function stopRefreshInterval() {
   util.log('Stopping refresh interval');
-  <any>clearInterval(<any>refreshInterval); // see Eclipse TypeScript comment above
+  clearInterval(refreshInterval);
 }
 
 function refresh() {

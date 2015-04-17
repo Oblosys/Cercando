@@ -202,14 +202,11 @@ function selectLayout(layoutNr : number) {
 }
   
 function startRefreshInterval() { // used for auto-moving tags
-  refreshInterval = <any>setInterval(refresh, refreshDelay); 
-  // unfortunately Eclipse TypeScript is stupid and doesn't respect reference paths, so it includes all TypeScript
-  // declarations in the source tree and assumes a different type for setInterval here
-  // (returning NodeTimer instead of number, as declared in node.d.ts)
+  refreshInterval = setInterval(refresh, refreshDelay); 
 }
 
 function stopRefreshInterval() {
-  <any>clearInterval(<any>refreshInterval); // see Eclipse TypeScript comment above
+  <any>clearInterval(refreshInterval);
 }
 
 function refresh() {

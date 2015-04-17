@@ -91,8 +91,8 @@ function initServer() {
   eventLogAutoSaveStream = Config.initEventLogAutoSaveStream;
   tagPositionAutoSaveStream = Config.initTagPositionAutoSaveStream;
   
-  reportShortMidRangeTimer = <any>setInterval(reportShortMidRangeData, Config.reportShortMidRangeInterval); // annoying cast beacause of Eclipse TypeScript
-  positioningTimer = <any>setInterval(positionAllTags, dynamicConfig.positioningInterval); // annoying cast beacause of Eclipse TypeScript
+  reportShortMidRangeTimer = setInterval(reportShortMidRangeData, Config.reportShortMidRangeInterval);
+  positioningTimer = setInterval(positionAllTags, dynamicConfig.positioningInterval);
 
   initExpress();
   var server = app.listen(serverPortNr, () => { util.log('Web server listening to port ' + serverPortNr);});
@@ -210,8 +210,8 @@ function initExpress() {
       File.writeConfigFile(Config.lucyConfigFilePath, result.config); // write the new config to the local config file
       dynamicConfig = Config.getDynamicConfig();                      // and update dynamicConfig
       // restart interval according to current interval from uploaded config
-      clearInterval(<any>positioningTimer);
-      positioningTimer = <any>setInterval(positionAllTags, dynamicConfig.positioningInterval); // annoying cast beacause of Eclipse TypeScript
+      clearInterval(positioningTimer);
+      positioningTimer = setInterval(positionAllTags, dynamicConfig.positioningInterval);
 
       initAntennaLayout(state.selectedAntennaLayoutNr); // incorporate new short/mid-range specs in antennaLayout
       html += 'Succesfully uploaded short/mid-range configuration from Synology NAS to Lucy server:<br/><br/>';
@@ -817,7 +817,7 @@ function reportShortMidRangeData() {
   });
 
   _(shortMidTagss).each(shortMidTags => {
-    var diColoreTagDistances :Shared.DiColoreTagDistances = {antennaName: shortMidTags.antennaName, tagDistances: shortMidTags.tagDistances};
+    var diColoreTagDistances : Shared.DiColoreTagDistances = {antennaName: shortMidTags.antennaName, tagDistances: shortMidTags.tagDistances};
     messageDiColoreTagDistances(shortMidTags.shortMidRangeIp, Config.diColoreShortMidPort, diColoreTagDistances);
   });
 }
