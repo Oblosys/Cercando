@@ -14,6 +14,7 @@
 
 // Global variables. TODO: put these in some kind of state object
 
+declare var debug : boolean;
 declare var refreshDelay : number;
 declare var scale : number;
 declare var origin : Shared.Coord;

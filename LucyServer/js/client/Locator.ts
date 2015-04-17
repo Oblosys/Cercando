@@ -13,23 +13,22 @@
 /// <reference path="../shared/Shared.ts" />
 /// <reference path="./ClientCommon.ts" />
 
-export interface Dummy {}; // Dummy export causes Eclipse-TypeScript to not put this file's declarations in the global namespace (code generation is not affected)
-
 $(document).ready(function(){
   initialize();
 });
 
-var debug = true;
-var floorHeight = 0;
-var floorWidth = 0;
+debug = true;
 
-var origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
-var scale = 80; // pixels per meter
+floorHeight = 0;
+floorWidth = 0;
+
+origin = {x: floorWidth/2, y: floorHeight/2}; // pixel coordinates for (0,0)
+scale = 80; // pixels per meter
 
 
-var refreshDelay = 200;
-var trailLength = 400;
-var allTagTrails = {}; // Object that has epc keys for Shared.Coord[] values (can't easily enforce this in TypeScript)
+refreshDelay = 200;
+trailLength = 400;
+allTagTrails = {}; // Object that has epc keys for Shared.Coord[] values (can't easily enforce this in TypeScript)
 
 var refreshInterval : number; // setInterval() returns a number
 var tagsServerInfo : Shared.TagsServerInfo;

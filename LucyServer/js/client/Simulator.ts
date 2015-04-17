@@ -13,8 +13,6 @@
 /// <reference path="../shared/Shared.ts" />
 /// <reference path="./ClientCommon.ts" />
 
-export interface Dummy {}; // Dummy export causes Eclipse-TypeScript to not put this file's declarations in the global namespace (code generation is not affected)
-
 $(document).ready(function(){
   initialize();
 });
