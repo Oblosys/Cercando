@@ -1,7 +1,10 @@
-// Type definitions for oblo-util 0.6.1
+// Type definitions for oblo-util v0.6.4
+// Project: https://github.com/Oblosys/oblo-util
 // Definitions by: Martijn Schrage <https://github.com/Oblosys/>
-/// <reference path="../jquery/jquery.d.ts" />
+// Definitions: https://github.com/borisyankov/DefinitelyTyped
 
+
+/// <reference path="../jquery/jquery.d.ts" />
 
 interface ObloUtilStatic {
   debug : boolean;
