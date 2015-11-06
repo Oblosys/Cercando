@@ -6,7 +6,6 @@
 /*******************************************************************************/
 
 /// <reference path="../typings/jquery/jquery.d.ts" />
-/// <reference path="../typings/backbone/backbone.d.ts" />
 /// <reference path="../typings/underscore/underscore.d.ts" />
 /// <reference path="../typings/node/node.d.ts" />
 /// <reference path="../typings/express/express.d.ts" />
@@ -34,7 +33,6 @@ import child_pr = require('child_process'); // for svn revision
 import util     = require('oblo-util');
 import fs       = require('fs');
 import url      = require('url');
-import Backbone = require('backbone');
 
 import _        = require('underscore');
 import path     = require('path');
