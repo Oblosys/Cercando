@@ -163,7 +163,7 @@ module Shared {
     return {
       status: {isConnected: false, isSaving: false, replayFileName: null},
       selectedAntennaLayoutNr: defaultAntennaLayoutNr,
-      liveTagsState: {mostRecentEventTimeMs: null, previousPositioningTimeMs: null, mostRecentEventTime: null, tagsData: []},
+      liveTagsState: {mostRecentEventTimeMs: null, previousPositioningTimeMs: null, tagsData: []},
       unknownAntennaIds: [],
       diColoreStatus: { locationServerOperational: false, shortMidRangeServers : [] }
     };
