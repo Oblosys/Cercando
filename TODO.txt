@@ -1,0 +1,2 @@
+hide db access from log
+show get index in log (to track origin of sessions)

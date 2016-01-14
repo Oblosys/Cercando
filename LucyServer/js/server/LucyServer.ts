@@ -152,7 +152,6 @@ function initExpress() {
                    } );
   });
 
-  // TODO: use post (and a https certificate)
   app.get('/query/login', function(req, res) {
     res.setHeader('content-type', 'application/json');
     var username = req.query.username;
