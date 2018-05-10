@@ -1,4 +1,4 @@
 Cercando
 ========
 
-Repository for the Cercando project
+For more information, see the [wiki](../../wiki).
