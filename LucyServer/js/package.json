@@ -9,7 +9,7 @@
   , "backbone": "1.x"
   , "socket.io": "0.9"
   , "oblo-util": ">=0.6.4"
-  , "jquery": "2.x"
+  , "jquery": "3.x"
   , "d3": "3.x"
   , "mysql": "2.x"
   , "line-by-line": "0.1.x"
