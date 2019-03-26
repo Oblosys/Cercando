@@ -1,13 +1,13 @@
-{ "name": "LucyServer"
+{ "name": "lucy-server"
 , "description": "Web server for the Lucy project"
 , "version": "0.1.0"
 , "private": true
-, "dependencies": 
+, "dependencies":
   { "connect": "2.x"
   , "express": "3.x"
   , "underscore": "1.x"
   , "backbone": "1.x"
-  , "socket.io": "0.9"
+  , "socket.io": "0.9.7"
   , "oblo-util": ">=0.6.4"
   , "jquery": "3.x"
   , "d3": "3.x"
